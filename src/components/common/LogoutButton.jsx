@@ -14,9 +14,9 @@ import {
   HStack,
   Text,
   Icon,
-  Divider,
+  useColorModeValue,
 } from '@chakra-ui/react';
-import { FaSignOutAlt, FaExclamationTriangle, FaTimes, FaShieldAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
 
@@ -25,6 +25,12 @@ const LogoutButton = ({ variant = 'ghost', size = 'md', ...props }) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
+
+  // Color mode values
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.800', 'white');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const mutedTextColor = useColorModeValue('gray.600', 'gray.400');
 
   const handleLogout = () => {
     // Clear any stored authentication data
@@ -58,8 +64,6 @@ const LogoutButton = ({ variant = 'ghost', size = 'md', ...props }) => {
         _hover={{
           bg: 'red.50',
           color: 'red.600',
-          transform: 'translateY(-1px)',
-          boxShadow: 'lg',
         }}
         transition="all 0.2s"
         {...props}
@@ -73,176 +77,70 @@ const LogoutButton = ({ variant = 'ghost', size = 'md', ...props }) => {
         onClose={onClose}
         motionPreset="slideInBottom"
       >
-        <AlertDialogOverlay
-          bg="blackAlpha.600"
-          backdropFilter="blur(10px)"
-        />
+        <AlertDialogOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
         <AlertDialogContent
           mx={4}
-          bg="white"
-          borderRadius="2xl"
-          boxShadow="2xl"
+          bg={bgColor}
+          borderRadius="xl"
+          boxShadow="xl"
           border="1px"
-          borderColor="gray.100"
-          overflow="hidden"
-          _dark={{
-            bg: 'gray.800',
-            borderColor: 'gray.700',
-          }}
-          maxW="500px"
+          borderColor={borderColor}
+          maxW="400px"
         >
-          {/* Modern Header */}
-          <Box
-            bgGradient="linear(135deg, purple.500 0%, blue.600 100%)"
-            p={8}
-            position="relative"
-            overflow="hidden"
-          >
-            {/* Decorative Elements */}
-            <Box
-              position="absolute"
-              top="-20px"
-              right="-20px"
-              w="100px"
-              h="100px"
-              bg="white"
-              opacity="0.1"
-              borderRadius="full"
-            />
-            <Box
-              position="absolute"
-              bottom="-30px"
-              left="-30px"
-              w="80px"
-              h="80px"
-              bg="white"
-              opacity="0.05"
-              borderRadius="full"
-            />
-            
-            <VStack spacing={4} align="center" position="relative" zIndex={1}>
+          <AlertDialogHeader pb={4}>
+            <HStack spacing={3}>
               <Box
-                p={4}
-                bg="white"
+                p={2}
+                bg="red.100"
                 borderRadius="full"
-                boxShadow="xl"
-                mb={2}
+                color="red.600"
               >
-                <Icon as={FaShieldAlt} color="purple.500" boxSize={8} />
+                <Icon as={FaExclamationTriangle} boxSize={5} />
               </Box>
-              <VStack spacing={2}>
-                <Text fontSize="2xl" fontWeight="bold" color="white" textAlign="center">
-                  Secure Logout
+              <VStack align="start" spacing={1}>
+                <Text fontSize="lg" fontWeight="semibold" color={textColor}>
+                  Confirm Logout
                 </Text>
-                <Text color="purple.100" fontSize="md" textAlign="center">
-                  Protect your account and data
+                <Text fontSize="sm" color={mutedTextColor}>
+                  Are you sure you want to logout?
                 </Text>
               </VStack>
-            </VStack>
-          </Box>
+            </HStack>
+          </AlertDialogHeader>
 
-          <AlertDialogBody p={8}>
-            <VStack spacing={6} align="start">
-              <Box
-                p={4}
-                bg="blue.50"
-                borderRadius="xl"
-                border="1px"
-                borderColor="blue.200"
-                w="full"
-                _dark={{
-                  bg: 'blue.900',
-                  borderColor: 'blue.700',
-                }}
-              >
-                <HStack spacing={3}>
-                  <Box
-                    p={2}
-                    bg="blue.100"
-                    borderRadius="full"
-                    _dark={{ bg: 'blue.800' }}
-                  >
-                    <Icon as={FaExclamationTriangle} color="blue.600" boxSize={4} />
-                  </Box>
-                  <VStack align="start" spacing={1}>
-                    <Text fontSize="md" fontWeight="semibold" color="blue.800" _dark={{ color: 'blue.200' }}>
-                      Session Security
-                    </Text>
-                    <Text fontSize="sm" color="blue.700" _dark={{ color: 'blue.300' }}>
-                      Your current session will be securely terminated and all data will be cleared from this device.
-                    </Text>
-                  </VStack>
-                </HStack>
-              </Box>
-
-              <VStack spacing={3} align="start" w="full">
-                <Text fontSize="lg" fontWeight="semibold" color="gray.800" _dark={{ color: 'white' }}>
-                  What happens when you logout?
-                </Text>
-                <VStack spacing={2} align="start" w="full">
-                  <HStack spacing={3}>
-                    <Box w={2} h={2} bg="purple.500" borderRadius="full" />
-                    <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                      All active sessions will be terminated
-                    </Text>
-                  </HStack>
-                  <HStack spacing={3}>
-                    <Box w={2} h={2} bg="purple.500" borderRadius="full" />
-                    <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                      Local data will be securely cleared
-                    </Text>
-                  </HStack>
-                  <HStack spacing={3}>
-                    <Box w={2} h={2} bg="purple.500" borderRadius="full" />
-                    <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                      You'll need to log in again to access your account
-                    </Text>
-                  </HStack>
-                </VStack>
-              </VStack>
-            </VStack>
+          <AlertDialogBody pb={6}>
+            <Text fontSize="sm" color={mutedTextColor}>
+              You will be signed out of your account and redirected to the login page.
+            </Text>
           </AlertDialogBody>
 
-          <Divider />
-
-          <AlertDialogFooter p={6}>
-            <HStack spacing={4} w="full">
+          <AlertDialogFooter>
+            <HStack spacing={3} w="full">
               <Button
                 ref={cancelRef}
                 onClick={onClose}
                 variant="outline"
                 flex={1}
-                leftIcon={<FaTimes />}
-                size="lg"
-                borderRadius="xl"
+                size="md"
+                borderRadius="lg"
                 _hover={{
                   bg: 'gray.50',
-                  transform: 'translateY(-1px)',
-                  boxShadow: 'md',
                 }}
-                transition="all 0.2s"
               >
-                Stay Logged In
+                Cancel
               </Button>
               <Button
-                colorScheme="purple"
+                colorScheme="red"
                 onClick={handleLogout}
                 flex={1}
                 leftIcon={<FaSignOutAlt />}
-                size="lg"
-                borderRadius="xl"
-                bgGradient="linear(135deg, purple.500 0%, blue.600 100%)"
+                size="md"
+                borderRadius="lg"
                 _hover={{
-                  bgGradient: "linear(135deg, purple.600 0%, blue.700 100%)",
-                  transform: 'translateY(-1px)',
-                  boxShadow: 'lg',
+                  bg: 'red.600',
                 }}
-                _active={{
-                  transform: 'translateY(0)',
-                }}
-                transition="all 0.2s"
               >
-                Logout Securely
+                Logout
               </Button>
             </HStack>
           </AlertDialogFooter>
