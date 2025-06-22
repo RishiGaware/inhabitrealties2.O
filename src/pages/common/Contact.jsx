@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaUser, FaRegCommentDots } from 'react-icons/fa';
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaUser, FaRegCommentDots, FaTwitter, FaFacebook, FaInstagram } from 'react-icons/fa';
 import { FiArrowLeft, FiLogIn, FiUserPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import useOnScreen from '../../hooks/useOnScreen';
@@ -42,29 +42,32 @@ const Contact = () => {
             }`}
           >
             <h2
-              className="text-3xl font-bold text-gray-900 mb-8"
+              className="text-3xl font-bold text-gray-900 mb-4"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Send us a Message
             </h2>
+            <p className="text-gray-600 mb-8" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Our team will get back to you within 24 hours.
+            </p>
             <form action="#" method="POST" className="space-y-8">
               <div>
                 <label htmlFor="name" className="block text-lg font-semibold text-gray-700 mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>Your Name</label>
-                <div className="flex items-center border-b-2 border-gray-200 py-2 focus-within:border-purple-600 transition-all duration-300">
+                <div className="flex items-center bg-gray-50 border-2 border-gray-200 rounded-lg p-3 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
                   <FaUser className="text-gray-400 mr-4" />
                   <input type="text" name="name" id="name" placeholder="John Doe" className="w-full bg-transparent border-none outline-none text-gray-800 text-lg" style={{ fontFamily: "'Inter', sans-serif" }} />
                 </div>
               </div>
               <div>
                 <label htmlFor="email" className="block text-lg font-semibold text-gray-700 mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>Your Email</label>
-                <div className="flex items-center border-b-2 border-gray-200 py-2 focus-within:border-purple-600 transition-all duration-300">
+                <div className="flex items-center bg-gray-50 border-2 border-gray-200 rounded-lg p-3 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
                   <FaEnvelope className="text-gray-400 mr-4" />
                   <input type="email" name="email" id="email" placeholder="you@example.com" className="w-full bg-transparent border-none outline-none text-gray-800 text-lg" style={{ fontFamily: "'Inter', sans-serif" }} />
                 </div>
               </div>
               <div>
                 <label htmlFor="message" className="block text-lg font-semibold text-gray-700 mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>Your Message</label>
-                <div className="flex items-start border-b-2 border-gray-200 py-2 focus-within:border-purple-600 transition-all duration-300">
+                <div className="flex items-start bg-gray-50 border-2 border-gray-200 rounded-lg p-3 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
                   <FaRegCommentDots className="text-gray-400 mr-4 mt-1" />
                   <textarea name="message" id="message" rows="5" placeholder="Your Message..." className="w-full bg-transparent border-none outline-none text-gray-800 text-lg resize-none" style={{ fontFamily: "'Inter', sans-serif" }}></textarea>
                 </div>
@@ -75,6 +78,14 @@ const Contact = () => {
                 </button>
               </div>
             </form>
+            <div className="mt-8 text-center">
+              <p className="text-gray-600 mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>Follow us on social media</p>
+              <div className="flex justify-center space-x-6">
+                <a href="#" className="text-gray-400 hover:text-purple-600 transition-colors"><FaTwitter size={24} /></a>
+                <a href="#" className="text-gray-400 hover:text-purple-600 transition-colors"><FaFacebook size={24} /></a>
+                <a href="#" className="text-gray-400 hover:text-purple-600 transition-colors"><FaInstagram size={24} /></a>
+              </div>
+            </div>
           </div>
 
           {/* Contact Information & Navigation */}

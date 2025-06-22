@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import loginImg from '../../assets/images/loginImage1.jpg';
+import logo from '../../assets/images/logo.png';
 import { FaUser, FaLock } from 'react-icons/fa';
-import loginImage from '../../assets/images/loginImage1.jpg';
-import logo from '../../assets/images/logown.png';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const NewLogin = () => {
   const [email, setEmail] = useState('');
@@ -22,72 +23,105 @@ const NewLogin = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 p-4">
-      <div className="flex w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden">
-        {/* Form section */}
-        <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center flex-grow">
-          <div className="w-full max-w-md mx-auto">
-            <img src={logo} alt="Logo" className="w-32 mb-6" />
-            <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-800">Welcome Back</h1>
-            <p className="font-light text-gray-500 mb-8">
-              Please enter your details to sign in.
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-5xl w-full mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        {/* Left Side - Image */}
+        <div className="hidden lg:block relative">
+          <img src={loginImg} alt="Luxury Home" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div className="absolute bottom-10 left-10 p-4">
+            <h2 className="text-4xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Find Your Exclusive<br/>Dream Home
+            </h2>
+            <p className="mt-4 text-gray-200 max-w-md" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Step into a world of luxury and comfort.
             </p>
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">Email</label>
-                <div className="flex items-center border border-gray-300 rounded-lg p-3 focus-within:ring-2 focus-within:ring-purple-500 transition-all duration-300">
-                  <FaUser className="text-gray-400 mr-3" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none text-gray-700"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">Password</label>
-                <div className="flex items-center border border-gray-300 rounded-lg p-3 focus-within:ring-2 focus-within:ring-purple-500 transition-all duration-300">
-                  <FaLock className="text-gray-400 mr-3" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none text-gray-700"
-                    placeholder="Enter your password"
-                  />
-                </div>
-              </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center">
-                  <input type="checkbox" name="remember" className="mr-2 h-4 w-4 rounded text-purple-600 focus:ring-purple-500" />
-                  <span className="text-gray-600">Remember me</span>
-                </label>
-                <a href="#" className="font-semibold text-purple-600 hover:text-purple-800">Forgot Password?</a>
-              </div>
-              <button
-                type="submit"
-                style={{ backgroundColor: 'var(--light-primary)' }}
-                className="w-full text-white p-3 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity"
-              >
-                Sign In
-              </button>
-            </form>
-            <div className="text-center text-gray-500 mt-8">
-              Don't have an account?
-              <Link to="/register" className="font-bold text-purple-600 hover:text-purple-800 ml-2">Sign up for free</Link>
-            </div>
           </div>
         </div>
-        {/* Image section */}
-        <div className="hidden md:block md:w-1/2">
-          <img
-            src={loginImage}
-            alt="Real Estate"
-            className="w-full h-full object-cover"
-          />
+
+        {/* Right Side - Form */}
+        <div className="p-6 sm:p-10 flex flex-col justify-center">
+          <div className="w-full max-w-md mx-auto">
+            <div className="flex justify-center mb-6">
+              <img src={logo} alt="Inhabit Realties" className="h-14 sm:h-16" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Welcome Back
+            </h2>
+            <p className="text-center text-gray-500 mb-8 text-sm sm:text-base" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Sign in to continue your journey.
+            </p>
+
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <label htmlFor="email" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Username
+                </label>
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                  <FaUser className="text-gray-400 mx-2" />
+                  <input
+                    type="text"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your_username"
+                    className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-gray-600" style={{ fontFamily: "'Inter', sans-serif" }}>
+                    Password
+                  </label>
+                  <Link to="/forgot-password" className="text-xs sm:text-sm font-semibold text-purple-600 hover:text-purple-800 transition-colors" style={{ fontFamily: "'Inter', sans-serif" }}>
+                    Forgot Password?
+                  </Link>
+                </div>
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                  <FaLock className="text-gray-400 mx-2" />
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  />
+                </div>
+                {error && <p className="text-red-500 text-xs sm:text-sm mt-2">{error}</p>}
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 text-white font-bold text-base py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  Log In
+                </button>
+              </div>
+            </form>
+
+            <p className="text-center text-gray-500 mt-8 text-sm sm:text-base" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Don't have an account?{' '}
+              <Link to="/register" className="font-bold text-purple-600 hover:text-purple-800 transition-colors">
+                Register
+              </Link>
+            </p>
+
+            <div className="mt-4 text-center">
+              <Link to="/" className="text-xs sm:text-sm font-semibold text-gray-500 hover:text-purple-700 transition-colors flex items-center justify-center">
+                <FiArrowLeft className="mr-1" />
+                Back to Home
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

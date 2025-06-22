@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
-import loginImage from '../../assets/images/loginImage1.jpg';
-import logo from '../../assets/images/logown.png';
+import { useNavigate, Link } from 'react-router-dom';
+import registerImg from '../../assets/images/loginImage1.jpg';
+import logo from '../../assets/images/logo.png';
+import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const NewRegister = () => {
   const [name, setName] = useState('');
@@ -28,96 +29,141 @@ const NewRegister = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 p-4">
-      <div className="flex w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden">
-        {/* Form section */}
-        <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center flex-grow">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-5xl w-full mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        {/* Left Side - Form */}
+        <div className="p-6 sm:p-10 flex flex-col justify-center order-2 lg:order-1">
           <div className="w-full max-w-md mx-auto">
-            <img src={logo} alt="Logo" className="w-32 mb-6" />
-            <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-800">Create an Account</h1>
-            <p className="font-light text-gray-500 mb-8">
-              Let's get started with your free account.
+            <div className="flex justify-center mb-6">
+              <img src={logo} alt="Inhabit Realties" className="h-14 sm:h-16" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Create Your Account
+            </h2>
+            <p className="text-center text-gray-500 mb-8 text-sm sm:text-base" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Join us and find your perfect home.
             </p>
-            <form onSubmit={handleRegister} className="space-y-6">
+
+            <form onSubmit={handleRegister} className="space-y-4">
               <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">Full Name</label>
-                <div className="flex items-center border border-gray-300 rounded-lg p-3 focus-within:ring-2 focus-within:ring-purple-500 transition-all duration-300">
-                  <FaUser className="text-gray-400 mr-3" />
+                <label htmlFor="name" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Full Name
+                </label>
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                  <FaUser className="text-gray-400 mx-2" />
                   <input
                     type="text"
+                    id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none text-gray-700"
                     placeholder="John Doe"
+                    className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                    autoFocus
                   />
                 </div>
               </div>
+
               <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">Email</label>
-                <div className="flex items-center border border-gray-300 rounded-lg p-3 focus-within:ring-2 focus-within:ring-purple-500 transition-all duration-300">
-                  <FaEnvelope className="text-gray-400 mr-3" />
+                <label htmlFor="email" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Email Address
+                </label>
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                  <FaEnvelope className="text-gray-400 mx-2" />
                   <input
                     type="email"
+                    id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none text-gray-700"
                     placeholder="you@example.com"
+                    className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
                   />
                 </div>
               </div>
+
               <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">Password</label>
-                <div className="flex items-center border border-gray-300 rounded-lg p-3 focus-within:ring-2 focus-within:ring-purple-500 transition-all duration-300">
-                  <FaLock className="text-gray-400 mr-3" />
+                <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Password
+                </label>
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                  <FaLock className="text-gray-400 mx-2" />
                   <input
                     type="password"
+                    id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none text-gray-700"
-                    placeholder="Enter your password"
+                    placeholder="••••••••"
+                    className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
                   />
                 </div>
               </div>
-               <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">Confirm Password</label>
-                <div className="flex items-center border border-gray-300 rounded-lg p-3 focus-within:ring-2 focus-within:ring-purple-500 transition-all duration-300">
-                  <FaLock className="text-gray-400 mr-3" />
+              
+              <div>
+                <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Confirm Password
+                </label>
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                  <FaLock className="text-gray-400 mx-2" />
                   <input
                     type="password"
+                    id="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none text-gray-700"
-                    placeholder="Confirm your password"
+                    placeholder="••••••••"
+                    className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
                   />
                 </div>
               </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
 
-              <button
-                type="submit"
-                style={{ backgroundColor: 'var(--light-primary)' }}
-                className="w-full text-white p-3 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity mt-8"
-              >
-                Sign Up
-              </button>
+              {error && <p className="text-red-500 text-xs sm:text-sm mt-2 text-center">{error}</p>}
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 text-white font-bold text-base py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  Create Account
+                </button>
+              </div>
             </form>
-            <div className="text-center text-gray-500 mt-8">
-              Already have an account?
-              <Link to="/login" className="font-bold text-purple-600 hover:text-purple-800 ml-2">Sign In</Link>
+
+            <p className="text-center text-gray-500 mt-8 text-sm sm:text-base" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Already have an account?{' '}
+              <Link to="/login" className="font-bold text-purple-600 hover:text-purple-800 transition-colors">
+                Log In
+              </Link>
+            </p>
+
+            <div className="mt-4 text-center">
+              <Link to="/" className="text-xs sm:text-sm font-semibold text-gray-500 hover:text-purple-700 transition-colors flex items-center justify-center">
+                <FiArrowLeft className="mr-1" />
+                Back to Home
+              </Link>
             </div>
           </div>
         </div>
-        {/* Image section */}
-        <div className="hidden md:block md:w-1/2">
-          <img
-            src={loginImage}
-            alt="Real Estate"
-            className="w-full h-full object-cover"
-          />
+        
+        {/* Right Side - Image */}
+        <div className="hidden lg:block relative order-1 lg:order-2">
+          <img src={registerImg} alt="Modern Interior" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div className="absolute bottom-10 left-10 text-white p-4">
+            <h2 className="text-4xl font-black" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Your New Beginning<br/>Starts Here
+            </h2>
+            <p className="mt-4 text-gray-200 max-w-md" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Exceptional properties for an exceptional life.
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default NewRegister; 
+export default NewRegister;
