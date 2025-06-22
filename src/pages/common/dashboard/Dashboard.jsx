@@ -212,7 +212,7 @@ const Dashboard = () => {
               <Text fontSize="3xl" fontWeight="bold" color={textColor}>
                 {value}
               </Text>
-              {change && (
+          {change && (
                 <HStack spacing={1}>
                   <Icon
                     as={change > 0 ? FaArrowUp : FaArrowDown}
@@ -349,7 +349,7 @@ const Dashboard = () => {
           animate="visible"
         >
           <VStack spacing={8} align="stretch">
-            {/* Header */}
+      {/* Header */}
             <motion.div variants={itemVariants}>
               <Card
                 bg={cardBg}
@@ -398,67 +398,67 @@ const Dashboard = () => {
               </Card>
             </motion.div>
 
-            {/* Statistics Grid */}
+      {/* Statistics Grid */}
             <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={6}>
               <GridItem>
-                <StatCard
-                  title="Total Properties"
-                  value={stats.totalProperties}
+        <StatCard
+          title="Total Properties"
+          value={stats.totalProperties}
                   icon={FaBuilding}
-                  change={12}
+          change={12}
                   gradient="linear(to-r, blue.500, blue.600)"
-                />
+        />
               </GridItem>
               <GridItem>
-                <StatCard
-                  title="Total Leads"
-                  value={stats.totalLeads}
+        <StatCard
+          title="Total Leads"
+          value={stats.totalLeads}
                   icon={BiUserPlus}
-                  change={8}
+          change={8}
                   gradient="linear(to-r, green.500, green.600)"
-                />
+        />
               </GridItem>
               <GridItem>
-                <StatCard
-                  title="Total Customers"
-                  value={stats.totalCustomers}
+        <StatCard
+          title="Total Customers"
+          value={stats.totalCustomers}
                   icon={FaUsers}
-                  change={15}
+          change={15}
                   gradient="linear(to-r, purple.500, purple.600)"
-                />
+        />
               </GridItem>
               <GridItem>
-                <StatCard
-                  title="Total Bookings"
-                  value={stats.totalBookings}
+        <StatCard
+          title="Total Bookings"
+          value={stats.totalBookings}
                   icon={MdInventory}
-                  change={-3}
+          change={-3}
                   gradient="linear(to-r, orange.500, orange.600)"
-                />
+        />
               </GridItem>
               <GridItem>
-                <StatCard
-                  title="Total Revenue"
-                  value={formatCurrency(stats.totalRevenue)}
+        <StatCard
+          title="Total Revenue"
+          value={formatCurrency(stats.totalRevenue)}
                   icon={FaMoneyBillWave}
-                  change={22}
+          change={22}
                   gradient="linear(to-r, green.600, green.700)"
-                />
+        />
               </GridItem>
               <GridItem>
-                <StatCard
-                  title="Pending Payments"
-                  value={stats.pendingPayments}
+        <StatCard
+          title="Pending Payments"
+          value={stats.pendingPayments}
                   icon={FaCalendarAlt}
-                  change={-5}
+          change={-5}
                   gradient="linear(to-r, red.500, red.600)"
-                />
+        />
               </GridItem>
             </Grid>
 
-            {/* Recent Activities and Quick Actions */}
+      {/* Recent Activities and Quick Actions */}
             <Grid templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }} gap={6}>
-              {/* Recent Activities */}
+        {/* Recent Activities */}
               <motion.div variants={itemVariants}>
                 <Card
                   bg={cardBg}
@@ -485,7 +485,7 @@ const Dashboard = () => {
                 </Card>
               </motion.div>
 
-              {/* Quick Actions */}
+        {/* Quick Actions */}
               <motion.div variants={itemVariants}>
                 <Card
                   bg={cardBg}
@@ -529,7 +529,7 @@ const Dashboard = () => {
               </motion.div>
             </Grid>
 
-            {/* Performance Overview */}
+      {/* Performance Overview */}
             <motion.div variants={itemVariants}>
               <Card
                 bg={cardBg}

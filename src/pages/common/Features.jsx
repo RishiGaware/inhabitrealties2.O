@@ -19,16 +19,22 @@ const FeatureCard = ({ stat, index }) => {
       }`}
       style={{ 
         transitionDelay: `${index * 200}ms`,
-        fontFamily: "'Inter', sans-serif"
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        borderRadius: '1rem',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        transform: isCardVisible ? 'scale(1)' : 'scale(0.95)',
+        opacity: isCardVisible ? 1 : 0
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300"
+           style={{ borderRadius: '1rem' }}></div>
       <div className="relative z-10">
-        <div className="flex items-center justify-center h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl p-4">
+        <div className="flex items-center justify-center h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl p-4"
+             style={{ borderRadius: '1rem' }}>
           {stat.icon}
         </div>
         <p className="text-4xl font-black leading-none text-gray-900 mb-3" 
-           style={{ fontFamily: "'Playfair Display', serif" }}>
+           style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
           {stat.value}
         </p>
         <p className="text-lg font-semibold text-gray-700 leading-relaxed">{stat.label}</p>
@@ -41,14 +47,19 @@ const Features = () => {
   const [headingRef, isVisible] = useOnScreen({ threshold: 0.3 });
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 py-20 sm:py-24">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 py-20 sm:py-24"
+         style={{ background: 'linear-gradient(to bottom right, #f9fafb, #f3f4f6)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={headingRef} className="max-w-3xl mx-auto lg:text-center">
           <h2
             className={`text-lg text-purple-600 font-bold tracking-wider uppercase transition-all duration-700 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
-            style={{ fontFamily: "'Inter', sans-serif" }}
+            style={{ 
+              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(5px)'
+            }}
           >
             Why Choose Us
           </h2>
@@ -56,7 +67,11 @@ const Features = () => {
             className={`mt-4 text-4xl leading-tight font-black tracking-tight text-gray-900 sm:text-5xl lg:text-6xl transition-all duration-700 delay-200 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            style={{ 
+              fontFamily: "'Playfair Display', Georgia, serif",
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(5px)'
+            }}
           >
             Find Real Estate That Suits You
           </p>
@@ -64,7 +79,11 @@ const Features = () => {
             className={`mt-6 text-xl text-gray-600 leading-relaxed transition-all duration-700 delay-300 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
-            style={{ fontFamily: "'Inter', sans-serif" }}
+            style={{ 
+              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(5px)'
+            }}
           >
             Experience a seamless and transparent real estate journey with our dedicated team of experts. 
             We are committed to helping you find the perfect property that meets your needs and exceeds your expectations.
