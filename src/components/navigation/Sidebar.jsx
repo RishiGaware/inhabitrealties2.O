@@ -16,55 +16,36 @@ const Sidebar = ({ open, setOpen, subMenus, toggleSubMenu, isMobile }) => {
   const Menus = [
     { title: "Dashboard", icon: <MdSpaceDashboard />, key: "dashboard" },
     {
-        title: "Admin",
+      title: "Admin",
       icon: <FaUsers />, 
       gap: true,
-      subMenu: [
-        "User Management",
-        "Role Management",
-        "Reports"
-      ],
+      subMenu: ["User Management", "Role Management", "Reports"],
       key: "admin"
     },
     {
-        title: "Property",
+      title: "Property",
       icon: <FaBuilding />,
-      subMenu: [
-        "Property Master",
-        "Property Types"
-      ],
+      subMenu: ["Property Master", "Property Types"],
       key: "property"
     },
     {
-        title: "Lead Management",
+      title: "Lead Management",
       icon: <BiUserPlus />,
-      subMenu: [
-        "Add Lead",
-        "View Leads",
-        "Lead Qualification"
-      ],
+      subMenu: ["Add Lead", "View Leads", "Lead Qualification"],
       key: "leads"
     },
     {
-        title: "Customer Management",
+      title: "Customer Management",
       icon: <BiUser />,
-      subMenu: [
-        "Customer Profiles",
-        "Documents",
-        "Site Visits"
-      ],
+      subMenu: ["Customer Profiles", "Documents", "Site Visits"],
       key: "customers"
     },
     
     // Sales Module
     {
-        title: "Sales Management",
+      title: "Sales Management",
       icon: <FaMoneyBillWave />,
-      subMenu: [
-        "Sales List",
-        "Pending Payments",
-        "Sales Reports"
-        ],
+      subMenu: ["Sales List", "Pending Payments", "Sales Reports"],
       key: "sales"
     },
     {
@@ -133,6 +114,64 @@ const Sidebar = ({ open, setOpen, subMenus, toggleSubMenu, isMobile }) => {
     { title: "Settings", icon: <FaCog />, gap: true, key: "settings" },
   ];
 
+  const routeMap = {
+    'dashboard': '/dashboard',
+    'admin': {
+      'user-management': '/admin/user-management',
+      'role-management': '/admin/role-management',
+      'reports': '/admin/reports'
+    },
+    'property': {
+      'property-master': '/property/property-master',
+      'property-types': '/property/property-types'
+    },
+    'leads': {
+      'add-lead': '/lead/add',
+      'view-leads': '/lead/view',
+      'lead-qualification': '/lead/qualification'
+    },
+    'customers': {
+      'customer-profiles': '/customers/profiles',
+      'documents': '/customers/documents',
+      'site-visits': '/customers/site-visits'
+    },
+    'sales': {
+      'sales-list': '/admin/sales/list',
+      'pending-payments': '/admin/sales/pending-payments',
+      'sales-reports': '/admin/sales/reports'
+    },
+    'bookings': {
+      'inventory': '/bookings/inventory',
+      'booked-units': '/bookings/booked-units',
+      'payment-status': '/bookings/payment-status'
+    },
+    'payments': {
+      'installments': '/payments/installments',
+      'payment-history': '/payments/payment-history',
+      'due-payments': '/payments/due-payments'
+    },
+    'rent': {
+      'rent-roll': '/rent/rent-roll',
+      'lease-management': '/rent/lease-management'
+    },
+    'accounting': {
+      'expense-tracking': '/admin/accounting/expense-tracking',
+      'income-statement': '/admin/accounting/income-statement'
+    },
+    'postSale': {
+      'referrals': '/post-sale/referrals',
+      'rewards': '/post-sale/rewards',
+      'points': '/post-sale/points'
+    },
+    'client': {
+      'my-bookings': '/client/my-bookings',
+      'documents': '/client/documents',
+      'payments': '/client/payments',
+      'referrals': '/client/referrals'
+    },
+    'settings': '/settings',
+  };
+
   // Helper to convert to kebab-case
   const toKebab = str => str && str.toLowerCase().replace(/ /g, '-');
 
@@ -171,103 +210,30 @@ const Sidebar = ({ open, setOpen, subMenus, toggleSubMenu, isMobile }) => {
   }, [location, toggleSubMenu, subMenus]);
 
   const handleMenuClick = (menu) => {
-    const menuKey = toKebab(menu.key);
+    const menuKey = menu.key;
     if (!menu.subMenu) {
-      setSelectedMenu(menuKey);
-      setSelectedSubMenu('');
-      
-      // Handle main menu routes
-      const mainMenuRoutes = {
-        'dashboard': '/dashboard',
-        'settings': '/settings'
-      };
-      
-      const route = mainMenuRoutes[menuKey];
-      if (route) {
+      const route = routeMap[menuKey];
+      if (typeof route === 'string') {
         navigate(route);
-      } else {
-        navigate(`/${menuKey}`);
+        setSelectedMenu(menuKey);
+        setSelectedSubMenu('');
       }
-        } else {
+    } else {
       toggleSubMenu(menu.key);
       setSelectedMenu(menuKey);
     }
   };
 
   const handleSubMenuClick = (menu, subMenu) => {
-    const menuKey = toKebab(menu.key);
+    const menuKey = menu.key;
     const subMenuKey = toKebab(subMenu);
-    setSelectedMenu(menuKey);
-    setSelectedSubMenu(subMenuKey);
-    // Ensure the parent menu stays expanded
-    if (!subMenus[menu.key]) {
-      toggleSubMenu(menu.key);
+    const path = routeMap[menuKey]?.[subMenuKey];
+    if (path) {
+      navigate(path);
+      setSelectedMenu(menuKey);
+      setSelectedSubMenu(subMenuKey);
     }
-    
-    // Map menu items to their correct routes
-    const routeMap = {
-      'admin': {
-        'user-management': '/admin/user-management',
-        'role-management': '/admin/role-management',
-        'reports': '/admin/reports'
-      },
-      'property': {
-        'property-master': '/property/property-master',
-        'property-types': '/property/property-types'
-      },
-      'leads': {
-        'add-lead': '/lead/add',
-        'view-leads': '/lead/view',
-        'lead-qualification': '/lead/qualification'
-      },
-      'customers': {
-        'customer-profiles': '/customers/profiles',
-        'documents': '/customers/documents',
-        'site-visits': '/customers/site-visits'
-      },
-      'sales': {
-        'sales-list': '/admin/sales/list',
-        'pending-payments': '/admin/sales/pending-payments',
-        'sales-reports': '/admin/sales/reports'
-      },
-      'bookings': {
-        'inventory': '/bookings/inventory',
-        'booked-units': '/bookings/booked-units',
-        'payment-status': '/bookings/payment-status'
-      },
-      'payments': {
-        'installments': '/payments/installments',
-        'payment-history': '/payments/payment-history',
-        'due-payments': '/payments/due-payments'
-      },
-      'rent': {
-        'rent-roll': '/rent/rent-roll',
-        'lease-management': '/rent/lease-management'
-      },
-      'accounting': {
-        'expense-tracking': '/admin/accounting/expense-tracking',
-        'income-statement': '/admin/accounting/income-statement'
-      },
-      'postSale': {
-        'referrals': '/post-sale/referrals',
-        'rewards': '/post-sale/rewards',
-        'points': '/post-sale/points'
-      },
-      'client': {
-        'my-bookings': '/client/my-bookings',
-        'documents': '/client/documents',
-        'payments': '/client/payments',
-        'referrals': '/client/referrals'
-      }
-    };
-    
-    const route = routeMap[menu.key]?.[subMenuKey];
-    if (route) {
-      navigate(route);
-    } else {
-      navigate(`/${menuKey}/${subMenuKey}`);
-        }
-    };
+  };
 
     return (
     <>

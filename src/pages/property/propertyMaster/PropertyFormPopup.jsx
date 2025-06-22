@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import FloatingInput from '../../../components/common/FloatingInput';
+import { Box, Heading, Flex, Grid, Button } from '@chakra-ui/react';
+import CommonCard from '../../../components/common/Card/CommonCard';
+import FloatingInput from '../../../components/common/floatingInput/FloatingInput';
 
 const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialData = null }) => {
   const [formData, setFormData] = useState(initialData || {
@@ -55,24 +57,51 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm"></div>
-      <div className="relative bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <button
+    <Box
+      position="fixed"
+      inset={0}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      zIndex={50}
+    >
+      <Box
+        position="fixed"
+        inset={0}
+        bg="blackAlpha.200"
+        backdropFilter="blur(4px)"
+      />
+      <CommonCard
+        position="relative"
+        p={6}
+        w="full"
+        maxW="4xl"
+        maxH="90vh"
+        overflowY="auto"
+        shadow="xl"
+      >
+        <Button
+          position="absolute"
+          top={4}
+          right={4}
+          color="gray.500"
+          _hover={{ color: 'gray.700' }}
+          variant="ghost"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-base"
         >
           <FaTimes size={20} />
-        </button>
+        </Button>
 
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Add Property Details</h2>
-        </div>
+        <Box mb={6}>
+          <Heading size="lg" color="gray.900">
+            Add Property Details
+          </Heading>
+        </Box>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <Box as="form" onSubmit={handleSubmit}>
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+          <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mb={6}>
+            <Box>
               <FloatingInput
                 type="text"
                 id="name"
@@ -82,15 +111,22 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+            </Box>
+            <Box>
+              <Box as="label" display="block" color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
                 Choose Type
-              </label>
+              </Box>
               <select
                 value={formData.propertyTypeId}
                 onChange={(e) => setFormData({ ...formData, propertyTypeId: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  color: '#1a202c'
+                }}
                 required
               >
                 <option value="">Select Property Type</option>
@@ -100,11 +136,11 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                   </option>
                 ))}
               </select>
-            </div>
-          </div>
+            </Box>
+          </Grid>
 
           {/* Description */}
-          <div>
+          <Box mb={6}>
             <FloatingInput
               type="text"
               id="description"
@@ -114,12 +150,14 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               required
             />
-          </div>
+          </Box>
 
           {/* Address */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Address</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Box mb={6}>
+            <Heading size="md" color="gray.900" mb={4}>
+              Address
+            </Heading>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4} mb={4}>
               <FloatingInput
                 type="text"
                 id="street"
@@ -144,8 +182,8 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 })}
                 required
               />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            </Grid>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mb={4}>
               <FloatingInput
                 type="text"
                 id="city"
@@ -182,7 +220,7 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 })}
                 required
               />
-            </div>
+            </Grid>
             <FloatingInput
               type="text"
               id="country"
@@ -195,12 +233,14 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               })}
               required
             />
-          </div>
+          </Box>
 
           {/* Location */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Location</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Box mb={6}>
+            <Heading size="md" color="gray.900" mb={4}>
+              Location
+            </Heading>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
               <FloatingInput
                 type="number"
                 id="latitude"
@@ -229,51 +269,65 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                   }
                 })}
               />
-            </div>
-          </div>
+            </Grid>
+          </Box>
 
           {/* Owner Details */}
-          <div>
-            <h3 className="text-lg font-bold text-gray-900">Owner Details</h3>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <Box mb={6}>
+            <Heading size="md" color="gray.900" mb={4}>
+              Owner Details
+            </Heading>
+            <Box>
+              <Box as="label" display="block" color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
                 Choose Owner
-              </label>
+              </Box>
               <select
                 value={formData.owner}
                 onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  color: '#1a202c'
+                }}
                 required
               >
                 <option value="">Select Owner</option>
                 <option value="owner1">Owner 1</option>
                 <option value="owner2">Owner 2</option>
+                <option value="owner3">Owner 3</option>
               </select>
-            </div>
-          </div>
+            </Box>
+          </Box>
 
           {/* Price and Status */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Price
-              </label>
-              <input
-                type="number"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Choose Status
-              </label>
+          <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mb={6}>
+            <FloatingInput
+              type="number"
+              id="price"
+              name="price"
+              label="Price"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              required
+            />
+            <Box>
+              <Box as="label" display="block" color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
+                Property Status
+              </Box>
               <select
                 value={formData.propertyStatus}
                 onChange={(e) => setFormData({ ...formData, propertyStatus: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  color: '#1a202c'
+                }}
                 required
               >
                 {statusOptions.map((status) => (
@@ -282,18 +336,20 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                   </option>
                 ))}
               </select>
-            </div>
-          </div>
+            </Box>
+          </Grid>
 
           {/* Features */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Features Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Box mb={6}>
+            <Heading size="md" color="gray.900" mb={4}>
+              Features
+            </Heading>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mb={4}>
               <FloatingInput
                 type="number"
                 id="bedRooms"
                 name="bedRooms"
-                label="Bedroom Count"
+                label="Bedrooms"
                 value={formData.features.bedRooms}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -305,7 +361,7 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 type="number"
                 id="bathRooms"
                 name="bathRooms"
-                label="Bathroom Count"
+                label="Bathrooms"
                 value={formData.features.bathRooms}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -317,7 +373,7 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 type="number"
                 id="areaInSquarFoot"
                 name="areaInSquarFoot"
-                label="Area (sq.ft)"
+                label="Area (sq ft)"
                 value={formData.features.areaInSquarFoot}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -325,68 +381,56 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 })}
                 required
               />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
+            </Grid>
+            <Box>
+              <Box as="label" display="block" color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
                 Amenities
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              </Box>
+              <Grid templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }} gap={2}>
                 {amenitiesOptions.map((amenity) => (
-                  <label key={amenity} className="flex items-center space-x-2">
+                  <Box key={amenity} display="flex" alignItems="center" gap={2}>
                     <input
                       type="checkbox"
+                      id={amenity}
                       checked={formData.features.amenities.includes(amenity)}
                       onChange={(e) => {
-                        const updatedAmenities = e.target.checked
+                        const newAmenities = e.target.checked
                           ? [...formData.features.amenities, amenity]
                           : formData.features.amenities.filter(a => a !== amenity);
                         setFormData({
                           ...formData,
-                          features: { ...formData.features, amenities: updatedAmenities }
+                          features: { ...formData.features, amenities: newAmenities }
                         });
                       }}
-                      className="rounded text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">{amenity}</span>
-                  </label>
+                    <Box as="label" htmlFor={amenity} fontSize="sm" color="gray.700">
+                      {amenity}
+                    </Box>
+                  </Box>
                 ))}
-              </div>
-            </div>
-          </div>
+              </Grid>
+            </Box>
+          </Box>
 
-          {/* Listed Date */}
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Select Date
-            </label>
-            <input
-              type="date"
-              value={formData.listedDate}
-              onChange={(e) => setFormData({ ...formData, listedDate: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end gap-4">
-            <button
+          {/* Submit Buttons */}
+          <Flex justify="end" gap={3}>
+            <Button
               type="button"
+              variant="outline"
               onClick={onClose}
-              className="px-6 py-2 text-sm text-gray-600 hover:text-gray-800"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+              colorScheme="brand"
             >
-              Submit
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              {initialData ? 'Update Property' : 'Add Property'}
+            </Button>
+          </Flex>
+        </Box>
+      </CommonCard>
+    </Box>
   );
 };
 

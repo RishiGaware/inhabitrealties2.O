@@ -1,216 +1,130 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  HStack,
-  Text,
-  Button,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Badge,
-  Icon,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  FormControl,
-  FormLabel,
-  Input,
-  Select,
-} from '@chakra-ui/react';
-import { FiCalendar, FiPlus, FiCheck, FiX } from 'react-icons/fi';
+import { Box, Heading, Flex, Button, Tag, Text } from '@chakra-ui/react';
+import { FaArrowLeft, FaCalendar, FaMapMarkerAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import CommonCard from '../../components/common/Card/CommonCard';
+import CommonTable from '../../components/common/Table/CommonTable';
 
 const SiteVisits = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedLead, setSelectedLead] = useState('');
-  const [selectedProperty, setSelectedProperty] = useState('');
-  const [visitDate, setVisitDate] = useState('');
-
-  // Sample data - replace with API call
-  const [visits] = useState([
+  const navigate = useNavigate();
+  const [siteVisits, setSiteVisits] = useState([
     {
-      visitId: "VISIT123",
-      leadId: "LEAD123",
-      propertyId: "PROP1001",
-      scheduledDate: "2025-06-03T10:30:00Z",
-      status: "Scheduled",
-      visited: false,
-      notes: "Requested morning slot"
+      _id: '1',
+      customerName: 'Ravi Patel',
+      propertyName: 'Rishi Villa',
+      scheduledDate: '2023-12-15',
+      scheduledTime: '10:00 AM',
+      status: 'Scheduled',
+      agent: 'John Smith',
+      location: 'Ahmedabad'
+    },
+    {
+      _id: '2',
+      customerName: 'Sneha Shah',
+      propertyName: 'Luxury Apartment',
+      scheduledDate: '2023-12-16',
+      scheduledTime: '2:00 PM',
+      status: 'Completed',
+      agent: 'Jane Doe',
+      location: 'Mumbai'
     }
   ]);
 
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case 'scheduled':
-        return 'blue';
-      case 'completed':
-        return 'green';
-      case 'cancelled':
-        return 'red';
-      default:
-        return 'gray';
+  const handleStatusChange = (visitId, newStatus) => {
+    setSiteVisits(visits => 
+      visits.map(visit => 
+        visit._id === visitId 
+          ? { ...visit, status: newStatus }
+          : visit
+      )
+    );
+  };
+
+  const columns = [
+    { key: 'customerName', label: 'Customer Name' },
+    { key: 'propertyName', label: 'Property' },
+    { key: 'scheduledDate', label: 'Date' },
+    { key: 'scheduledTime', label: 'Time' },
+    { key: 'agent', label: 'Agent' },
+    { key: 'location', label: 'Location' },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (status) => (
+        <Tag 
+          colorScheme={
+            status === 'Completed' ? 'green' : 
+            status === 'Scheduled' ? 'blue' : 
+            status === 'Cancelled' ? 'red' : 'orange'
+          }
+        >
+          {status}
+        </Tag>
+      )
     }
-  };
-
-  // Sample data - replace with API calls
-  const leads = [
-    { id: 'LEAD123', name: 'Ravi Patel' }
   ];
 
-  const properties = [
-    { id: 'PROP1001', name: '3BHK Apartment - Green Valley' }
-  ];
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: Implement visit scheduling logic
-    console.log('Scheduling visit:', {
-      leadId: selectedLead,
-      propertyId: selectedProperty,
-      scheduledDate: visitDate
-    });
-    onClose();
-  };
+  const renderRowActions = (visit) => (
+    <Flex gap={2}>
+      <Button
+        size="sm"
+        colorScheme="green"
+        onClick={() => handleStatusChange(visit._id, 'Completed')}
+        isDisabled={visit.status === 'Completed'}
+      >
+        Complete
+      </Button>
+      <Button
+        size="sm"
+        colorScheme="red"
+        variant="outline"
+        onClick={() => handleStatusChange(visit._id, 'Cancelled')}
+        isDisabled={visit.status === 'Cancelled'}
+      >
+        Cancel
+      </Button>
+    </Flex>
+  );
 
   return (
-    <Box p={6}>
-      <HStack justify="space-between" mb={6}>
-        <Text fontSize="2xl" fontWeight="medium">
-          Site Visits
-        </Text>
+    <Box p={5}>
+      <Flex justify="space-between" align="center" mb={6}>
+        <Flex align="center">
+          <Button
+            leftIcon={<FaArrowLeft />}
+            variant="ghost"
+            colorScheme="gray"
+            onClick={() => navigate('/customers/profiles')}
+            mr={4}
+          >
+            Back
+          </Button>
+          <Heading as="h1" variant="pageTitle">
+            Site Visits
+          </Heading>
+        </Flex>
         <Button
-          leftIcon={<Icon as={FiPlus} />}
-          colorScheme="blue"
-          onClick={onOpen}
+          leftIcon={<FaCalendar />}
+          colorScheme="brand"
+          onClick={() => console.log('Schedule new site visit')}
         >
           Schedule Visit
         </Button>
-      </HStack>
+      </Flex>
 
-      <Box
-        bg="white"
-        borderRadius="lg"
-        boxShadow="sm"
-        overflow="hidden"
-        borderWidth="1px"
-        borderColor="gray.200"
-      >
-        <Table variant="simple">
-          <Thead bg="gray.50">
-            <Tr>
-              <Th>Visit ID</Th>
-              <Th>Lead</Th>
-              <Th>Property</Th>
-              <Th>Scheduled Date</Th>
-              <Th>Status</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {visits.map((visit) => (
-              <Tr key={visit.visitId}>
-                <Td>{visit.visitId}</Td>
-                <Td>{visit.leadId}</Td>
-                <Td>{visit.propertyId}</Td>
-                <Td>
-                  {new Date(visit.scheduledDate).toLocaleString()}
-                </Td>
-                <Td>
-                  <Badge colorScheme={getStatusColor(visit.status)}>
-                    {visit.status}
-                  </Badge>
-                </Td>
-                <Td>
-                  <HStack spacing={2}>
-                    <Button
-                      size="sm"
-                      leftIcon={<Icon as={FiCheck} />}
-                      colorScheme="green"
-                      variant="outline"
-                      isDisabled={visit.visited}
-                    >
-                      Mark Visited
-                    </Button>
-                    <Button
-                      size="sm"
-                      leftIcon={<Icon as={FiX} />}
-                      colorScheme="red"
-                      variant="outline"
-                      isDisabled={visit.visited}
-                    >
-                      Cancel
-                    </Button>
-                  </HStack>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Schedule Site Visit</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <form onSubmit={handleSubmit}>
-              <FormControl mb={4}>
-                <FormLabel>Lead</FormLabel>
-                <Select
-                  placeholder="Select Lead"
-                  value={selectedLead}
-                  onChange={(e) => setSelectedLead(e.target.value)}
-                  required
-                >
-                  {leads.map((lead) => (
-                    <option key={lead.id} value={lead.id}>
-                      {lead.name}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl mb={4}>
-                <FormLabel>Property</FormLabel>
-                <Select
-                  placeholder="Select Property"
-                  value={selectedProperty}
-                  onChange={(e) => setSelectedProperty(e.target.value)}
-                  required
-                >
-                  {properties.map((property) => (
-                    <option key={property.id} value={property.id}>
-                      {property.name}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl mb={4}>
-                <FormLabel>Visit Date & Time</FormLabel>
-                <Input
-                  type="datetime-local"
-                  value={visitDate}
-                  onChange={(e) => setVisitDate(e.target.value)}
-                  required
-                />
-              </FormControl>
-
-              <Button type="submit" colorScheme="blue" mr={3}>
-                Schedule
-              </Button>
-              <Button onClick={onClose}>Cancel</Button>
-            </form>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <CommonCard p={6}>
+        <Box mb={4}>
+          <Text color="gray.600" fontSize="sm">
+            Manage customer site visits and property tours
+          </Text>
+        </Box>
+        
+        <CommonTable
+          columns={columns}
+          data={siteVisits}
+          rowActions={renderRowActions}
+        />
+      </CommonCard>
     </Box>
   );
 };

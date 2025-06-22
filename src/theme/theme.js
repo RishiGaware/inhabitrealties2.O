@@ -9,6 +9,7 @@ const colors = {
     dark: '#7c117e', // A deep purple for text and headers
     light: '#F4EFFF', // A very light purple for backgrounds
   },
+  
   ui: {
     background: '#F9F9FB',
     cardBackground: '#FFFFFF',

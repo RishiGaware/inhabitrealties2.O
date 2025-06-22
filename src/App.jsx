@@ -116,13 +116,12 @@ const App = () => {
           <Route path='/property/property-types' element={<DashboardLayout><PropertyTypes /></DashboardLayout>} />
           
           {/* Lead Management Routes */}
-          <Route path='/leads' element={<DashboardLayout><LeadManagement /></DashboardLayout>} />
-          <Route path='/leads/add' element={<DashboardLayout><AddLead /></DashboardLayout>} />
-          <Route path='/leads/view' element={<DashboardLayout><ViewLeads /></DashboardLayout>} />
-          <Route path='/leads/qualification' element={<DashboardLayout><LeadQualification /></DashboardLayout>} />
+          <Route path='/lead/add' element={<DashboardLayout><AddLead /></DashboardLayout>} />
+          <Route path='/lead/view' element={<DashboardLayout><ViewLeads /></DashboardLayout>} />
+          <Route path='/lead/qualification' element={<DashboardLayout><LeadQualification /></DashboardLayout>} />
           
           {/* Customer Management Routes */}
-          <Route path='/customers/customer-profiles' element={<DashboardLayout><CustomerProfiles /></DashboardLayout>} />
+          <Route path='/customers/profiles' element={<DashboardLayout><CustomerProfiles /></DashboardLayout>} />
           <Route path='/customers/documents' element={<DashboardLayout><CustomerDocuments /></DashboardLayout>} />
           <Route path='/customers/site-visits' element={<DashboardLayout><SiteVisits /></DashboardLayout>} />
           

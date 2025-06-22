@@ -1,160 +1,124 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Grid,
-  HStack,
-  Text,
-  Icon,
-  Button,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  Select,
-} from '@chakra-ui/react';
-import { FiFile, FiUpload, FiDownload, FiTrash2 } from 'react-icons/fi';
-import DocumentUpload from '../../components/common/DocumentUpload';
+import { Box, Heading, Flex, Button, Text, IconButton } from '@chakra-ui/react';
+import { FaArrowLeft, FaDownload, FaEye, FaTrash, FaUpload } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import CommonCard from '../../components/common/Card/CommonCard';
+import CommonTable from '../../components/common/Table/CommonTable';
 
 const Documents = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedCustomer, setSelectedCustomer] = useState('');
-  const [selectedDocType, setSelectedDocType] = useState('');
-
-  // Sample data - replace with API call
-  const [documents] = useState([
+  const navigate = useNavigate();
+  const [documents, setDocuments] = useState([
     {
-      documentId: "DOC001",
-      customerId: "CUST001",
-      type: "Aadhar Card",
-      fileUrl: "https://example.com/docs/aadhar_ravi.pdf",
-      uploadedBy: "admin01",
-      uploadedAt: "2025-06-02T13:00:00Z"
+      _id: '1',
+      customerName: 'Ravi Patel',
+      documentType: 'Aadhar Card',
+      fileName: 'aadhar_card.pdf',
+      uploadedOn: '2023-01-15',
+      status: 'Verified'
+    },
+    {
+      _id: '2',
+      customerName: 'Sneha Shah',
+      documentType: 'PAN Card',
+      fileName: 'pan_card.pdf',
+      uploadedOn: '2023-02-20',
+      status: 'Pending'
     }
   ]);
 
-  const handleFileSelect = (file) => {
-    console.log('Selected file:', file);
-    // TODO: Implement file upload logic
-    onClose();
+  const handleDelete = (documentId) => {
+    setDocuments(documents.filter(doc => doc._id !== documentId));
   };
 
-  const documentTypes = [
-    'Aadhar Card',
-    'PAN Card',
-    'Sale Agreement',
-    'Property Documents',
-    'Bank Statements'
+  const columns = [
+    { key: 'customerName', label: 'Customer Name' },
+    { key: 'documentType', label: 'Document Type' },
+    { key: 'fileName', label: 'File Name' },
+    { key: 'uploadedOn', label: 'Uploaded On' },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (status) => (
+        <Box
+          px={2}
+          py={1}
+          borderRadius="md"
+          fontSize="xs"
+          fontWeight="medium"
+          bg={status === 'Verified' ? 'green.100' : 'orange.100'}
+          color={status === 'Verified' ? 'green.800' : 'orange.800'}
+        >
+          {status}
+        </Box>
+      )
+    }
   ];
 
-  // Sample customers - replace with API call
-  const customers = [
-    { id: 'CUST001', name: 'Ravi Patel' }
-  ];
+  const renderRowActions = (document) => (
+    <Flex gap={2}>
+      <IconButton
+        icon={<FaEye />}
+        size="sm"
+        variant="ghost"
+        colorScheme="brand"
+        onClick={() => console.log('View document:', document.fileName)}
+      />
+      <IconButton
+        icon={<FaDownload />}
+        size="sm"
+        variant="ghost"
+        colorScheme="brand"
+        onClick={() => console.log('Download document:', document.fileName)}
+      />
+      <IconButton
+        icon={<FaTrash />}
+        size="sm"
+        variant="ghost"
+        colorScheme="red"
+        onClick={() => handleDelete(document._id)}
+      />
+    </Flex>
+  );
 
   return (
-    <Box p={6}>
-      <HStack justify="space-between" mb={6}>
-        <Text fontSize="2xl" fontWeight="medium">
-          Documents
-        </Text>
+    <Box p={5}>
+      <Flex justify="space-between" align="center" mb={6}>
+        <Flex align="center">
+          <Button
+            leftIcon={<FaArrowLeft />}
+            variant="ghost"
+            colorScheme="gray"
+            onClick={() => navigate('/customers/profiles')}
+            mr={4}
+          >
+            Back
+          </Button>
+          <Heading as="h1" variant="pageTitle">
+            Customer Documents
+          </Heading>
+        </Flex>
         <Button
-          leftIcon={<Icon as={FiUpload} />}
-          colorScheme="blue"
-          onClick={onOpen}
+          leftIcon={<FaUpload />}
+          colorScheme="brand"
+          onClick={() => console.log('Upload new document')}
         >
           Upload Document
         </Button>
-      </HStack>
+      </Flex>
 
-      <Grid templateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={6}>
-        {documents.map((doc) => (
-          <Box
-            key={doc.documentId}
-            p={4}
-            bg="white"
-            borderRadius="lg"
-            boxShadow="sm"
-            borderWidth="1px"
-            borderColor="gray.200"
-          >
-            <HStack spacing={4} mb={3}>
-              <Icon as={FiFile} w={6} h={6} color="blue.500" />
-              <Box flex="1">
-                <Text fontWeight="medium" fontSize="sm">
-                  {doc.type}
-                </Text>
-                <Text fontSize="xs" color="gray.500">
-                  Uploaded on {new Date(doc.uploadedAt).toLocaleDateString()}
-                </Text>
-              </Box>
-            </HStack>
-            <HStack spacing={2} justify="flex-end">
-              <Button
-                size="sm"
-                leftIcon={<Icon as={FiDownload} />}
-                variant="outline"
-                colorScheme="blue"
-                onClick={() => window.open(doc.fileUrl, '_blank')}
-              >
-                Download
-              </Button>
-              <Button
-                size="sm"
-                leftIcon={<Icon as={FiTrash2} />}
-                variant="outline"
-                colorScheme="red"
-              >
-                Delete
-              </Button>
-            </HStack>
-          </Box>
-        ))}
-      </Grid>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Upload Document</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <Select
-              placeholder="Select Customer"
-              mb={4}
-              value={selectedCustomer}
-              onChange={(e) => setSelectedCustomer(e.target.value)}
-            >
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
-                </option>
-              ))}
-            </Select>
-
-            <Select
-              placeholder="Select Document Type"
-              mb={4}
-              value={selectedDocType}
-              onChange={(e) => setSelectedDocType(e.target.value)}
-            >
-              {documentTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </Select>
-
-            <DocumentUpload
-              onFileSelect={handleFileSelect}
-              acceptedTypes=".pdf,.jpg,.jpeg,.png"
-              maxSize={5}
-              label="Upload Document (PDF, JPG, PNG)"
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <CommonCard p={6}>
+        <Box mb={4}>
+          <Text color="gray.600" fontSize="sm">
+            Manage customer documents and verification status
+          </Text>
+        </Box>
+        
+        <CommonTable
+          columns={columns}
+          data={documents}
+          rowActions={renderRowActions}
+        />
+      </CommonCard>
     </Box>
   );
 };
