@@ -1,8 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { FaUsers, FaBuilding, FaMoneyBillWave, FaChartLine, FaCalendarAlt, FaHandshake } from 'react-icons/fa';
+import {
+  Box,
+  Grid,
+  GridItem,
+  Text,
+  VStack,
+  HStack,
+  Icon,
+  Button,
+  Card,
+  CardBody,
+  Heading,
+  Badge,
+  Progress,
+  useColorModeValue,
+  Flex,
+  SimpleGrid,
+} from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FaUsers, 
+  FaBuilding, 
+  FaMoneyBillWave, 
+  FaChartLine, 
+  FaCalendarAlt,
+  FaArrowUp,
+  FaArrowDown,
+} from 'react-icons/fa';
 import { BiUserPlus } from 'react-icons/bi';
 import { MdInventory } from 'react-icons/md';
 import Loader from '../../../components/common/Loader';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { scale: 0.8, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut",
+    },
+  },
+  hover: {
+    scale: 1.02,
+    y: -5,
+    transition: {
+      duration: 0.2,
+    },
+  },
+};
+
+const pulseAnimation = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -16,15 +93,21 @@ const Dashboard = () => {
   });
   const [recentActivities, setRecentActivities] = useState([]);
 
+  // Move all useColorModeValue hooks to the top level
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.800', 'white');
+  const mutedTextColor = useColorModeValue('gray.600', 'gray.400');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const hoverBg = useColorModeValue('gray.100', 'gray.600');
+  const activityBg = useColorModeValue('gray.50', 'gray.700');
+
   useEffect(() => {
-    // Simulate API call
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // Mock data
         setStats({
           totalProperties: 156,
           totalLeads: 89,
@@ -40,35 +123,45 @@ const Dashboard = () => {
             type: 'booking',
             message: 'New booking received for Property #123',
             time: '2 minutes ago',
-            icon: <MdInventory className="text-blue-500" />
+            icon: MdInventory,
+            color: 'blue',
+            status: 'success'
           },
           {
             id: 2,
             type: 'lead',
             message: 'Lead qualified: John Doe',
             time: '15 minutes ago',
-            icon: <BiUserPlus className="text-green-500" />
+            icon: BiUserPlus,
+            color: 'green',
+            status: 'success'
           },
           {
             id: 3,
             type: 'payment',
             message: 'Payment received: $25,000',
             time: '1 hour ago',
-            icon: <FaMoneyBillWave className="text-green-500" />
+            icon: FaMoneyBillWave,
+            color: 'green',
+            status: 'success'
           },
           {
             id: 4,
             type: 'customer',
             message: 'New customer registered: Sarah Wilson',
             time: '2 hours ago',
-            icon: <FaUsers className="text-purple-500" />
+            icon: FaUsers,
+            color: 'purple',
+            status: 'info'
           },
           {
             id: 5,
             type: 'property',
             message: 'Property #456 listed for sale',
             time: '3 hours ago',
-            icon: <FaBuilding className="text-orange-500" />
+            icon: FaBuilding,
+            color: 'orange',
+            status: 'info'
           }
         ]);
       } catch (error) {
@@ -81,23 +174,157 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const StatCard = ({ title, value, icon, color, change }) => (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-          {change && (
-            <p className={`text-sm mt-1 ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {change > 0 ? '+' : ''}{change}% from last month
-            </p>
-          )}
-        </div>
-        <div className={`p-3 rounded-full ${color}`}>
-          {icon}
-        </div>
-      </div>
-    </div>
+  const StatCard = ({ title, value, icon: IconComponent, change, gradient }) => (
+    <motion.div
+      variants={cardVariants}
+      whileHover="hover"
+      initial="hidden"
+      animate="visible"
+    >
+      <Card
+        bg={cardBg}
+        borderRadius="xl"
+        boxShadow="lg"
+        border="1px"
+        borderColor={borderColor}
+        overflow="hidden"
+        position="relative"
+        _hover={{
+          boxShadow: 'xl',
+          transform: 'translateY(-2px)',
+        }}
+        transition="all 0.3s ease"
+      >
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          h="4px"
+          bgGradient={gradient}
+        />
+        <CardBody p={6}>
+          <Flex justify="space-between" align="start">
+            <VStack align="start" spacing={2} flex={1}>
+              <Text fontSize="sm" fontWeight="medium" color={mutedTextColor}>
+                {title}
+              </Text>
+              <Text fontSize="3xl" fontWeight="bold" color={textColor}>
+                {value}
+              </Text>
+              {change && (
+                <HStack spacing={1}>
+                  <Icon
+                    as={change > 0 ? FaArrowUp : FaArrowDown}
+                    color={change > 0 ? 'green.500' : 'red.500'}
+                    boxSize={4}
+                  />
+                  <Text
+                    fontSize="sm"
+                    color={change > 0 ? 'green.500' : 'red.500'}
+                    fontWeight="medium"
+                  >
+                    {change > 0 ? '+' : ''}{change}%
+                  </Text>
+                  <Text fontSize="sm" color={mutedTextColor}>
+                    from last month
+                  </Text>
+                </HStack>
+              )}
+            </VStack>
+            <Box
+              p={4}
+              borderRadius="xl"
+              bgGradient={gradient}
+              boxShadow="lg"
+              animation={`${pulseAnimation} 2s infinite`}
+            >
+              <Icon as={IconComponent} color="white" boxSize={6} />
+            </Box>
+          </Flex>
+        </CardBody>
+      </Card>
+    </motion.div>
+  );
+
+  const ActivityItem = ({ activity, index }) => (
+    <motion.div
+      variants={itemVariants}
+      initial="hidden"
+      animate="visible"
+      transition={{ delay: index * 0.1 }}
+    >
+      <HStack
+        p={4}
+        borderRadius="lg"
+        bg={activityBg}
+        _hover={{
+          bg: hoverBg,
+          transform: 'translateX(5px)',
+        }}
+        transition="all 0.2s ease"
+        spacing={4}
+      >
+        <Box
+          p={2}
+          borderRadius="full"
+          bg={`${activity.color}.100`}
+          color={`${activity.color}.600`}
+        >
+          <Icon as={activity.icon} boxSize={4} />
+        </Box>
+        <VStack align="start" spacing={1} flex={1}>
+          <Text fontSize="sm" fontWeight="medium" color={textColor}>
+            {activity.message}
+          </Text>
+          <Text fontSize="xs" color={mutedTextColor}>
+            {activity.time}
+          </Text>
+        </VStack>
+        <Badge colorScheme={activity.status} variant="subtle" fontSize="xs">
+          {activity.type}
+        </Badge>
+      </HStack>
+    </motion.div>
+  );
+
+  const QuickActionButton = ({ icon: IconComponent, label, color, onClick }) => (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <Button
+        variant="outline"
+        size="lg"
+        h="auto"
+        p={6}
+        borderRadius="xl"
+        borderColor={borderColor}
+        bg={cardBg}
+        _hover={{
+          bg: `${color}.50`,
+          borderColor: `${color}.300`,
+          transform: 'translateY(-2px)',
+          boxShadow: 'lg',
+        }}
+        transition="all 0.2s ease"
+        onClick={onClick}
+      >
+        <VStack spacing={3}>
+          <Box
+            p={3}
+            borderRadius="full"
+            bg={`${color}.100`}
+            color={`${color}.600`}
+          >
+            <Icon as={IconComponent} boxSize={6} />
+          </Box>
+          <Text fontSize="sm" fontWeight="medium" color={textColor}>
+            {label}
+          </Text>
+        </VStack>
+      </Button>
+    </motion.div>
   );
 
   const formatCurrency = (amount) => {
@@ -114,122 +341,275 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back! Here's what's happening with your real estate business.</p>
-      </div>
+    <Box bg={bgColor} minH="100vh" p={6}>
+      <AnimatePresence>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <VStack spacing={8} align="stretch">
+            {/* Header */}
+            <motion.div variants={itemVariants}>
+              <Card
+                bg={cardBg}
+                borderRadius="xl"
+                boxShadow="lg"
+                border="1px"
+                borderColor={borderColor}
+                overflow="hidden"
+              >
+                <Box
+                  bgGradient="linear(to-r, blue.500, purple.600)"
+                  p={8}
+                  position="relative"
+                >
+                  <Box
+                    position="absolute"
+                    top="-50%"
+                    right="-50%"
+                    w="200%"
+                    h="200%"
+                    bg="white"
+                    opacity="0.1"
+                    borderRadius="full"
+                  />
+                  <VStack align="start" spacing={3} position="relative" zIndex={1}>
+                    <HStack spacing={3}>
+                      <Box
+                        p={3}
+                        bg="white"
+                        borderRadius="full"
+                        boxShadow="lg"
+                      >
+                        <Icon as={FaChartLine} color="blue.500" boxSize={6} />
+                      </Box>
+                      <VStack align="start" spacing={1}>
+                        <Heading size="lg" color="white">
+                          Dashboard
+                        </Heading>
+                        <Text color="blue.100" fontSize="md">
+                          Welcome back! Here's what's happening with your real estate business.
+                        </Text>
+                      </VStack>
+                    </HStack>
+                  </VStack>
+                </Box>
+              </Card>
+            </motion.div>
 
-      {/* Statistics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard
-          title="Total Properties"
-          value={stats.totalProperties}
-          icon={<FaBuilding className="text-white text-xl" />}
-          color="bg-blue-500"
-          change={12}
-        />
-        <StatCard
-          title="Total Leads"
-          value={stats.totalLeads}
-          icon={<BiUserPlus className="text-white text-xl" />}
-          color="bg-green-500"
-          change={8}
-        />
-        <StatCard
-          title="Total Customers"
-          value={stats.totalCustomers}
-          icon={<FaUsers className="text-white text-xl" />}
-          color="bg-purple-500"
-          change={15}
-        />
-        <StatCard
-          title="Total Bookings"
-          value={stats.totalBookings}
-          icon={<MdInventory className="text-white text-xl" />}
-          color="bg-orange-500"
-          change={-3}
-        />
-        <StatCard
-          title="Total Revenue"
-          value={formatCurrency(stats.totalRevenue)}
-          icon={<FaMoneyBillWave className="text-white text-xl" />}
-          color="bg-green-600"
-          change={22}
-        />
-        <StatCard
-          title="Pending Payments"
-          value={stats.pendingPayments}
-          icon={<FaCalendarAlt className="text-white text-xl" />}
-          color="bg-red-500"
-          change={-5}
-        />
-      </div>
+            {/* Statistics Grid */}
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={6}>
+              <GridItem>
+                <StatCard
+                  title="Total Properties"
+                  value={stats.totalProperties}
+                  icon={FaBuilding}
+                  change={12}
+                  gradient="linear(to-r, blue.500, blue.600)"
+                />
+              </GridItem>
+              <GridItem>
+                <StatCard
+                  title="Total Leads"
+                  value={stats.totalLeads}
+                  icon={BiUserPlus}
+                  change={8}
+                  gradient="linear(to-r, green.500, green.600)"
+                />
+              </GridItem>
+              <GridItem>
+                <StatCard
+                  title="Total Customers"
+                  value={stats.totalCustomers}
+                  icon={FaUsers}
+                  change={15}
+                  gradient="linear(to-r, purple.500, purple.600)"
+                />
+              </GridItem>
+              <GridItem>
+                <StatCard
+                  title="Total Bookings"
+                  value={stats.totalBookings}
+                  icon={MdInventory}
+                  change={-3}
+                  gradient="linear(to-r, orange.500, orange.600)"
+                />
+              </GridItem>
+              <GridItem>
+                <StatCard
+                  title="Total Revenue"
+                  value={formatCurrency(stats.totalRevenue)}
+                  icon={FaMoneyBillWave}
+                  change={22}
+                  gradient="linear(to-r, green.600, green.700)"
+                />
+              </GridItem>
+              <GridItem>
+                <StatCard
+                  title="Pending Payments"
+                  value={stats.pendingPayments}
+                  icon={FaCalendarAlt}
+                  change={-5}
+                  gradient="linear(to-r, red.500, red.600)"
+                />
+              </GridItem>
+            </Grid>
 
-      {/* Recent Activities and Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activities */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activities</h2>
-          <div className="space-y-4">
-            {recentActivities.map((activity) => (
-              <div key={activity.id} className="flex items-start space-x-3">
-                <div className="flex-shrink-0 mt-1">
-                  {activity.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900">{activity.message}</p>
-                  <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+            {/* Recent Activities and Quick Actions */}
+            <Grid templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }} gap={6}>
+              {/* Recent Activities */}
+              <motion.div variants={itemVariants}>
+                <Card
+                  bg={cardBg}
+                  borderRadius="xl"
+                  boxShadow="lg"
+                  border="1px"
+                  borderColor={borderColor}
+                >
+                  <CardBody p={6}>
+                    <HStack justify="space-between" mb={6}>
+                      <Heading size="md" color={textColor}>
+                        Recent Activities
+                      </Heading>
+                      <Badge colorScheme="blue" variant="subtle">
+                        Live
+                      </Badge>
+                    </HStack>
+                    <VStack spacing={3} align="stretch">
+                      {recentActivities.map((activity, index) => (
+                        <ActivityItem key={activity.id} activity={activity} index={index} />
+                      ))}
+                    </VStack>
+                  </CardBody>
+                </Card>
+              </motion.div>
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <BiUserPlus className="text-2xl text-blue-500 mb-2" />
-              <span className="text-sm font-medium text-gray-900">Add Lead</span>
-            </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <FaBuilding className="text-2xl text-green-500 mb-2" />
-              <span className="text-sm font-medium text-gray-900">Add Property</span>
-            </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <FaMoneyBillWave className="text-2xl text-purple-500 mb-2" />
-              <span className="text-sm font-medium text-gray-900">Record Payment</span>
-            </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <FaChartLine className="text-2xl text-orange-500 mb-2" />
-              <span className="text-sm font-medium text-gray-900">View Reports</span>
-            </button>
-          </div>
-        </div>
-      </div>
+              {/* Quick Actions */}
+              <motion.div variants={itemVariants}>
+                <Card
+                  bg={cardBg}
+                  borderRadius="xl"
+                  boxShadow="lg"
+                  border="1px"
+                  borderColor={borderColor}
+                >
+                  <CardBody p={6}>
+                    <Heading size="md" color={textColor} mb={6}>
+                      Quick Actions
+                    </Heading>
+                    <SimpleGrid columns={2} spacing={4}>
+                      <QuickActionButton
+                        icon={BiUserPlus}
+                        label="Add Lead"
+                        color="blue"
+                        onClick={() => console.log('Add Lead clicked')}
+                      />
+                      <QuickActionButton
+                        icon={FaBuilding}
+                        label="Add Property"
+                        color="green"
+                        onClick={() => console.log('Add Property clicked')}
+                      />
+                      <QuickActionButton
+                        icon={FaMoneyBillWave}
+                        label="Record Payment"
+                        color="purple"
+                        onClick={() => console.log('Record Payment clicked')}
+                      />
+                      <QuickActionButton
+                        icon={FaChartLine}
+                        label="View Reports"
+                        color="orange"
+                        onClick={() => console.log('View Reports clicked')}
+                      />
+                    </SimpleGrid>
+                  </CardBody>
+                </Card>
+              </motion.div>
+            </Grid>
 
-      {/* Performance Overview */}
-      <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Performance Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-600">89%</div>
-            <div className="text-sm text-gray-600 mt-1">Lead Conversion Rate</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600">156</div>
-            <div className="text-sm text-gray-600 mt-1">Active Properties</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600">$2.8M</div>
-            <div className="text-sm text-gray-600 mt-1">Monthly Revenue</div>
-          </div>
-        </div>
-      </div>
-    </div>
+            {/* Performance Overview */}
+            <motion.div variants={itemVariants}>
+              <Card
+                bg={cardBg}
+                borderRadius="xl"
+                boxShadow="lg"
+                border="1px"
+                borderColor={borderColor}
+              >
+                <CardBody p={6}>
+                  <Heading size="md" color={textColor} mb={6}>
+                    Performance Overview
+                  </Heading>
+                  <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                    <VStack spacing={3}>
+                      <Box
+                        p={4}
+                        borderRadius="full"
+                        bg="green.100"
+                        color="green.600"
+                      >
+                        <Icon as={FaArrowUp} boxSize={8} />
+                      </Box>
+                      <VStack spacing={1}>
+                        <Text fontSize="3xl" fontWeight="bold" color="green.600">
+                          89%
+                        </Text>
+                        <Text fontSize="sm" color={mutedTextColor} textAlign="center">
+                          Lead Conversion Rate
+                        </Text>
+                      </VStack>
+                      <Progress value={89} colorScheme="green" size="sm" w="full" borderRadius="full" />
+                    </VStack>
+
+                    <VStack spacing={3}>
+                      <Box
+                        p={4}
+                        borderRadius="full"
+                        bg="blue.100"
+                        color="blue.600"
+                      >
+                        <Icon as={FaBuilding} boxSize={8} />
+                      </Box>
+                      <VStack spacing={1}>
+                        <Text fontSize="3xl" fontWeight="bold" color="blue.600">
+                          156
+                        </Text>
+                        <Text fontSize="sm" color={mutedTextColor} textAlign="center">
+                          Active Properties
+                        </Text>
+                      </VStack>
+                      <Progress value={78} colorScheme="blue" size="sm" w="full" borderRadius="full" />
+                    </VStack>
+
+                    <VStack spacing={3}>
+                      <Box
+                        p={4}
+                        borderRadius="full"
+                        bg="purple.100"
+                        color="purple.600"
+                      >
+                        <Icon as={FaMoneyBillWave} boxSize={8} />
+                      </Box>
+                      <VStack spacing={1}>
+                        <Text fontSize="3xl" fontWeight="bold" color="purple.600">
+                          $2.8M
+                        </Text>
+                        <Text fontSize="sm" color={mutedTextColor} textAlign="center">
+                          Monthly Revenue
+                        </Text>
+                      </VStack>
+                      <Progress value={92} colorScheme="purple" size="sm" w="full" borderRadius="full" />
+                    </VStack>
+                  </SimpleGrid>
+                </CardBody>
+              </Card>
+            </motion.div>
+          </VStack>
+        </motion.div>
+      </AnimatePresence>
+    </Box>
   );
 };
 
