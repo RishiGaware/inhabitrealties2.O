@@ -2,6 +2,7 @@ import React from "react";
 import { FaBell, FaBars } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { Link as RouterLink } from "react-router-dom";
+import LogoutButton from "../common/LogoutButton";
 
 const Navbar = ({ onNotificationClick, onMobileOpen, sidebarOpen, setSidebarOpen }) => {
   return (
@@ -38,6 +39,16 @@ const Navbar = ({ onNotificationClick, onMobileOpen, sidebarOpen, setSidebarOpen
         <RouterLink to="/profile" className="p-2 rounded-md hover:bg-gray-100 transition-colors">
           <CgProfile className="w-6 h-6 cursor-pointer" />
         </RouterLink>
+        
+        {/* Logout Button */}
+        <div className="hidden sm:block">
+          <LogoutButton size="sm" />
+        </div>
+        
+        {/* Mobile Logout Button */}
+        <div className="sm:hidden">
+          <LogoutButton size="xs" />
+        </div>
       </div>
     </div>
   );

@@ -102,7 +102,7 @@ const LeadQualification = () => {
         <Box mb={4}>
           <Text color="gray.600" fontSize="sm">
             Review and qualify leads based on their information and requirements
-          </Text>
+        </Text>
         </Box>
         
         <CommonTable
