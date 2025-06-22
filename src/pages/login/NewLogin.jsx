@@ -26,21 +26,7 @@ const NewLogin = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-5xl w-full mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         
-        {/* Left Side - Image */}
-        <div className="hidden lg:block relative">
-          <img src={loginImg} alt="Luxury Home" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <div className="absolute bottom-10 left-10 p-4">
-            <h2 className="text-4xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Find Your Exclusive<br/>Dream Home
-            </h2>
-            <p className="mt-4 text-gray-200 max-w-md" style={{ fontFamily: "'Inter', sans-serif" }}>
-              Step into a world of luxury and comfort.
-            </p>
-          </div>
-        </div>
-
-        {/* Right Side - Form */}
+        {/* Left Side - Form */}
         <div className="p-6 sm:p-10 flex flex-col justify-center">
           <div className="w-full max-w-md mx-auto">
             <div className="flex justify-center mb-6">
@@ -123,9 +109,23 @@ const NewLogin = () => {
             </div>
           </div>
         </div>
+
+        {/* Right Side - Image */}
+        <div className="hidden lg:block relative">
+          <img src={loginImg} alt="Luxury Home" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div className="absolute bottom-10 left-10 p-4">
+            <h2 className="text-4xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Find Your Exclusive<br/>Dream Home
+            </h2>
+            <p className="mt-4 text-gray-200 max-w-md" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Step into a world of luxury and comfort.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default NewLogin; 
+export default NewLogin;
