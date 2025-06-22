@@ -6,18 +6,27 @@ import {
   Select,
   Flex,
   Stack,
-  useBreakpointValue,
 } from '@chakra-ui/react';
 
 const CommonPagination = ({
-  currentPage,
-  totalPages,
+  currentPage = 1,
+  totalPages = 1,
   onPageChange,
-  pageSize,
+  pageSize = 10,
   onPageSizeChange,
   pageSizeOptions = [5, 10, 20, 50],
+  totalItems = 0,
 }) => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  // Ensure values are valid numbers
+  const safeCurrentPage = Math.max(1, parseInt(currentPage) || 1);
+  const safeTotalPages = Math.max(1, parseInt(totalPages) || 1);
+  const safePageSize = parseInt(pageSize) || 10;
+  const safeTotalItems = parseInt(totalItems) || 0;
+
+  // Calculate display values
+  const startItem = safeTotalItems > 0 ? ((safeCurrentPage - 1) * safePageSize) + 1 : 0;
+  const endItem = Math.min(safeCurrentPage * safePageSize, safeTotalItems);
+  const displayTotalItems = safeTotalItems || (safeTotalPages * safePageSize);
 
   return (
     <Stack
@@ -34,7 +43,11 @@ const CommonPagination = ({
         textAlign={{ base: 'center', md: 'left' }}
         display={{ base: 'none', sm: 'block' }}
       >
-        Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalPages * pageSize)} of {totalPages * pageSize} entries
+        {safeTotalItems > 0 ? (
+          `Showing ${startItem} to ${endItem} of ${displayTotalItems} entries`
+        ) : (
+          'No entries to display'
+        )}
       </Text>
 
       <Stack
@@ -50,27 +63,27 @@ const CommonPagination = ({
         >
           <Button
             size="sm"
-            onClick={() => onPageChange(currentPage - 1)}
-            isDisabled={currentPage === 1}
+            onClick={() => onPageChange && onPageChange(safeCurrentPage - 1)}
+            isDisabled={safeCurrentPage === 1}
             variant="outline"
             colorScheme="brand"
             w={{ base: '40%', sm: 'auto' }}
             minW={{ base: 'auto', sm: '80px' }}
             fontSize={{ base: 'xs', md: 'sm' }}
           >
-            {isMobile ? 'Prev' : 'Previous'}
+            Previous
           </Button>
           <Text 
             fontSize={{ base: 'xs', md: 'sm' }} 
             color="gray.600"
             whiteSpace="nowrap"
           >
-            {isMobile ? `${currentPage}/${totalPages}` : `Page ${currentPage} of ${totalPages}`}
+            Page {safeCurrentPage} of {safeTotalPages}
           </Text>
           <Button
             size="sm"
-            onClick={() => onPageChange(currentPage + 1)}
-            isDisabled={currentPage === totalPages}
+            onClick={() => onPageChange && onPageChange(safeCurrentPage + 1)}
+            isDisabled={safeCurrentPage === safeTotalPages}
             variant="outline"
             colorScheme="brand"
             w={{ base: '40%', sm: 'auto' }}
@@ -95,8 +108,8 @@ const CommonPagination = ({
           </Text>
           <Select
             size="sm"
-            value={pageSize}
-            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+            value={safePageSize}
+            onChange={(e) => onPageSizeChange && onPageSizeChange(Number(e.target.value))}
             width={{ base: '100%', sm: 'auto' }}
             fontSize={{ base: 'xs', md: 'sm' }}
           >

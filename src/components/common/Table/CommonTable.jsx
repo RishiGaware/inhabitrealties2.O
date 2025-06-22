@@ -9,8 +9,8 @@ import {
   Td,
   Text,
   Flex,
-  Spinner,
 } from '@chakra-ui/react';
+import Loader from '../Loader';
 
 const CommonTable = ({
   columns,
@@ -24,11 +24,11 @@ const CommonTable = ({
     <Box
       position="relative"
       overflowX="auto"
-      bg="light.cardBackground"
+      bg="ui.cardBackground"
       borderRadius="lg"
       boxShadow="sm"
       borderWidth="1px"
-      borderColor="gray.200"
+      borderColor="ui.border"
       p={0}
       sx={{
         'table': { 
@@ -44,8 +44,12 @@ const CommonTable = ({
             left: '-9999px',
           },
           'tr': {
-            borderBottom: '1px solid',
-            borderColor: 'gray.200',
+            border: '1px solid',
+            borderColor: 'ui.border',
+            borderRadius: 'lg',
+            mb: 4,
+            overflow: 'hidden',
+            boxShadow: 'md',
           },
           'td': {
             border: 'none',
@@ -63,6 +67,7 @@ const CommonTable = ({
               textAlign: 'left',
               fontWeight: 'bold',
               content: 'attr(data-label)',
+              color: 'brand.dark',
             },
           },
         },
@@ -71,20 +76,20 @@ const CommonTable = ({
       {isLoading && (
         <Flex
           position="absolute"
-          top="0"
-          left="0"
-          right="0"
-          bottom="0"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
           bg="rgba(255, 255, 255, 0.7)"
           justify="center"
           align="center"
           zIndex="1"
         >
-          <Spinner size="md" color="brand.primary" />
+          <Loader />
         </Flex>
       )}
-      <Table variant="simple" size="sm">
-        <Thead bg="brand.primary" display={{ base: 'none', md: 'table-header-group' }}>
+      <Table variant="simple" size="sm" style={{ opacity: isLoading ? 0.5 : 1 }}>
+        <Thead bg="brand.dark" display={{ base: 'none', md: 'table-header-group' }}>
           <Tr>
             {columns.map((column, index) => (
               <Th
@@ -125,20 +130,20 @@ const CommonTable = ({
           ) : (
             data.map((row, idx) => (
               <Tr
-                key={idx}
+                key={row._id || row.id || idx}
                 bg={idx % 2 === 0 ? 'gray.50' : 'white'}
                 _hover={{ bg: 'blue.50' }}
                 transition="background 0.2s"
                 cursor={onRowClick ? 'pointer' : 'default'}
                 onClick={() => onRowClick && onRowClick(row)}
               >
-                {columns.map(column => (
-                  <Td 
-                    key={column.key} 
+                {columns.map((column) => (
+                  <Td
+                    key={`${column.key}-${row._id || row.id}`}
                     py={{ base: 2, md: 3 }}
                     px={{ base: 2, md: 4 }}
                     fontSize={{ base: 'xs', md: 'sm' }}
-                    color="light.darkText"
+                    color="ui.text"
                     height={{ base: '40px', md: '48px' }}
                     data-label={column.label}
                   >

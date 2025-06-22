@@ -3,6 +3,8 @@ import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import Notifications from "../../pages/notifications/Notifications";
 import { useLocation } from "react-router-dom";
+import { ChakraProvider } from '@chakra-ui/react';
+import theme from '../../theme/theme';
 
 const DashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -63,31 +65,33 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Sidebar 
-        open={sidebarOpen}
-        setOpen={setSidebarOpen}
-        subMenus={subMenus}
-        toggleSubMenu={toggleSubMenu}
-        isMobile={isMobile}
-      />
-      
-      <Navbar 
-        onMobileOpen={handleMobileOpen} 
-        onNotificationClick={handleNotificationClick}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
+    <ChakraProvider theme={theme}>
+      <div className="min-h-screen bg-gray-100">
+        <Sidebar 
+          open={sidebarOpen}
+          setOpen={setSidebarOpen}
+          subMenus={subMenus}
+          toggleSubMenu={toggleSubMenu}
+          isMobile={isMobile}
+        />
+        
+        <Navbar 
+          onMobileOpen={handleMobileOpen} 
+          onNotificationClick={handleNotificationClick}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
 
-      <div className={`transition-all duration-300 ease-in-out p-4 ${isMobile ? 'ml-0' : (sidebarOpen ? 'ml-72' : 'ml-20')}`}>
-        {children}
+        <div className={`transition-all duration-300 ease-in-out p-4 ${isMobile ? 'ml-0' : (sidebarOpen ? 'ml-72' : 'ml-20')}`}>
+          {children}
+        </div>
+
+        <Notifications 
+          isOpen={isNotificationsOpen} 
+          onClose={handleNotificationClose} 
+        />
       </div>
-
-      <Notifications 
-        isOpen={isNotificationsOpen} 
-        onClose={handleNotificationClose} 
-      />
-    </div>
+    </ChakraProvider>
   );
 };
 

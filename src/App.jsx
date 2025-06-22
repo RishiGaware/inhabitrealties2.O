@@ -20,6 +20,7 @@ import Dashboard from './pages/common/dashboard/Dashboard';
 import UserManagement from './pages/admin/userManagement/UserManagement';
 import RoleManagement from './pages/admin/roleManagement/RoleManagement';
 import Reports from './pages/admin/Reports';
+import LeadManagement from './pages/lead/LeadManagement';
 import AddLead from './pages/lead/AddLead';
 import ViewLeads from './pages/lead/ViewLeads';
 import LeadQualification from './pages/lead/LeadQualification';
@@ -115,9 +116,10 @@ const App = () => {
           <Route path='/property/property-types' element={<DashboardLayout><PropertyTypes /></DashboardLayout>} />
           
           {/* Lead Management Routes */}
-          <Route path='/leads/add-lead' element={<DashboardLayout><AddLead /></DashboardLayout>} />
-          <Route path='/leads/view-leads' element={<DashboardLayout><ViewLeads /></DashboardLayout>} />
-          <Route path='/leads/lead-qualification' element={<DashboardLayout><LeadQualification /></DashboardLayout>} />
+          <Route path='/leads' element={<DashboardLayout><LeadManagement /></DashboardLayout>} />
+          <Route path='/leads/add' element={<DashboardLayout><AddLead /></DashboardLayout>} />
+          <Route path='/leads/view' element={<DashboardLayout><ViewLeads /></DashboardLayout>} />
+          <Route path='/leads/qualification' element={<DashboardLayout><LeadQualification /></DashboardLayout>} />
           
           {/* Customer Management Routes */}
           <Route path='/customers/customer-profiles' element={<DashboardLayout><CustomerProfiles /></DashboardLayout>} />

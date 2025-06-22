@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import FloatingInput from '../../components/common/FloatingInput';
 import FloatingSelect from '../../components/common/FloatingSelect';
 
-const LeadForm = ({ initialData, onSubmit, onCancel }) => {
+const LeadForm = ({ initialData, onSubmit, onCancel, isLoading = false }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -78,7 +78,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (validateForm() && !isLoading) {
       onSubmit(formData);
     }
   };
@@ -123,6 +123,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
           onChange={handleChange}
           error={errors.name}
           required
+          disabled={isLoading}
         />
 
         {/* Email */}
@@ -135,6 +136,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
           onChange={handleChange}
           error={errors.email}
           required
+          disabled={isLoading}
         />
 
         {/* Phone */}
@@ -147,6 +149,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
           onChange={handleChange}
           error={errors.phone}
           required
+          disabled={isLoading}
         />
 
         {/* Source */}
@@ -160,6 +163,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
           required
           options={sources}
           placeholder="Select Source"
+          disabled={isLoading}
         />
 
         {/* Interested In */}
@@ -173,6 +177,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
           required
           options={propertyTypes}
           placeholder="Select Property Type"
+          disabled={isLoading}
         />
 
         {/* Budget */}
@@ -185,6 +190,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
           onChange={handleChange}
           error={errors.budget}
           required
+          disabled={isLoading}
         />
 
         {/* Status */}
@@ -196,6 +202,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
           onChange={handleChange}
           required
           options={statuses}
+          disabled={isLoading}
         />
 
         {/* Assigned To */}
@@ -208,6 +215,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
           onChange={handleChange}
           error={errors.assignedTo}
           required
+          disabled={isLoading}
         />
       </div>
 
@@ -215,14 +223,19 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-[11px] sm:text-[13px] text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          disabled={isLoading}
+          className="px-4 py-2 text-[11px] sm:text-[13px] text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-[11px] sm:text-[13px] text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          disabled={isLoading}
+          className="px-4 py-2 text-[11px] sm:text-[13px] text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
+          {isLoading && (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          )}
           {initialData ? 'Update Lead' : 'Add Lead'}
         </button>
       </div>

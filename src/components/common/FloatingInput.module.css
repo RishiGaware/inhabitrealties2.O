@@ -12,9 +12,22 @@
   font-size: 0.875rem;
   transition: all 0.2s;
   background-color: white;
+  font-family: inherit;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
 }
 
 .input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.textarea:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
@@ -35,6 +48,12 @@
 
 .input:focus ~ .floatingLabel,
 .input:not(:placeholder-shown) ~ .floatingLabel {
+  transform: translateY(-1.4rem) scale(0.85);
+  color: #3b82f6;
+}
+
+.textarea:focus ~ .floatingLabel,
+.textarea:not(:placeholder-shown) ~ .floatingLabel {
   transform: translateY(-1.4rem) scale(0.85);
   color: #3b82f6;
 }
@@ -65,6 +84,11 @@
 }
 
 .input:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+}
+
+.textarea:disabled {
   background-color: #f1f5f9;
   cursor: not-allowed;
 } 

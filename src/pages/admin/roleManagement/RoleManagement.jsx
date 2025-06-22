@@ -2,13 +2,6 @@ import { useState } from 'react';
 import {
   Box,
   useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  ModalFooter,
   FormControl,
   VStack,
   HStack,
@@ -17,40 +10,22 @@ import {
   IconButton,
   InputGroup,
   InputLeftElement,
+  Input,
+  Button,
+  Flex,
+  Heading,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon, SearchIcon, AddIcon } from '@chakra-ui/icons';
 import CommonTable from '../../../components/common/Table/CommonTable';
 import CommonPagination from '../../../components/common/pagination/CommonPagination.jsx';
 import TableContainer from '../../../components/common/Table/TableContainer';
+import FormModal from '../../../components/common/FormModal';
 import FloatingInput from '../../../components/common/FloatingInput';
-import CommonButton from '../../../components/common/Button/CommonButton';
+import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 
 // Dummy data for roles
 const dummyRoles = [
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
   {
     _id: '1',
     name: 'Super Admin',
@@ -248,40 +223,37 @@ const dummyRoles = [
 const RoleManagement = () => {
   const [roles, setRoles] = useState(dummyRoles);
   const [selectedRole, setSelectedRole] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [formErrors, setFormErrors] = useState({});
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    permissions: [],
-    status: true,
-  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredRoles, setFilteredRoles] = useState(dummyRoles);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
+  const [roleToDelete, setRoleToDelete] = useState(null);
 
   const toast = useToast();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
-  // Modal controls
-  const { isOpen: isFormOpen, onOpen: onFormOpen, onClose: onFormClose } = useDisclosure();
-  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
-
-  // Filter roles based on search
-  const filteredRoles = roles.filter(role =>
-    role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    role.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Pagination
-  const totalPages = Math.ceil(filteredRoles.length / pageSize);
-  const paginatedRoles = filteredRoles.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const handleSearch = (event) => {
+    const { value } = event.target;
+    setSearchTerm(value);
+    const filtered = roles.filter(role =>
+      role.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredRoles(filtered);
+  };
 
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
 
   const handlePageSizeChange = (newSize) => {
@@ -291,28 +263,24 @@ const RoleManagement = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user types
-    if (formErrors[name]) {
-      setFormErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+    setFormData({ ...formData, [name]: value });
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
     }
   };
 
   const validateForm = () => {
-    const errors = {};
-    if (!formData.name.trim()) {
-      errors.name = 'Role name is required';
-    }
-    if (!formData.description.trim()) {
-      errors.description = 'Description is required';
-    }
-    return errors;
+    const newErrors = {};
+    if (!formData.name) newErrors.name = 'Role name is required';
+    if (!formData.description) newErrors.description = 'Description is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAddNew = () => {
+    setSelectedRole(null);
+    setFormData({});
+    onOpen();
   };
 
   const handleEdit = (role) => {
@@ -320,178 +288,137 @@ const RoleManagement = () => {
     setFormData({
       name: role.name,
       description: role.description,
-      permissions: role.permissions,
-      status: role.status,
+      permissions: role.permissions.join(','),
     });
-    setIsEditing(true);
-    setFormErrors({});
-    onFormOpen();
+    onOpen();
   };
 
   const handleDelete = (role) => {
-    setSelectedRole(role);
+    setRoleToDelete(role);
     onDeleteOpen();
+  };
+
+  const confirmDelete = () => {
+    console.log('Deleting role:', roleToDelete);
+    setRoles(roles.filter((r) => r._id !== roleToDelete._id));
+    setFilteredRoles(filteredRoles.filter((r) => r._id !== roleToDelete._id));
+    onDeleteClose();
+    setRoleToDelete(null);
+    toast({
+      title: 'Role Deleted',
+      description: `Role "${roleToDelete.name}" has been deleted.`,
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    const errors = validateForm();
+    if (!validateForm()) return;
 
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
+    setIsSubmitting(true);
+    setTimeout(() => {
+      const roleData = { ...formData, permissions: formData.permissions.split(',') };
 
-    setIsLoading(true);
-    const roleData = {
-      ...formData,
-      createdAt: new Date().toISOString().split('T')[0],
-    };
+      if (selectedRole) {
+        setRoles(
+          roles.map(r =>
+            r._id === selectedRole._id ? { ...selectedRole, ...roleData } : r
+          )
+        );
+        toast({
+          title: 'Role Updated',
+          status: 'success',
+        });
+      } else {
+        setRoles([...roles, { ...roleData, _id: Date.now().toString(), createdAt: new Date().toISOString().split('T')[0], status: true }]);
+        toast({
+          title: 'Role Created',
+          status: 'success',
+        });
+      }
 
-    if (isEditing) {
-      setRoles(roles.map(role =>
-        role._id === selectedRole._id ? { ...role, ...roleData } : role
-      ));
-      toast({
-        title: 'Role updated',
-        status: 'success',
-        duration: 3000,
-      });
-    } else {
-      const newRole = {
-        _id: Date.now().toString(),
-        ...roleData,
-      };
-      setRoles([...roles, newRole]);
-      toast({
-        title: 'Role created',
-        status: 'success',
-        duration: 3000,
-      });
-    }
-
-    setIsLoading(false);
-    onFormClose();
-    setSelectedRole(null);
-    setIsEditing(false);
-    setFormErrors({});
-    setFormData({
-      name: '',
-      description: '',
-      permissions: [],
-      status: true,
-    });
+      setIsSubmitting(false);
+      setSelectedRole(null);
+      setFormData({});
+    }, 1000);
   };
 
-  const handleDeleteConfirm = () => {
-    setIsLoading(true);
-    setRoles(roles.filter(role => role._id !== selectedRole._id));
-    toast({
-      title: 'Role deleted',
-      status: 'success',
-      duration: 3000,
-    });
-    setIsLoading(false);
-    onDeleteClose();
-    setSelectedRole(null);
-  };
-
-  // Table columns configuration
   const columns = [
     { key: 'name', label: 'Role Name' },
     { key: 'description', label: 'Description' },
-    { 
-      key: 'permissions', 
-      label: 'Permissions',
-      render: (permissions) => permissions.join(', ')
-    },
+    { key: 'permissions', label: 'Permissions' },
     { key: 'createdAt', label: 'Created Date' },
-    { 
-      key: 'status', 
-      label: 'Status',
-      render: (value) => (
-        <Text
-          color={value ? 'light.success' : 'light.danger'}
-          fontWeight="medium"
-          fontSize="sm"
-        >
-          {value ? 'Active' : 'Inactive'}
-        </Text>
-      )
-    },
+    { key: 'status', label: 'Status', render: (s) => (s ? 'Active' : 'Inactive') },
   ];
 
-  // Row actions
   const renderRowActions = (role) => (
     <HStack spacing={2}>
       <IconButton
         aria-label="Edit role"
         icon={<EditIcon />}
-        size="xs"
+        size="sm"
+        onClick={() => handleEdit(role)}
         colorScheme="brand"
         variant="outline"
-        onClick={() => handleEdit(role)}
       />
       <IconButton
         aria-label="Delete role"
         icon={<DeleteIcon />}
-        size="xs"
+        size="sm"
+        onClick={() => handleDelete(role)}
         colorScheme="red"
         variant="outline"
-        onClick={() => handleDelete(role)}
       />
     </HStack>
   );
 
-  return (
-    <Box p={6}>
-      <HStack justify="space-between" mb={6}>
-        <Text variant="pageTitle">
-          Role Management
-        </Text>
-        <CommonButton
-          leftIcon={<AddIcon />}
-          onClick={() => {
-            setSelectedRole(null);
-            setIsEditing(false);
-            setFormErrors({});
-            setFormData({
-              name: '',
-              description: '',
-              permissions: [],
-              status: true,
-            });
-            onFormOpen();
-          }}
-        >
-          Add New Role
-        </CommonButton>
-      </HStack>
+  const totalPages = Math.ceil(filteredRoles.length / pageSize);
 
-      {/* Search */}
-      <HStack spacing={4} mb={6}>
-        <InputGroup maxW="400px">
+  return (
+    <Box p={5}>
+      <Flex justify="space-between" align="center" mb={6}>
+        <Heading as="h1" variant="pageTitle">
+          Role Management
+        </Heading>
+        {isMobile ? (
+          <IconButton
+            aria-label="Add New Role"
+            icon={<AddIcon />}
+            colorScheme="brand"
+            onClick={handleAddNew}
+          />
+        ) : (
+          <Button
+            leftIcon={<AddIcon />}
+            colorScheme="brand"
+            onClick={handleAddNew}
+          >
+            Add New Role
+          </Button>
+        )}
+      </Flex>
+
+      <Box mb={6} maxW="400px">
+        <InputGroup>
           <InputLeftElement pointerEvents="none">
-            <SearchIcon color="gray.400" />
+            <SearchIcon color="gray.300" />
           </InputLeftElement>
-          <FloatingInput
-            type="text"
-            id="search"
-            name="search"
-            label="Search roles..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+          <Input
+            placeholder="Search roles..."
+            value={searchTerm}
+            onChange={handleSearch}
           />
         </InputGroup>
-      </HStack>
+      </Box>
 
       <TableContainer>
         <CommonTable
           columns={columns}
-          data={paginatedRoles}
-          isLoading={isLoading}
+          data={filteredRoles}
           rowActions={renderRowActions}
-          emptyStateMessage="No roles found"
+          emptyStateMessage="No roles match your search."
         />
         <CommonPagination
           currentPage={currentPage}
@@ -499,100 +426,60 @@ const RoleManagement = () => {
           onPageChange={handlePageChange}
           pageSize={pageSize}
           onPageSizeChange={handlePageSizeChange}
+          totalItems={filteredRoles.length}
         />
       </TableContainer>
 
-      {/* Add/Edit Role Modal */}
-      <Modal isOpen={isFormOpen} onClose={onFormClose} size="xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <Text variant="sectionTitle">
-              {isEditing ? 'Edit Role' : 'Add New Role'}
-            </Text>
-          </ModalHeader>
-          <ModalCloseButton />
-          <form onSubmit={handleFormSubmit}>
-            <ModalBody>
-              <VStack spacing={4}>
-                <FormControl isRequired isInvalid={formErrors.name}>
-                  <FloatingInput
-                    type="text"
-                    id="name"
-                    name="name"
-                    label="Role Name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    error={formErrors.name}
-                  />
-                </FormControl>
-                <FormControl isRequired isInvalid={formErrors.description}>
-                  <FloatingInput
-                    type="text"
-                    id="description"
-                    name="description"
-                    label="Description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    error={formErrors.description}
-                  />
-                </FormControl>
-              </VStack>
-            </ModalBody>
-            <ModalFooter>
-              <CommonButton
-                variant="secondary"
-                mr={3}
-                onClick={onFormClose}
-              >
-                Cancel
-              </CommonButton>
-              <CommonButton
-                type="submit"
-                isLoading={isLoading}
-              >
-                {isEditing ? 'Update' : 'Create'}
-              </CommonButton>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
+      <FormModal
+        isOpen={isOpen}
+        onClose={() => {
+          onClose();
+          setSelectedRole(null);
+        }}
+        title={selectedRole ? 'Edit Role' : 'Add New Role'}
+        onSave={handleFormSubmit}
+        isSubmitting={isSubmitting}
+      >
+        <VStack spacing={4}>
+          <FormControl isInvalid={!!errors.name}>
+            <FloatingInput
+              id="name"
+              name="name"
+              label="Role Name"
+              value={formData.name || ''}
+              onChange={handleInputChange}
+              error={errors.name}
+            />
+          </FormControl>
+          <FormControl isInvalid={!!errors.description}>
+            <FloatingInput
+              id="description"
+              name="description"
+              label="Description"
+              value={formData.description || ''}
+              onChange={handleInputChange}
+              error={errors.description}
+            />
+          </FormControl>
+          <FormControl>
+            <FloatingInput
+              id="permissions"
+              name="permissions"
+              label="Permissions (comma-separated)"
+              value={formData.permissions || ''}
+              onChange={handleInputChange}
+            />
+          </FormControl>
+        </VStack>
+      </FormModal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <Text variant="sectionTitle">Delete Role</Text>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>
-              Are you sure you want to delete the role{' '}
-              <Text as="span" fontWeight="bold">
-                {selectedRole?.name}
-              </Text>
-              ? This action cannot be undone.
-            </Text>
-          </ModalBody>
-          <ModalFooter>
-            <CommonButton
-              variant="secondary"
-              mr={3}
-              onClick={onDeleteClose}
-            >
-              Cancel
-            </CommonButton>
-            <CommonButton
-              variant="danger"
-              onClick={handleDeleteConfirm}
-              isLoading={isLoading}
-            >
-              Delete
-            </CommonButton>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={confirmDelete}
+        title="Delete Role"
+        message={`Are you sure you want to delete the role "${roleToDelete?.name}"?`}
+      />
     </Box>
   );
 };

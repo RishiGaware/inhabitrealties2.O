@@ -18,6 +18,29 @@ const FloatingInput = ({
   className = '',
 }) => {
   const isPassword = type === 'password';
+  const isTextarea = type === 'textarea';
+  
+  if (isTextarea) {
+    return (
+      <div className={styles.inputWrapper}>
+        <textarea
+          id={id}
+          name={name}
+          className={`${styles.input} ${styles.textarea} ${error ? styles.inputError : ''} ${className}`}
+          value={value}
+          onChange={onChange}
+          required={required}
+          placeholder={placeholder}
+          disabled={disabled}
+          rows={4}
+        />
+        <label htmlFor={id} className={styles.floatingLabel}>
+          {label}
+        </label>
+        {error && <span className={styles.errorText}>⚠ {error}</span>}
+      </div>
+    );
+  }
   
   return (
     <div className={styles.inputWrapper}>
