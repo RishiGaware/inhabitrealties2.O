@@ -8,40 +8,46 @@ const AboutUs = () => {
   const [contentRef, isContentVisible] = useOnScreen({ threshold: 0.2 });
 
   return (
-    <div className="bg-white py-16 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gradient-to-br from-white to-gray-50 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div ref={headingRef} className="lg:text-center">
           <h2
-            className={`text-base text-purple-600 font-semibold tracking-wide uppercase transition-all duration-700 ${
+            className={`text-lg text-purple-600 font-bold tracking-wider uppercase transition-all duration-700 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
+            style={{ fontFamily: "'Inter', sans-serif" }}
           >
             About Us
           </h2>
           <p
-            className={`mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl transition-all duration-700 delay-200 ${
+            className={`mt-4 text-4xl leading-tight font-black tracking-tight text-gray-900 sm:text-5xl lg:text-6xl transition-all duration-700 delay-200 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
+            style={{ fontFamily: "'Playfair Display', serif" }}
           >
             Your Trusted Partner in Real Estate
           </p>
           <p
-            className={`mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto transition-all duration-700 delay-300 ${
+            className={`mt-6 max-w-3xl text-xl text-gray-600 leading-relaxed lg:mx-auto transition-all duration-700 delay-300 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
+            style={{ fontFamily: "'Inter', sans-serif" }}
           >
             We are dedicated to making your real estate journey seamless and successful. Our platform connects buyers, sellers, and agents in a trusted and efficient ecosystem.
           </p>
         </div>
 
-        <div ref={contentRef} className="mt-12 lg:mt-20">
+        <div ref={contentRef} className="mt-16 lg:mt-20">
           <div className="grid lg:grid-cols-2 lg:gap-x-12">
             <div
               className={`relative transition-all duration-1000 ${
                 isContentVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
               }`}
             >
-              <img className="rounded-2xl shadow-xl w-full h-full object-cover" src={aboutImage} alt="About us" />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl transform rotate-3 scale-105 opacity-20"></div>
+                <img className="relative rounded-3xl shadow-2xl w-full h-full object-cover" src={aboutImage} alt="About us" />
+              </div>
             </div>
             <div
               className={`mt-10 lg:mt-0 flex flex-col justify-center transition-all duration-1000 delay-200 ${
