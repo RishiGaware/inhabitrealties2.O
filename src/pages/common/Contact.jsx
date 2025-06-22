@@ -6,7 +6,6 @@ import useOnScreen from '../../hooks/useOnScreen';
 
 const Contact = () => {
   const navigate = useNavigate();
-  const [headerRef, isHeaderVisible] = useOnScreen({ threshold: 0.3 });
   const [formRef, isFormVisible] = useOnScreen({ threshold: 0.2 });
   const [infoRef, isInfoVisible] = useOnScreen({ threshold: 0.2 });
 
@@ -14,19 +13,15 @@ const Contact = () => {
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-16">
+        <div className="text-center mb-16">
           <h1
-            className={`text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 transition-all duration-700 ${
-              isHeaderVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-            }`}
+            className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-800"
             style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
             Get in Touch
           </h1>
           <p
-            className={`mt-6 max-w-3xl mx-auto text-xl text-gray-600 leading-relaxed transition-all duration-700 delay-200 ${
-              isHeaderVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-            }`}
+            className="mt-6 max-w-3xl mx-auto text-xl text-gray-600 leading-relaxed"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             We'd love to hear from you. Whether you have a question about features, trials, pricing, or anything else, our team is ready to answer all your questions.
@@ -73,17 +68,34 @@ const Contact = () => {
                 </div>
               </div>
               <div>
-                <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-lg py-4 px-6 rounded-xl hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 text-white font-bold text-base py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
                   Send Message
                 </button>
               </div>
             </form>
-            <div className="mt-8 text-center">
-              <p className="text-gray-600 mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>Follow us on social media</p>
+            <div className="mt-10 pt-8 border-t border-gray-200">
+              <h3 className="text-xl font-bold text-center text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+                Connect With Us
+              </h3>
               <div className="flex justify-center space-x-6">
-                <a href="#" className="text-gray-400 hover:text-purple-600 transition-colors"><FaTwitter size={24} /></a>
-                <a href="#" className="text-gray-400 hover:text-purple-600 transition-colors"><FaFacebook size={24} /></a>
-                <a href="#" className="text-gray-400 hover:text-purple-600 transition-colors"><FaInstagram size={24} /></a>
+                <a href="#" className="text-gray-500 hover:text-purple-600 transition-colors transform hover:scale-110"><FaTwitter size={28} /></a>
+                <a href="#" className="text-gray-500 hover:text-purple-600 transition-colors transform hover:scale-110"><FaFacebook size={28} /></a>
+                <a href="#" className="text-gray-500 hover:text-purple-600 transition-colors transform hover:scale-110"><FaInstagram size={28} /></a>
+              </div>
+            </div>
+
+            <div className="mt-10 pt-8 border-t border-gray-200">
+              <h3 className="text-xl font-bold text-center text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+                Operating Hours
+              </h3>
+              <div className="text-center text-gray-600" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+                <p>Saturday: 10:00 AM - 4:00 PM</p>
+                <p>Sunday: Closed</p>
               </div>
             </div>
           </div>
