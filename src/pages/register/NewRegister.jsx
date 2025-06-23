@@ -1,41 +1,67 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
-import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { AUTH_IMAGES } from '../../config/images';
+import { registerNormalUser } from '../../services/auth/AuthService';
+
+const DEFAULT_ROLE_ID = '681632b6ab1624e874bb2dcf';
 
 const NewRegister = () => {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validate = () => {
+    const newErrors = {};
+    if (!firstName.trim()) newErrors.firstName = 'First name is required.';
+    else if (!/^[A-Za-z]+$/.test(firstName)) newErrors.firstName = 'First name must contain only letters.';
+    if (!lastName.trim()) newErrors.lastName = 'Last name is required.';
+    else if (!/^[A-Za-z]+$/.test(lastName)) newErrors.lastName = 'Last name must contain only letters.';
+    if (!phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required.';
+    else if (!/^\d{10}$/.test(phoneNumber)) newErrors.phoneNumber = 'Phone number must be 10 digits.';
+    if (!email.trim()) newErrors.email = 'Email is required.';
+    else if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = 'Email is not valid.';
+    if (!password) newErrors.password = 'Password is required.';
+    else if (password.length < 8) newErrors.password = 'Password must be at least 8 characters.';
+    else if (!/[A-Z]/.test(password)) newErrors.password = 'Password must contain at least one uppercase letter.';
+    else if (!/[a-z]/.test(password)) newErrors.password = 'Password must contain at least one lowercase letter.';
+    else if (!/\d/.test(password)) newErrors.password = 'Password must contain at least one number.';
+    else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) newErrors.password = 'Password must contain at least one special character.';
+    if (!confirmPassword) newErrors.confirmPassword = 'Please confirm your password.';
+    else if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match.';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password || !confirmPassword) {
-      toast.error('Please fill in all fields.');
-      return;
-    }
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match.');
-      return;
-    }
+    if (!validate()) return;
     setLoading(true);
     try {
-      // Here you would typically call your registration API
-      console.log('Signing up with:', { name, email, password });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const userData = {
+        firstName,
+        lastName,
+        phoneNumber,
+        email,
+        password,
+        role: DEFAULT_ROLE_ID,
+      };
+      await registerNormalUser(userData);
       toast.success('Account created successfully! Welcome to Inhabit Realties.');
       navigate('/dashboard');
-    } catch {
-      toast.error('Sign up failed. Please try again.');
+    } catch (err) {
+      toast.error(err?.message || 'Sign up failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -59,28 +85,69 @@ const NewRegister = () => {
             </p>
 
             <form onSubmit={handleRegister} className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  Full Name
-                </label>
-                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
-                  <FaUser className="text-gray-400 mx-2" />
-                  <input
-                    type="text"
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="John Doe"
-                    className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
-                    style={{ fontFamily: "'Inter', sans-serif" }}
-                    autoFocus
-                  />
+              <div className="flex gap-2">
+                <div className="w-1/2">
+                  <label htmlFor="firstName" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                    First Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                    <FaUser className="text-gray-400 mx-2" />
+                    <input
+                      type="text"
+                      id="firstName"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First Name"
+                      className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
+                      autoFocus
+                      required
+                    />
+                  </div>
+                  {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName}</p>}
+                </div>
+                <div className="w-1/2">
+                  <label htmlFor="lastName" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                    Last Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                    <FaUser className="text-gray-400 mx-2" />
+                    <input
+                      type="text"
+                      id="lastName"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last Name"
+                      className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
+                      required
+                    />
+                  </div>
+                  {errors.lastName && <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>}
                 </div>
               </div>
-
+              <div>
+                <label htmlFor="phoneNumber" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Mobile Number <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                  <input
+                    type="tel"
+                    id="phoneNumber"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                    placeholder={"Mobile Number"}
+                    className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                    required
+                    maxLength={10}
+                  />
+                </div>
+                {errors.phoneNumber && <p className="text-xs text-red-500 mt-1">{errors.phoneNumber}</p>}
+              </div>
               <div>
                 <label htmlFor="email" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  Email Address
+                  Email Address <span className="text-red-500">*</span>
                 </label>
                 <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
                   <FaEnvelope className="text-gray-400 mx-2" />
@@ -92,46 +159,55 @@ const NewRegister = () => {
                     placeholder="you@example.com"
                     className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
                     style={{ fontFamily: "'Inter', sans-serif" }}
+                    required
                   />
                 </div>
+                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
               </div>
-
               <div>
                 <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  Password
+                  Password <span className="text-red-500">*</span>
                 </label>
-                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300 relative">
                   <FaLock className="text-gray-400 mx-2" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
                     style={{ fontFamily: "'Inter', sans-serif" }}
+                    required
                   />
+                  <span className="absolute right-3 cursor-pointer" onClick={() => setShowPassword((prev) => !prev)}>
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </span>
                 </div>
+                {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
               </div>
-              
               <div>
                 <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  Confirm Password
+                  Confirm Password <span className="text-red-500">*</span>
                 </label>
-                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300">
+                <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-2.5 sm:p-3 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300 relative">
                   <FaLock className="text-gray-400 mx-2" />
                   <input
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     id="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
                     className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
                     style={{ fontFamily: "'Inter', sans-serif" }}
+                    required
                   />
+                  <span className="absolute right-3 cursor-pointer" onClick={() => setShowConfirmPassword((prev) => !prev)}>
+                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  </span>
                 </div>
+                {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
               </div>
-
               <div className="pt-2">
                 <button
                   type="submit"
