@@ -11,6 +11,11 @@ const api = axios.create({
   },
 });
 
+let globalLogoutHandler = null;
+export const setApiLogoutHandler = (handler) => {
+  globalLogoutHandler = handler;
+};
+
 api.interceptors.request.use(
   (config) => {
     const token = Cookies.get('AuthToken');
@@ -20,6 +25,16 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401 && typeof globalLogoutHandler === 'function') {
+      globalLogoutHandler();
+    }
     return Promise.reject(error);
   }
 );

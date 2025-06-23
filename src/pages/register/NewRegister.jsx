@@ -58,8 +58,9 @@ const NewRegister = () => {
         role: DEFAULT_ROLE_ID,
       };
       await registerNormalUser(userData);
-      toast.success('Account created successfully! Welcome to Inhabit Realties.');
-      navigate('/dashboard');
+      toast.success('Account created successfully! Please sign in.');
+      setFirstName(''); setLastName(''); setPhoneNumber(''); setEmail(''); setPassword(''); setConfirmPassword('');
+      navigate('/login');
     } catch (err) {
       toast.error(err?.message || 'Sign up failed. Please try again.');
     } finally {
