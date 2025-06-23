@@ -10,21 +10,21 @@ const GetStarted = () => {
          style={{ background: 'linear-gradient(to bottom right, #faf5ff, #eff6ff)' }}>
       <div className="max-w-4xl mx-auto text-center">
         <div className="mb-8">
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight"
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-6 leading-tight"
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
             Ready to Find Your Dream Home?
           </h2>
-          <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto"
+          <p className="text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto"
              style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
             Join thousands of satisfied customers who found their perfect property with us. 
             Start your journey today and discover the home you've always dreamed of.
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
             onClick={() => navigate('/login')}
-            className="group relative inline-flex items-center justify-center px-8 py-4 text-lg sm:px-12 sm:py-5 sm:text-xl overflow-hidden font-bold text-white transition-all duration-300 ease-in-out rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-xl hover:shadow-2xl transform hover:scale-105"
+            className="group relative inline-flex items-center justify-center px-6 py-3 text-base sm:px-8 sm:py-3.5 sm:text-lg overflow-hidden font-bold text-white transition-all duration-300 ease-in-out rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-xl hover:shadow-2xl transform hover:scale-105"
             style={{ 
               fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
               background: 'linear-gradient(to right, #9333ea, #2563eb)',
@@ -44,7 +44,7 @@ const GetStarted = () => {
           
           <button
             onClick={() => navigate('/register')}
-            className="group relative inline-flex items-center justify-center px-8 py-4 text-lg sm:px-12 sm:py-5 sm:text-xl overflow-hidden font-bold text-purple-600 transition-all duration-300 ease-in-out rounded-full border-2 border-purple-600 hover:bg-purple-600 hover:text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="group relative inline-flex items-center justify-center px-6 py-3 text-base sm:px-8 sm:py-3.5 sm:text-lg overflow-hidden font-bold text-purple-600 transition-all duration-300 ease-in-out rounded-full border-2 border-purple-600 hover:bg-purple-600 hover:text-white shadow-lg hover:shadow-xl transform hover:scale-105"
             style={{ 
               fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
               borderRadius: '9999px',

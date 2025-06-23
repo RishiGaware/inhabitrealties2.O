@@ -1,31 +1,44 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import registerImg from '../../assets/images/loginImage1.jpg';
 import logo from '../../assets/images/logo.png';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import { AUTH_IMAGES } from '../../config/images';
 
 const NewRegister = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     if (!name || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
+      toast.error('Please fill in all fields.');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      toast.error('Passwords do not match.');
       return;
     }
-    console.log('Registering with:', { name, email, password });
-    setError('');
-    navigate('/dashboard');
+    setLoading(true);
+    try {
+      // Here you would typically call your registration API
+      console.log('Signing up with:', { name, email, password });
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success('Account created successfully! Welcome to Inhabit Realties.');
+      navigate('/dashboard');
+    } catch {
+      toast.error('Sign up failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,7 +55,7 @@ const NewRegister = () => {
               Create Your Account
             </h2>
             <p className="text-center text-gray-500 mb-8 text-sm sm:text-base" style={{ fontFamily: "'Inter', sans-serif" }}>
-              Join us and find your perfect home.
+              Sign up and find your perfect home.
             </p>
 
             <form onSubmit={handleRegister} className="space-y-4">
@@ -119,15 +132,14 @@ const NewRegister = () => {
                 </div>
               </div>
 
-              {error && <p className="text-red-500 text-xs sm:text-sm mt-2 text-center">{error}</p>}
-
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full bg-purple-600 text-white font-bold text-base py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                  className="w-full bg-purple-600 text-white font-bold text-base py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50"
                   style={{ fontFamily: "'Inter', sans-serif" }}
+                  disabled={loading}
                 >
-                  Create Account
+                  {loading ? 'Creating Account...' : 'Sign Up'}
                 </button>
               </div>
             </form>
@@ -135,7 +147,7 @@ const NewRegister = () => {
             <p className="text-center text-gray-500 mt-8 text-sm sm:text-base" style={{ fontFamily: "'Inter', sans-serif" }}>
               Already have an account?{' '}
               <Link to="/login" className="font-bold text-purple-600 hover:text-purple-800 transition-colors">
-                Log In
+                Sign In
               </Link>
             </p>
 
@@ -149,8 +161,12 @@ const NewRegister = () => {
         </div>
         
         {/* Right Side - Image */}
-        <div className="hidden lg:block relative order-1 lg:order-2">
-          <img src={registerImg} alt="Modern Interior" className="w-full h-full object-cover" />
+        <div className="hidden lg:block relative overflow-hidden order-1 lg:order-2">
+          <img
+            src={AUTH_IMAGES.register}
+            alt="Modern Interior"
+            className="w-full h-full object-cover transform transition-transform duration-[20s] ease-out hover:scale-125 animate-subtle-zoom"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
           <div className="absolute bottom-10 left-10 text-white p-4">
             <h2 className="text-4xl font-black" style={{ fontFamily: "'Playfair Display', serif" }}>

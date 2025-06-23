@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import loginImg from '../../assets/images/loginImage1.jpg';
 import logo from '../../assets/images/logo.png';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { AUTH_IMAGES } from '../../config/images';
 
 const NewLogin = () => {
   const [email, setEmail] = useState('');
@@ -26,10 +26,10 @@ const NewLogin = () => {
       
       // Check if login was successful
       if (result && result.data) {
-        toast.success('Login successful! Welcome back.');
+        toast.success('Sign in successful! Welcome back.');
         navigate('/dashboard');
       } else {
-        toast.error('Login failed. Please try again.');
+        toast.error('Sign in failed. Please try again.');
       }
     } catch (error) {
       // Handle different types of errors
@@ -124,7 +124,7 @@ const NewLogin = () => {
                   style={{ fontFamily: "'Inter', sans-serif" }}
                   disabled={loading}
                 >
-                  {loading ? 'Logging in...' : 'Log In'}
+                  {loading ? 'Signing in...' : 'Sign In'}
                 </button>
               </div>
             </form>
@@ -132,7 +132,7 @@ const NewLogin = () => {
             <p className="text-center text-gray-500 mt-8 text-sm sm:text-base" style={{ fontFamily: "'Inter', sans-serif" }}>
               Don't have an account?{' '}
               <Link to="/register" className="font-bold text-purple-600 hover:text-purple-800 transition-colors">
-                Register
+                Sign Up
               </Link>
             </p>
 
@@ -146,8 +146,12 @@ const NewLogin = () => {
         </div>
 
         {/* Right Side - Image */}
-        <div className="hidden lg:block relative">
-          <img src={loginImg} alt="Luxury Home" className="w-full h-full object-cover" />
+        <div className="hidden lg:block relative overflow-hidden">
+          <img
+            src={AUTH_IMAGES.login}
+            alt="Luxury Home"
+            className="w-full h-full object-cover transform transition-transform duration-[20s] ease-out hover:scale-125 animate-subtle-zoom"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
           <div className="absolute bottom-10 left-10 p-4">
             <h2 className="text-4xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
