@@ -1,6 +1,6 @@
 // Banner Images
 export const BANNER_IMAGES = {
-  main: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80',
+  main: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=80',
 };
 
 // Authentication Pages
