@@ -1,33 +1,31 @@
-// AuthService.js
-class AuthService {
-    // Check if user is authenticated by checking token in sessionStorage
-    static isAuthenticated() {
-      const token = sessionStorage.getItem('authToken');
-      return !!token; // Returns true if token exists, false otherwise
+import api from './Api';
+import { AUTH_ENDPOINTS } from './apiEndpoints';
+import Cookies from 'js-cookie';
+
+const login = async (credentials) => {
+  try {
+    const response = await api.post(AUTH_ENDPOINTS.LOGIN, credentials);
+    if (response.data.token) {
+      Cookies.set('AuthToken', response.data.token, { expires: 1, secure: true, sameSite: 'strict' });
     }
-  
-    // Log the user in by setting the token in sessionStorage and updating isAuthenticated
-    static login(token) {
-      sessionStorage.setItem('authToken', token);
-      return true; // Indicate successful login
-    }
-  
-    // Log the user out by removing the token from sessionStorage and updating isAuthenticated
-    static logout() {
-      sessionStorage.removeItem('authToken');
-      return false; // Indicate successful logout
-    }
-  
-    // Get the token from sessionStorage
-    static getToken() {
-      return sessionStorage.getItem('authToken');
-    }
-    
-    // Optional: Check if the user is authenticated and update the state accordingly
-    static checkAuthentication() {
-      const token = sessionStorage.getItem('authToken');
-      return token ? true : false;
-    }
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
   }
-  
-  export default AuthService;
+};
+
+const logout = () => {
+  Cookies.remove('AuthToken');
+};
+
+const getToken = () => {
+  return Cookies.get('AuthToken');
+};
+
+const authService = {
+  login,
+  logout,
+  getToken,
+};
+
+export default authService;

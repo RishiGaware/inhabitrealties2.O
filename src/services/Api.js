@@ -1,44 +1,26 @@
-// src/api/designationAPI.js
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
-const Api = axios.create({
-  baseURL: 'http://82.180.147.10:7002/api/',
+const API_URL = 'https://insightwaveit-backend-p0cl.onrender.com/api';
+
+const api = axios.create({
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Attach token to every request
-Api.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('authToken');
-    const plantId = sessionStorage.getItem('plantId');
-    
+    const token = Cookies.get('AuthToken');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      
-    }
-    if(plantId){
-      // config.headers['X-Plant-Id'] = plantId;
-      config.headers.set("X-Plant-Id",plantId);
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
-);
-
-// Handle 401 Unauthorized errors
-Api.interceptors.response.use(
-  (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      sessionStorage.removeItem('authToken');
-      sessionStorage.removeItem('userData');
-      sessionStorage.removeItem('plantId');
-      window.location.href = '/';
-    }
     return Promise.reject(error);
   }
 );
 
-export default Api;
+export default api;

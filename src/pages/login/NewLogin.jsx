@@ -4,22 +4,55 @@ import loginImg from '../../assets/images/loginImage1.jpg';
 import logo from '../../assets/images/logo.png';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const NewLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      toast.error('Please enter both username and password.');
       return;
     }
-    console.log('Logging in with:', { email, password });
-    setError('');
-    navigate('/dashboard');
+    setLoading(true);
+    try {
+      const result = await login({ email, password });
+      
+      // Check if login was successful
+      if (result && result.data) {
+        toast.success('Login successful! Welcome back.');
+        navigate('/dashboard');
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
+    } catch (error) {
+      // Handle different types of errors
+      if (error && error.message) {
+        toast.error(error.message);
+      } else if (error && error.error) {
+        toast.error(error.error);
+      } else if (error && error.status === 401) {
+        toast.error('Invalid username or password. Please check your credentials.');
+      } else if (error && error.status === 404) {
+        toast.error('User not found. Please check your username.');
+      } else if (error && error.status === 500) {
+        toast.error('Server error. Please try again later.');
+      } else if (error && error.status >= 400 && error.status < 500) {
+        toast.error('Invalid request. Please check your input.');
+      } else if (error && error.status >= 500) {
+        toast.error('Server error. Please try again later.');
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,6 +88,7 @@ const NewLogin = () => {
                     className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                     autoFocus
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -78,18 +112,19 @@ const NewLogin = () => {
                     placeholder="••••••••"
                     className="w-full bg-transparent border-none outline-none text-gray-700 text-sm sm:text-base"
                     style={{ fontFamily: "'Inter', sans-serif" }}
+                    disabled={loading}
                   />
                 </div>
-                {error && <p className="text-red-500 text-xs sm:text-sm mt-2">{error}</p>}
               </div>
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full bg-purple-600 text-white font-bold text-base py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                  className="w-full bg-purple-600 text-white font-bold text-base py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50"
                   style={{ fontFamily: "'Inter', sans-serif" }}
+                  disabled={loading}
                 >
-                  Log In
+                  {loading ? 'Logging in...' : 'Log In'}
                 </button>
               </div>
             </form>
