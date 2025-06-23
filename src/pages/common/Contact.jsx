@@ -3,11 +3,36 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaUser, FaRegCommentDots, FaTwitte
 import { FiArrowLeft, FiLogIn, FiUserPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import useOnScreen from '../../hooks/useOnScreen';
+import toast from 'react-hot-toast';
+import { submitContactUs } from '../../services/homeservices/homeService';
 
 const Contact = () => {
   const navigate = useNavigate();
   const [formRef, isFormVisible] = useOnScreen({ threshold: 0.2 });
   const [infoRef, isInfoVisible] = useOnScreen({ threshold: 0.2 });
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+  const [message, setMessage] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name || !email || !phone || !message) {
+      toast.error('Please fill in all fields.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await submitContactUs({ name, email, phone, description: message });
+      toast.success('Message sent successfully!');
+      setName(''); setEmail(''); setPhone(''); setMessage('');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to send message.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -45,33 +70,36 @@ const Contact = () => {
             <p className="text-gray-600 mb-3 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>
               Our team will get back to you within 24 hours.
             </p>
-            <form action="#" method="POST" className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label htmlFor="name" className="block text-xs font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>Your Name</label>
                 <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md p-2 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
                   <FaUser className="text-gray-400 mr-2 text-sm" />
-                  <input type="text" name="name" id="name" placeholder="John Doe" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} />
+                  <input type="text" name="name" id="name" placeholder="John Doe" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} value={name} onChange={e => setName(e.target.value)} />
                 </div>
               </div>
               <div>
                 <label htmlFor="phone" className="block text-xs font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>Phone Number</label>
                 <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md p-2 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
                   <FaPhone className="text-gray-400 mr-2 text-sm" />
-                  <input type="tel" name="phone" id="phone" placeholder="(555) 123-4567" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} />
+                  <input type="tel" name="phone" id="phone" placeholder="(555) 123-4567" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} value={phone} onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setPhone(val);
+                  }} maxLength={10} />
                 </div>
               </div>
               <div>
                 <label htmlFor="email" className="block text-xs font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>Your Email</label>
                 <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md p-2 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
                   <FaEnvelope className="text-gray-400 mr-2 text-sm" />
-                  <input type="email" name="email" id="email" placeholder="you@example.com" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} />
+                  <input type="email" name="email" id="email" placeholder="you@example.com" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
               </div>
               <div>
                 <label htmlFor="message" className="block text-xs font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>Your Message</label>
                 <div className="flex items-start bg-gray-50 border border-gray-200 rounded-md p-2 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
                   <FaRegCommentDots className="text-gray-400 mr-2 mt-1 text-sm" />
-                  <textarea name="message" id="message" rows="4" placeholder="Your Message..." className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm resize-none" style={{ fontFamily: "'Inter', sans-serif" }}></textarea>
+                  <textarea name="message" id="message" rows="4" placeholder="Your Message..." className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm resize-none" style={{ fontFamily: "'Inter', sans-serif" }} value={message} onChange={e => setMessage(e.target.value)}></textarea>
                 </div>
               </div>
               <div>
@@ -79,8 +107,9 @@ const Contact = () => {
                   type="submit"
                   className="w-full bg-purple-600 text-white font-semibold text-xs sm:text-sm py-2 px-4 rounded-md hover:bg-purple-700 transition-all duration-300 shadow-sm hover:shadow-md"
                   style={{ fontFamily: "'Inter', sans-serif" }}
+                  disabled={loading}
                 >
-                  Send Message
+                  {loading ? 'Sending...' : 'Send Message'}
                 </button>
               </div>
             </form>

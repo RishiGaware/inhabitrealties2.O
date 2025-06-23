@@ -16,7 +16,7 @@ const login = async (credentials) => {
 
 export const registerNormalUser = async (userData) => {
   try {
-    const response = await api.post('/normaluser/registernormaluser', userData);
+    const response = await api.post(AUTH_ENDPOINTS.REGISTER, userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || error;

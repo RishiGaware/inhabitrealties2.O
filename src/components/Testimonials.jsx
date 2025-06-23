@@ -39,11 +39,11 @@ const Testimonials = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {testimonials.map((testimonial, index) => (
             <div 
               key={index}
-              className="bg-white rounded-xl shadow-md p-5 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100"
+              className="bg-white rounded-md shadow p-4 hover:shadow-lg transition-all duration-500 transform hover:-translate-y-1 border border-gray-100"
               style={{ 
                 animationDelay: `${index * 0.2}s`,
                 animation: 'fadeInUp 0.8s ease-out forwards'
@@ -83,19 +83,19 @@ const Testimonials = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center mt-10">
-          <div className="bg-white rounded-xl shadow-md p-5 max-w-2xl mx-auto">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <div className="text-center mt-8">
+          <div className="bg-white rounded-md shadow p-4 max-w-xl mx-auto">
+            <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
               Ready to Join Our Happy Clients?
             </h3>
-            <p className="text-base text-gray-600 mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <p className="text-sm text-gray-600 mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>
               Start your journey today and experience the difference that professional real estate services can make.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 text-sm font-semibold">
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <button className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 text-xs font-semibold">
                 Get Started Today
               </button>
-              <button className="px-6 py-2 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-600 hover:text-white transition-all duration-300 transform hover:scale-105 text-sm font-semibold">
+              <button className="px-4 py-2 border-2 border-purple-600 text-purple-600 rounded-md hover:bg-purple-600 hover:text-white transition-all duration-300 transform hover:scale-105 text-xs font-semibold">
                 Learn More
               </button>
             </div>

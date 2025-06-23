@@ -23,18 +23,18 @@ const Agents = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {uniqueAgents.map((agent, index) => (
             <div
               key={index}
-              className="bg-white rounded-md shadow-sm p-3 flex flex-col items-center hover:shadow-md transition-all duration-300 border border-gray-100"
+              className="bg-white rounded-md shadow p-3 flex flex-col items-center hover:shadow-md transition-all duration-300 border border-gray-100"
             >
-              <img src={agent.image} alt={agent.name} className="w-24 h-24 object-cover rounded-full mb-2" />
-              <h3 className="text-base font-semibold text-gray-800 mb-0.5 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{agent.name}</h3>
+              <img src={agent.image} alt={agent.name} className="w-20 h-20 object-cover rounded-full mb-1" />
+              <h3 className="text-sm font-semibold text-gray-800 mb-0.5 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{agent.name}</h3>
               <p className="text-xs text-purple-600 mb-1 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{agent.role}</p>
-              <div className="flex gap-2 mt-1">
-                <a href={`tel:${agent.phone}`} className="text-gray-500 hover:text-purple-600 text-lg"><i className="fas fa-phone"></i></a>
-                <a href={`mailto:${agent.email}`} className="text-gray-500 hover:text-purple-600 text-lg"><i className="fas fa-envelope"></i></a>
+              <div className="flex gap-1 mt-1">
+                <a href={`tel:${agent.phone}`} className="text-gray-500 hover:text-purple-600 text-base"><i className="fas fa-phone"></i></a>
+                <a href={`mailto:${agent.email}`} className="text-gray-500 hover:text-purple-600 text-base"><i className="fas fa-envelope"></i></a>
               </div>
             </div>
           ))}

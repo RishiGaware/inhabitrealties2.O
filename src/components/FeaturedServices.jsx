@@ -57,7 +57,7 @@ const FeaturedServices = () => {
           {services.map((service, index) => (
             <div 
               key={index}
-              className="bg-white rounded-md shadow-sm p-3 hover:shadow-md transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 border border-gray-100"
+              className="bg-white rounded-md shadow p-4 hover:shadow-lg transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 border border-gray-100"
               style={{ 
                 animationDelay: `${index * 0.1}s`,
                 animation: 'fadeInUp 0.6s ease-out forwards'
@@ -87,37 +87,37 @@ const FeaturedServices = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="mt-14 bg-white rounded-xl shadow-md p-6 border border-gray-100">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div className="mt-10 bg-white rounded-lg shadow p-4 border border-gray-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="transform hover:scale-105 transition-transform duration-300">
-              <div className="text-2xl font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
+              <div className="text-lg font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
                 500+
               </div>
-              <div className="text-gray-500 text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-gray-500 text-xs font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Properties Sold
               </div>
             </div>
             <div className="transform hover:scale-105 transition-transform duration-300">
-              <div className="text-2xl font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
+              <div className="text-lg font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
                 1000+
               </div>
-              <div className="text-gray-500 text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-gray-500 text-xs font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Happy Clients
               </div>
             </div>
             <div className="transform hover:scale-105 transition-transform duration-300">
-              <div className="text-2xl font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
+              <div className="text-lg font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
                 15+
               </div>
-              <div className="text-gray-500 text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-gray-500 text-xs font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Years Experience
               </div>
             </div>
             <div className="transform hover:scale-105 transition-transform duration-300">
-              <div className="text-2xl font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
+              <div className="text-lg font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
                 98%
               </div>
-              <div className="text-gray-500 text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-gray-500 text-xs font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Client Satisfaction
               </div>
             </div>

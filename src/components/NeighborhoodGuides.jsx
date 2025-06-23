@@ -45,12 +45,12 @@ const PropertyFeatures = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white rounded-md shadow-sm p-3 hover:shadow-md transition-all duration-300 border border-gray-100 flex flex-col"
+              className="bg-white rounded-md shadow p-4 hover:shadow-lg transition-all duration-300 border border-gray-100 flex flex-col"
             >
-              <img src={feature.image} alt={feature.name} className="w-full h-36 object-cover rounded-md mb-2" />
+              <img src={feature.image} alt={feature.name} className="w-full h-28 object-cover rounded-md mb-1" />
               <div className="flex items-center mb-1">
-                <span className="text-xl text-purple-600 mr-2">{feature.icon}</span>
-                <h3 className="text-base font-semibold text-gray-800 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{feature.name}</h3>
+                <span className="text-lg text-purple-600 mr-2">{feature.icon}</span>
+                <h3 className="text-sm font-semibold text-gray-800 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{feature.name}</h3>
               </div>
               <p className="text-xs text-gray-600 mb-1 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{feature.description}</p>
               <ul className="text-xs text-gray-700 list-disc list-inside space-y-0.5">
