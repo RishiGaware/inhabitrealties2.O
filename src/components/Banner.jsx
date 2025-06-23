@@ -14,9 +14,9 @@ const Banner = () => {
         }}
       ></div>
       <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80"></div>
-      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-tight bounce-in"
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight bounce-in"
               style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
                 textShadow: '0 4px 12px rgba(0,0,0,0.6)',
@@ -26,7 +26,7 @@ const Banner = () => {
           </h1>
         </div>
         <div className="mb-8">
-          <p className="text-base sm:text-lg md:text-xl max-w-2xl md:max-w-3xl mx-auto text-gray-100 leading-relaxed bounce-in font-light"
+          <p className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto text-gray-100 leading-relaxed bounce-in font-light"
              style={{
                animationDelay: '0.2s',
                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",

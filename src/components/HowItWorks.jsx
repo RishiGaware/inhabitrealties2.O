@@ -24,7 +24,7 @@ const HowItWorks = () => {
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
             Your Journey to a New Home
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -40,11 +40,11 @@ const HowItWorks = () => {
             </svg>
           </div>
           
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8">
             {steps.map((step, index) => (
               <div
                 key={index}
-                className="bg-white rounded-lg shadow-lg p-8 text-center transition-all duration-500 transform hover:shadow-2xl hover:-translate-y-3"
+                className="bg-white rounded-lg shadow-md p-5 text-center transition-all duration-500 transform hover:shadow-xl hover:-translate-y-2"
                 style={{
                   animation: 'fadeInUp 0.6s ease-out forwards',
                   animationDelay: `${index * 0.2}s`

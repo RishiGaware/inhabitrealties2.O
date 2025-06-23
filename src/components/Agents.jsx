@@ -23,39 +23,18 @@ const Agents = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {uniqueAgents.map((agent, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg shadow-lg overflow-hidden text-center hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
-              style={{
-                animation: 'fadeInUp 0.6s ease-out forwards',
-                animationDelay: `${index * 0.2}s`
-              }}
+              className="bg-white rounded-md shadow-sm p-3 flex flex-col items-center hover:shadow-md transition-all duration-300 border border-gray-100"
             >
-              <div className="relative">
-                <img 
-                  src={agent.image} 
-                  alt={agent.name}
-                  className="w-full h-64 object-cover" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  {agent.name}
-                </h3>
-                <p className="text-sm text-purple-600 font-medium mb-4">
-                  Real Estate Agent
-                </p>
-                <div className="flex justify-center gap-4 text-gray-600">
-                  <a href={`tel:${agent.phone}`} className="hover:text-purple-600 transition-colors">
-                    <FaPhone />
-                  </a>
-                  <a href={`mailto:${agent.name.replace(' ', '.').toLowerCase()}@inhabit.com`} className="hover:text-purple-600 transition-colors">
-                    <FaEnvelope />
-                  </a>
-                </div>
+              <img src={agent.image} alt={agent.name} className="w-24 h-24 object-cover rounded-full mb-2" />
+              <h3 className="text-base font-semibold text-gray-800 mb-0.5 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{agent.name}</h3>
+              <p className="text-xs text-purple-600 mb-1 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{agent.role}</p>
+              <div className="flex gap-2 mt-1">
+                <a href={`tel:${agent.phone}`} className="text-gray-500 hover:text-purple-600 text-lg"><i className="fas fa-phone"></i></a>
+                <a href={`mailto:${agent.email}`} className="text-gray-500 hover:text-purple-600 text-lg"><i className="fas fa-envelope"></i></a>
               </div>
             </div>
           ))}

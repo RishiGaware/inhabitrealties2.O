@@ -19,7 +19,7 @@ const images = [a1, a2, a3, a4, a5, a6];
 const ImageSlider = () => {
   return (
     <div className="container mx-auto py-8">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-8">
         Featured Apartments
       </h2>
       <Swiper
@@ -29,7 +29,7 @@ const ImageSlider = () => {
         pagination={{ clickable: true }}
         autoplay={{ delay: 3000, disableOnInteraction: false }}
         loop={true}
-        className="rounded-lg shadow-2xl"
+        className="rounded-lg shadow-2xl h-64 md:h-80 lg:h-96"
         style={{
           '--swiper-navigation-color': '#A300A3',
           '--swiper-pagination-color': '#A300A3',
@@ -37,7 +37,7 @@ const ImageSlider = () => {
       >
         {images.map((image, index) => (
           <SwiperSlide key={index}>
-            <img src={image} alt={`Apartment ${index + 1}`} className="w-full h-full object-cover" />
+            <img src={image} alt={`Apartment ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
           </SwiperSlide>
         ))}
       </Swiper>

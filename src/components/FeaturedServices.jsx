@@ -45,7 +45,7 @@ const FeaturedServices = () => {
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
             Why Choose Inhabit Realties?
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -53,29 +53,31 @@ const FeaturedServices = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {services.map((service, index) => (
             <div 
               key={index}
-              className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 border border-gray-100"
+              className="bg-white rounded-md shadow-sm p-3 hover:shadow-md transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 border border-gray-100"
               style={{ 
                 animationDelay: `${index * 0.1}s`,
                 animation: 'fadeInUp 0.6s ease-out forwards'
               }}
             >
-              <div className="text-purple-600 mb-6 flex justify-center transform transition-transform duration-300 hover:scale-110">
-                {service.icon}
+              <div className="flex flex-col items-center mb-2">
+                <span className="text-2xl text-purple-600 mb-1">
+                  {service.icon}
+                </span>
+                <h3 className="text-base font-semibold text-gray-800 mb-1 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  {service.title}
+                </h3>
               </div>
-              <h3 className="text-lg font-bold text-gray-800 mb-4 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {service.title}
-              </h3>
-              <p className="text-sm text-gray-600 mb-6 text-center leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <p className="text-xs text-gray-600 mb-2 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
                 {service.description}
               </p>
-              <ul className="space-y-2">
-                {service.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center text-xs text-gray-600" style={{ fontFamily: "'Inter', sans-serif" }}>
-                    <div className="w-2 h-2 bg-purple-600 rounded-full mr-3 animate-pulse"></div>
+              <ul className="text-xs text-gray-700 list-disc list-inside space-y-0.5">
+                {service.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-center">
+                    <span className="inline-block w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></span>
                     {feature}
                   </li>
                 ))}
@@ -85,37 +87,37 @@ const FeaturedServices = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="mt-20 bg-white rounded-2xl shadow-lg p-10 border border-gray-100">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="transform hover:scale-110 transition-transform duration-300">
-              <div className="text-4xl font-bold text-purple-600 mb-2" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
+        <div className="mt-14 bg-white rounded-xl shadow-md p-6 border border-gray-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="transform hover:scale-105 transition-transform duration-300">
+              <div className="text-2xl font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
                 500+
               </div>
-              <div className="text-gray-500 font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-gray-500 text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Properties Sold
               </div>
             </div>
-            <div className="transform hover:scale-110 transition-transform duration-300">
-              <div className="text-4xl font-bold text-purple-600 mb-2" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
+            <div className="transform hover:scale-105 transition-transform duration-300">
+              <div className="text-2xl font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
                 1000+
               </div>
-              <div className="text-gray-500 font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-gray-500 text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Happy Clients
               </div>
             </div>
-            <div className="transform hover:scale-110 transition-transform duration-300">
-              <div className="text-4xl font-bold text-purple-600 mb-2" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
+            <div className="transform hover:scale-105 transition-transform duration-300">
+              <div className="text-2xl font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
                 15+
               </div>
-              <div className="text-gray-500 font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-gray-500 text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Years Experience
               </div>
             </div>
-            <div className="transform hover:scale-110 transition-transform duration-300">
-              <div className="text-4xl font-bold text-purple-600 mb-2" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
+            <div className="transform hover:scale-105 transition-transform duration-300">
+              <div className="text-2xl font-bold text-purple-600 mb-1" style={{ fontFamily: "'Inter', sans-serif", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
                 98%
               </div>
-              <div className="text-gray-500 font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-gray-500 text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Client Satisfaction
               </div>
             </div>

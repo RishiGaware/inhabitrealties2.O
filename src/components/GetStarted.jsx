@@ -10,7 +10,7 @@ const GetStarted = () => {
          style={{ background: 'linear-gradient(to bottom right, #faf5ff, #eff6ff)' }}>
       <div className="max-w-4xl mx-auto text-center">
         <div className="mb-8">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-6 leading-tight"
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 leading-tight"
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
             Ready to Find Your Dream Home?
           </h2>

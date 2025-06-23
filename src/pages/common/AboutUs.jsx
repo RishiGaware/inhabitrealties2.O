@@ -12,7 +12,7 @@ const AboutUs = () => {
       <div className="max-w-7xl mx-auto">
         <div ref={headingRef} className="lg:text-center">
           <h2
-            className={`text-lg text-purple-600 font-bold tracking-wider uppercase transition-all duration-700 ${
+            className={`text-base text-purple-600 font-bold tracking-wider uppercase transition-all duration-700 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
             style={{ fontFamily: "'Inter', sans-serif" }}
@@ -20,7 +20,7 @@ const AboutUs = () => {
             About Us
           </h2>
           <p
-            className={`mt-4 text-4xl leading-tight font-black tracking-tight text-gray-900 sm:text-5xl lg:text-6xl transition-all duration-700 delay-200 ${
+            className={`mt-4 text-2xl leading-tight font-bold tracking-tight text-gray-900 sm:text-3xl lg:text-3xl transition-all duration-700 delay-200 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
             style={{ fontFamily: "'Playfair Display', serif" }}

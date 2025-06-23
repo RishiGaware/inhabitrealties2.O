@@ -31,7 +31,7 @@ const PropertyFeatures = () => {
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4"
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
             Property Features & Services
           </h2>
@@ -41,51 +41,26 @@ const PropertyFeatures = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {features.map((feature, index) => (
-            <div 
+            <div
               key={index}
-              className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
-              style={{ animationDelay: `${index * 0.2}s` }}
+              className="bg-white rounded-md shadow-sm p-3 hover:shadow-md transition-all duration-300 border border-gray-100 flex flex-col"
             >
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={feature.image}
-                  alt={feature.name}
-                  className="w-full h-full object-cover transform transition-transform duration-700 hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute top-4 left-4">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-3">
-                    <feature.icon className="text-2xl text-purple-600" />
-                  </div>
-                </div>
+              <img src={feature.image} alt={feature.name} className="w-full h-36 object-cover rounded-md mb-2" />
+              <div className="flex items-center mb-1">
+                <span className="text-xl text-purple-600 mr-2">{feature.icon}</span>
+                <h3 className="text-base font-semibold text-gray-800 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{feature.name}</h3>
               </div>
-              
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-3"
-                    style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
-                  {feature.name}
-                </h3>
-                <p className="text-gray-600 mb-4 leading-relaxed"
-                   style={{ fontFamily: "'Inter', sans-serif" }}>
-                  {feature.description}
-                </p>
-                
-                <div className="space-y-2">
-                  {feature.features.map((item, idx) => (
-                    <div key={idx} className="flex items-center text-sm text-gray-700">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                      <span style={{ fontFamily: "'Inter', sans-serif" }}>{item}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <button className="mt-6 w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105"
-                        style={{ fontFamily: "'Inter', sans-serif" }}>
-                  Learn More
-                </button>
-              </div>
+              <p className="text-xs text-gray-600 mb-1 text-center" style={{ fontFamily: "'Inter', sans-serif" }}>{feature.description}</p>
+              <ul className="text-xs text-gray-700 list-disc list-inside space-y-0.5">
+                {feature.features.map((point, idx) => (
+                  <li key={idx} className="flex items-center">
+                    <span className="inline-block w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -93,7 +68,7 @@ const PropertyFeatures = () => {
         {/* Additional Services Section */}
         <div className="mt-16 bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4"
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4"
                 style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
               Our Comprehensive Services
             </h3>

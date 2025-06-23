@@ -15,84 +15,81 @@ const Contact = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <h1
-            className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-800"
+            className="text-2xl sm:text-3xl font-bold text-gray-800"
             style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
             Get in Touch
           </h1>
           <p
-            className="mt-6 max-w-3xl mx-auto text-xl text-gray-600 leading-relaxed"
+            className="mt-6 max-w-3xl mx-auto text-lg text-gray-600 leading-relaxed"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             We'd love to hear from you. Whether you have a question about features, trials, pricing, or anything else, our team is ready to answer all your questions.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Contact Form */}
           <div
             ref={formRef}
-            className={`lg:col-span-2 bg-white p-8 sm:p-10 rounded-2xl shadow-2xl transition-all duration-1000 ${
+            className={`lg:col-span-2 bg-white p-4 sm:p-5 rounded-md shadow-md border border-gray-100 transition-all duration-1000 ${
               isFormVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
             }`}
           >
             <h2
-              className="text-3xl font-bold text-gray-900 mb-4"
+              className="text-base sm:text-lg font-bold text-gray-900 mb-2"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Send us a Message
             </h2>
-            <p className="text-gray-600 mb-8" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <p className="text-gray-600 mb-3 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>
               Our team will get back to you within 24 hours.
             </p>
-            <form action="#" method="POST" className="space-y-8">
+            <form action="#" method="POST" className="space-y-3">
               <div>
-                <label htmlFor="name" className="block text-lg font-semibold text-gray-700 mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>Your Name</label>
-                <div className="flex items-center bg-gray-50 border-2 border-gray-200 rounded-lg p-3 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
-                  <FaUser className="text-gray-400 mr-4" />
-                  <input type="text" name="name" id="name" placeholder="John Doe" className="w-full bg-transparent border-none outline-none text-gray-800 text-lg" style={{ fontFamily: "'Inter', sans-serif" }} />
+                <label htmlFor="name" className="block text-xs font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>Your Name</label>
+                <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md p-2 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
+                  <FaUser className="text-gray-400 mr-2 text-sm" />
+                  <input type="text" name="name" id="name" placeholder="John Doe" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} />
                 </div>
               </div>
               <div>
-                <label htmlFor="email" className="block text-lg font-semibold text-gray-700 mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>Your Email</label>
-                <div className="flex items-center bg-gray-50 border-2 border-gray-200 rounded-lg p-3 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
-                  <FaEnvelope className="text-gray-400 mr-4" />
-                  <input type="email" name="email" id="email" placeholder="you@example.com" className="w-full bg-transparent border-none outline-none text-gray-800 text-lg" style={{ fontFamily: "'Inter', sans-serif" }} />
+                <label htmlFor="phone" className="block text-xs font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>Phone Number</label>
+                <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md p-2 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
+                  <FaPhone className="text-gray-400 mr-2 text-sm" />
+                  <input type="tel" name="phone" id="phone" placeholder="(555) 123-4567" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} />
                 </div>
               </div>
               <div>
-                <label htmlFor="message" className="block text-lg font-semibold text-gray-700 mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>Your Message</label>
-                <div className="flex items-start bg-gray-50 border-2 border-gray-200 rounded-lg p-3 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
-                  <FaRegCommentDots className="text-gray-400 mr-4 mt-1" />
-                  <textarea name="message" id="message" rows="5" placeholder="Your Message..." className="w-full bg-transparent border-none outline-none text-gray-800 text-lg resize-none" style={{ fontFamily: "'Inter', sans-serif" }}></textarea>
+                <label htmlFor="email" className="block text-xs font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>Your Email</label>
+                <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md p-2 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
+                  <FaEnvelope className="text-gray-400 mr-2 text-sm" />
+                  <input type="email" name="email" id="email" placeholder="you@example.com" className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }} />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="message" className="block text-xs font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Inter', sans-serif" }}>Your Message</label>
+                <div className="flex items-start bg-gray-50 border border-gray-200 rounded-md p-2 focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600 transition-all duration-300">
+                  <FaRegCommentDots className="text-gray-400 mr-2 mt-1 text-sm" />
+                  <textarea name="message" id="message" rows="4" placeholder="Your Message..." className="w-full bg-transparent border-none outline-none text-gray-800 text-xs sm:text-sm resize-none" style={{ fontFamily: "'Inter', sans-serif" }}></textarea>
                 </div>
               </div>
               <div>
                 <button
                   type="submit"
-                  className="w-full bg-purple-600 text-white font-bold text-base py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                  className="w-full bg-purple-600 text-white font-semibold text-xs sm:text-sm py-2 px-4 rounded-md hover:bg-purple-700 transition-all duration-300 shadow-sm hover:shadow-md"
                   style={{ fontFamily: "'Inter', sans-serif" }}
                 >
                   Send Message
                 </button>
               </div>
             </form>
-            <div className="mt-10 pt-8 border-t border-gray-200">
-              <h3 className="text-xl font-bold text-center text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-                Connect With Us
-              </h3>
-              <div className="flex justify-center space-x-6">
-                <a href="#" className="text-gray-500 hover:text-purple-600 transition-colors transform hover:scale-110"><FaTwitter size={28} /></a>
-                <a href="#" className="text-gray-500 hover:text-purple-600 transition-colors transform hover:scale-110"><FaFacebook size={28} /></a>
-                <a href="#" className="text-gray-500 hover:text-purple-600 transition-colors transform hover:scale-110"><FaInstagram size={28} /></a>
-              </div>
-            </div>
-
-            <div className="mt-10 pt-8 border-t border-gray-200">
-              <h3 className="text-xl font-bold text-center text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <h3 className="text-xs sm:text-sm font-bold text-center text-gray-800 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                 Operating Hours
               </h3>
-              <div className="text-center text-gray-600" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="text-center text-gray-600 text-xs sm:text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>
                 <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
                 <p>Saturday: 10:00 AM - 4:00 PM</p>
                 <p>Sunday: Closed</p>
@@ -103,48 +100,48 @@ const Contact = () => {
           {/* Contact Information & Navigation */}
           <div
             ref={infoRef}
-            className={`space-y-8 transition-all duration-1000 delay-200 ${
+            className={`space-y-4 transition-all duration-1000 delay-200 ${
               isInfoVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
             }`}
           >
-            <div className="bg-white p-8 rounded-2xl shadow-2xl">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>Contact Information</h3>
-              <div className="space-y-6 text-gray-700 text-lg">
+            <div className="bg-white p-4 rounded-md shadow-md border border-gray-100">
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>Contact Information</h3>
+              <div className="space-y-3 text-gray-700 text-xs sm:text-sm">
                 <p className="flex items-center">
-                  <FaMapMarkerAlt className="w-6 h-6 mr-4 text-purple-600" />
+                  <FaMapMarkerAlt className="w-4 h-4 mr-2 text-purple-600" />
                   <span>123 Real Estate St, New York, NY 10001</span>
                 </p>
                 <p className="flex items-center">
-                  <FaEnvelope className="w-6 h-6 mr-4 text-purple-600" />
+                  <FaEnvelope className="w-4 h-4 mr-2 text-purple-600" />
                   <span>support@inhabit.com</span>
                 </p>
                 <p className="flex items-center">
-                  <FaPhone className="w-6 h-6 mr-4 text-purple-600" />
+                  <FaPhone className="w-4 h-4 mr-2 text-purple-600" />
                   <span>+1 (555) 123-4567</span>
                 </p>
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-2xl shadow-2xl">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>Move to</h3>
-              <div className="space-y-4">
-                <button onClick={() => navigate('/')} className="w-full flex items-center justify-center text-lg font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 py-3 px-4 rounded-xl transition-all duration-300">
-                  <FiArrowLeft className="mr-3" /> Go to Home
+            <div className="bg-white p-4 rounded-md shadow-md border border-gray-100">
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>Move to</h3>
+              <div className="space-y-2">
+                <button onClick={() => navigate('/')} className="w-full flex items-center justify-center text-xs font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 py-2 px-3 rounded-md transition-all duration-300">
+                  <FiArrowLeft className="mr-2" /> Go to Home
                 </button>
-                <button onClick={() => navigate('/login')} className="w-full flex items-center justify-center text-lg font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 py-3 px-4 rounded-xl transition-all duration-300">
-                  <FiLogIn className="mr-3" /> Login
+                <button onClick={() => navigate('/login')} className="w-full flex items-center justify-center text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 py-2 px-3 rounded-md transition-all duration-300">
+                  <FiLogIn className="mr-2" /> Login
                 </button>
-                <button onClick={() => navigate('/register')} className="w-full flex items-center justify-center text-lg font-semibold text-green-600 bg-green-50 hover:bg-green-100 py-3 px-4 rounded-xl transition-all duration-300">
-                  <FiUserPlus className="mr-3" /> Register
+                <button onClick={() => navigate('/register')} className="w-full flex items-center justify-center text-xs font-semibold text-green-600 bg-green-50 hover:bg-green-100 py-2 px-3 rounded-md transition-all duration-300">
+                  <FiUserPlus className="mr-2" /> Register
                 </button>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div className="bg-white rounded-md shadow-md border border-gray-100 overflow-hidden">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.220131835108!2d-73.98801558459388!3d40.74844097932824!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e192a415a556!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1628882 Empire State Building"
                 width="100%"
-                height="250"
+                height="180"
                 style={{ border: 0 }}
                 allowFullScreen=""
                 loading="lazy"
