@@ -1,8 +1,10 @@
 import './App.css'
 import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { UserProvider } from './context/UserContext';
+import { RoleProvider } from './context/RoleContext';
 // import AppRoutes from './routes';
 
 import Header from './components/Header/Header';
@@ -80,102 +82,119 @@ const App = () => {
     <UserProvider>
       <ThemeProvider>
         <AuthProvider>
-          <HouseProvider>
-            <Routes>
-              {/* Auth Routes */}
-              <Route
-                path="/login"
-                element={
-                  <AuthLayout>
-                    <NewLogin />
-                  </AuthLayout>
-                }
+          <RoleProvider>
+            <HouseProvider>
+              <Toaster 
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    padding: '12px 16px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  },
+                }}
               />
-              <Route
-                path="/register"
-                element={
-                  <AuthLayout>
-                    <NewRegister />
-                  </AuthLayout>
-                }
-              />
+              <Routes>
+                {/* Auth Routes */}
+                <Route
+                  path="/login"
+                  element={
+                    <AuthLayout>
+                      <NewLogin />
+                    </AuthLayout>
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    <AuthLayout>
+                      <NewRegister />
+                    </AuthLayout>
+                  }
+                />
 
-              {/* Main Routes */}
-              <Route path="/" element={<MainLayout><Home /></MainLayout>} />
-              <Route path="/features" element={<MainLayout><Features /></MainLayout>} />
-              <Route path="/about" element={<MainLayout><AboutUs /></MainLayout>} />
-              <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
-              <Route path="/property-details" element={<MainLayout><PropertyDetails /></MainLayout>} />
-              
-              {/* Dashboard Route */}
-              <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+                {/* Main Routes */}
+                <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+                <Route path="/features" element={<MainLayout><Features /></MainLayout>} />
+                <Route path="/about" element={<MainLayout><AboutUs /></MainLayout>} />
+                <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+                <Route path="/property-details" element={<MainLayout><PropertyDetails /></MainLayout>} />
                 
-              {/* Admin Routes */}
-              <Route path='/admin/user-management' element={<DashboardLayout><UserManagement /></DashboardLayout>} />
-              <Route path='/admin/role-management' element={<DashboardLayout><RoleManagement /></DashboardLayout>} />
-              <Route path='/admin/reports' element={<DashboardLayout><Reports /></DashboardLayout>} />
-              
-              {/* Property Routes */}
-              <Route path='/property/property-master' element={<DashboardLayout><PropertyMaster /></DashboardLayout>} />
-              <Route path='/property/property-types' element={<DashboardLayout><PropertyTypes /></DashboardLayout>} />
-              
-              {/* Lead Management Routes */}
-              <Route path='/lead/add' element={<DashboardLayout><AddLead /></DashboardLayout>} />
-              <Route path='/lead/view' element={<DashboardLayout><ViewLeads /></DashboardLayout>} />
-              <Route path='/lead/qualification' element={<DashboardLayout><LeadQualification /></DashboardLayout>} />
-              
-              {/* Customer Management Routes */}
-              <Route path='/customers/profiles' element={<DashboardLayout><CustomerProfiles /></DashboardLayout>} />
-              <Route path='/customers/documents' element={<DashboardLayout><CustomerDocuments /></DashboardLayout>} />
-              <Route path='/customers/site-visits' element={<DashboardLayout><SiteVisits /></DashboardLayout>} />
-              
-              {/* Sales Management Routes */}
-              <Route path='/sales/sales-list' element={<DashboardLayout><SalesList /></DashboardLayout>} />
-              <Route path='/sales/add-payment' element={<DashboardLayout><AddPayment /></DashboardLayout>} />
-              <Route path='/sales/pending-payments' element={<DashboardLayout><PendingPayments /></DashboardLayout>} />
-              <Route path='/sales/sales-reports' element={<DashboardLayout><SalesReports /></DashboardLayout>} />
-              
-              {/* Bookings Routes */}
-              <Route path='/bookings/inventory' element={<DashboardLayout><Inventory /></DashboardLayout>} />
-              <Route path='/bookings/booked-units' element={<DashboardLayout><BookedUnits /></DashboardLayout>} />
-              <Route path='/bookings/payment-status' element={<DashboardLayout><PaymentStatus /></DashboardLayout>} />
-              
-              {/* Payments Routes */}
-              <Route path='/payments/installments' element={<DashboardLayout><Installments /></DashboardLayout>} />
-              <Route path='/payments/payment-history' element={<DashboardLayout><PaymentHistory /></DashboardLayout>} />
-              <Route path='/payments/due-payments' element={<DashboardLayout><DuePayments /></DashboardLayout>} />
-              
-              {/* Rent Management Routes */}
-              <Route path='/rent/rent-roll' element={<DashboardLayout><RentRoll /></DashboardLayout>} />
-              <Route path='/rent/lease-management' element={<DashboardLayout><LeaseManagement /></DashboardLayout>} />
+                {/* Dashboard Route */}
+                <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+                  
+                {/* Admin Routes */}
+                <Route path='/admin/user-management' element={<DashboardLayout><UserManagement /></DashboardLayout>} />
+                <Route path='/admin/role-management' element={<DashboardLayout><RoleManagement /></DashboardLayout>} />
+                <Route path='/admin/reports' element={<DashboardLayout><Reports /></DashboardLayout>} />
+                
+                {/* Property Routes */}
+                <Route path='/property/property-master' element={<DashboardLayout><PropertyMaster /></DashboardLayout>} />
+                <Route path='/property/property-types' element={<DashboardLayout><PropertyTypes /></DashboardLayout>} />
+                
+                {/* Lead Management Routes */}
+                <Route path='/lead/add' element={<DashboardLayout><AddLead /></DashboardLayout>} />
+                <Route path='/lead/view' element={<DashboardLayout><ViewLeads /></DashboardLayout>} />
+                <Route path='/lead/qualification' element={<DashboardLayout><LeadQualification /></DashboardLayout>} />
+                
+                {/* Customer Management Routes */}
+                <Route path='/customers/profiles' element={<DashboardLayout><CustomerProfiles /></DashboardLayout>} />
+                <Route path='/customers/documents' element={<DashboardLayout><CustomerDocuments /></DashboardLayout>} />
+                <Route path='/customers/site-visits' element={<DashboardLayout><SiteVisits /></DashboardLayout>} />
+                
+                {/* Sales Management Routes */}
+                <Route path='/sales/sales-list' element={<DashboardLayout><SalesList /></DashboardLayout>} />
+                <Route path='/sales/add-payment' element={<DashboardLayout><AddPayment /></DashboardLayout>} />
+                <Route path='/sales/pending-payments' element={<DashboardLayout><PendingPayments /></DashboardLayout>} />
+                <Route path='/sales/sales-reports' element={<DashboardLayout><SalesReports /></DashboardLayout>} />
+                
+                {/* Bookings Routes */}
+                <Route path='/bookings/inventory' element={<DashboardLayout><Inventory /></DashboardLayout>} />
+                <Route path='/bookings/booked-units' element={<DashboardLayout><BookedUnits /></DashboardLayout>} />
+                <Route path='/bookings/payment-status' element={<DashboardLayout><PaymentStatus /></DashboardLayout>} />
+                
+                {/* Payments Routes */}
+                <Route path='/payments/installments' element={<DashboardLayout><Installments /></DashboardLayout>} />
+                <Route path='/payments/payment-history' element={<DashboardLayout><PaymentHistory /></DashboardLayout>} />
+                <Route path='/payments/due-payments' element={<DashboardLayout><DuePayments /></DashboardLayout>} />
+                
+                {/* Rent Management Routes */}
+                <Route path='/rent/rent-roll' element={<DashboardLayout><RentRoll /></DashboardLayout>} />
+                <Route path='/rent/lease-management' element={<DashboardLayout><LeaseManagement /></DashboardLayout>} />
 
-              {/* Accounting Routes */}
-              <Route path='/accounting/expense-tracking' element={<DashboardLayout><ExpenseTracking /></DashboardLayout>} />
-              <Route path='/accounting/income-statement' element={<DashboardLayout><IncomeStatement /></DashboardLayout>} />
-              
-              {/* Post-Sale Routes */}
-              <Route path='/post-sale/referrals' element={<DashboardLayout><Referrals /></DashboardLayout>} />
-              <Route path='/post-sale/rewards' element={<DashboardLayout><Rewards /></DashboardLayout>} />
-              <Route path='/post-sale/points' element={<DashboardLayout><Points /></DashboardLayout>} />
-              
-              {/* Client Portal Routes */}
-              <Route path='/client/my-bookings' element={<DashboardLayout><MyBookings /></DashboardLayout>} />
-              <Route path='/client/documents' element={<DashboardLayout><ClientDocuments /></DashboardLayout>} />
-              <Route path='/client/payments' element={<DashboardLayout><ClientPayments /></DashboardLayout>} />
-              <Route path='/client/referrals' element={<DashboardLayout><ClientReferrals /></DashboardLayout>} />
-              
-              {/* Settings Route */}
-              <Route path='/settings' element={<DashboardLayout><Settings /></DashboardLayout>} />
-              
-              {/* Profile Route */}
-              <Route path='/profile' element={<DashboardLayout><UserProfile /></DashboardLayout>} />
+                {/* Accounting Routes */}
+                <Route path='/accounting/expense-tracking' element={<DashboardLayout><ExpenseTracking /></DashboardLayout>} />
+                <Route path='/accounting/income-statement' element={<DashboardLayout><IncomeStatement /></DashboardLayout>} />
+                
+                {/* Post-Sale Routes */}
+                <Route path='/post-sale/referrals' element={<DashboardLayout><Referrals /></DashboardLayout>} />
+                <Route path='/post-sale/rewards' element={<DashboardLayout><Rewards /></DashboardLayout>} />
+                <Route path='/post-sale/points' element={<DashboardLayout><Points /></DashboardLayout>} />
+                
+                {/* Client Portal Routes */}
+                <Route path='/client/my-bookings' element={<DashboardLayout><MyBookings /></DashboardLayout>} />
+                <Route path='/client/documents' element={<DashboardLayout><ClientDocuments /></DashboardLayout>} />
+                <Route path='/client/payments' element={<DashboardLayout><ClientPayments /></DashboardLayout>} />
+                <Route path='/client/referrals' element={<DashboardLayout><ClientReferrals /></DashboardLayout>} />
+                
+                {/* Settings Route */}
+                <Route path='/settings' element={<DashboardLayout><Settings /></DashboardLayout>} />
+                
+                {/* Profile Route */}
+                <Route path='/profile' element={<DashboardLayout><UserProfile /></DashboardLayout>} />
 
-              {/* Theme Demo Route */}
-              <Route path='/theme-demo' element={<DashboardLayout><ThemeDemo /></DashboardLayout>} />
-              
-              <Route path="*" element={<DashboardLayout><main style={{ padding: "1rem" }}><p>There's nothing here!</p></main></DashboardLayout>} />
-            </Routes>
-          </HouseProvider>
+                {/* Theme Demo Route */}
+                <Route path='/theme-demo' element={<DashboardLayout><ThemeDemo /></DashboardLayout>} />
+                
+                <Route path="*" element={<DashboardLayout><main style={{ padding: "1rem" }}><p>There's nothing here!</p></main></DashboardLayout>} />
+              </Routes>
+            </HouseProvider>
+          </RoleProvider>
         </AuthProvider>
       </ThemeProvider>
     </UserProvider>

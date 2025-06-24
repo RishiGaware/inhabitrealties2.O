@@ -11,7 +11,8 @@ export const USER_ENDPOINTS = {
 };
 
 export const ROLE_ENDPOINTS = {
-  GET_ALL: '/roles',
-  CREATE: '/roles',
-  // Add more role endpoints as needed
+  GET_ALL: '/roles/',
+  CREATE: '/roles/create',
+  EDIT: (id) => `/roles/edit/${id}`,
+  DELETE: (id) => `/roles/delete/${id}`,
 };

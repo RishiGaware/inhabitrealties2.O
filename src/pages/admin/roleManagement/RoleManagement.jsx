@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   useDisclosure,
@@ -6,7 +6,6 @@ import {
   VStack,
   HStack,
   Text,
-  useToast,
   IconButton,
   InputGroup,
   InputLeftElement,
@@ -23,205 +22,9 @@ import TableContainer from '../../../components/common/Table/TableContainer';
 import FormModal from '../../../components/common/FormModal';
 import FloatingInput from '../../../components/common/FloatingInput';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
-
-// Dummy data for roles
-const dummyRoles = [
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '1',
-    name: 'Super Admin',
-    description: 'Full system access',
-    permissions: ['all'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '2',
-    name: 'Property Manager',
-    description: 'Manage properties and listings',
-    permissions: ['properties.manage', 'listings.manage'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-  {
-    _id: '3',
-    name: 'Sales Agent',
-    description: 'Handle sales and client interactions',
-    permissions: ['leads.manage', 'clients.view'],
-    createdAt: '2024-03-20',
-    status: true,
-  },
-];
+import { useRoleContext } from '../../../context/RoleContext';
 
 const RoleManagement = () => {
-  const [roles, setRoles] = useState(dummyRoles);
   const [selectedRole, setSelectedRole] = useState(null);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
@@ -229,7 +32,7 @@ const RoleManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredRoles, setFilteredRoles] = useState(dummyRoles);
+  const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isDeleteOpen,
@@ -238,20 +41,42 @@ const RoleManagement = () => {
   } = useDisclosure();
   const [roleToDelete, setRoleToDelete] = useState(null);
 
-  const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
+  // Get role context
+  const roleContext = useRoleContext();
+  const { roles, getAllRoles, addRole, updateRole, removeRole } = roleContext;
+
+  // Memoize filtered roles to prevent unnecessary re-renders
+  const filteredRoles = useMemo(() => {
+    let filtered = roles;
+    if (searchTerm) {
+      filtered = filtered.filter(role =>
+        role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        role.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    return filtered;
+  }, [roles, searchTerm]);
+
+  useEffect(() => {
+    getAllRoles();
+  }, [getAllRoles]);
+
+  // Only reset page when filtered results change significantly
+  useEffect(() => {
+    const maxPage = Math.ceil(filteredRoles.length / pageSize);
+    if (currentPage > maxPage && maxPage > 0) {
+      setCurrentPage(1);
+    }
+  }, [filteredRoles.length, pageSize, currentPage]);
+
   const handleSearch = (event) => {
-    const { value } = event.target;
-    setSearchTerm(value);
-    const filtered = roles.filter(role =>
-      role.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredRoles(filtered);
+    setSearchTerm(event.target.value);
   };
 
   const handlePageChange = (newPage) => {
-    if (newPage > 0 && newPage <= totalPages) {
+    if (newPage > 0 && newPage <= Math.ceil(filteredRoles.length / pageSize)) {
       setCurrentPage(newPage);
     }
   };
@@ -271,25 +96,39 @@ const RoleManagement = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = 'Role name is required';
-    if (!formData.description) newErrors.description = 'Description is required';
+    if (!formData.name?.trim()) {
+      newErrors.name = 'Role name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Role name must be at least 2 characters';
+    } else if (formData.name.trim().length > 50) {
+      newErrors.name = 'Role name must be less than 50 characters';
+    }
+    if (!formData.description?.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length > 200) {
+      newErrors.description = 'Description must be less than 200 characters';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleAddNew = () => {
     setSelectedRole(null);
-    setFormData({});
+    setFormData({
+      name: '',
+      description: '',
+    });
+    setErrors({});
     onOpen();
   };
 
   const handleEdit = (role) => {
     setSelectedRole(role);
     setFormData({
-      name: role.name,
-      description: role.description,
-      permissions: role.permissions.join(','),
+      name: role.name || '',
+      description: role.description || '',
     });
+    setErrors({});
     onOpen();
   };
 
@@ -298,59 +137,82 @@ const RoleManagement = () => {
     onDeleteOpen();
   };
 
-  const confirmDelete = () => {
-    console.log('Deleting role:', roleToDelete);
-    setRoles(roles.filter((r) => r._id !== roleToDelete._id));
-    setFilteredRoles(filteredRoles.filter((r) => r._id !== roleToDelete._id));
-    onDeleteClose();
-    setRoleToDelete(null);
-    toast({
-      title: 'Role Deleted',
-      description: `Role "${roleToDelete.name}" has been deleted.`,
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
+  const confirmDelete = async () => {
+    if (roleToDelete && !isApiCallInProgress) {
+      setIsApiCallInProgress(true);
+      try {
+        await removeRole(roleToDelete._id);
+        onDeleteClose();
+        setRoleToDelete(null);
+      } catch (error) {
+        console.error('Delete error:', error);
+      } finally {
+        setIsApiCallInProgress(false);
+      }
+    }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
+    
+    // Prevent multiple API calls
+    if (isApiCallInProgress || isSubmitting) {
+      console.log('API call already in progress, ignoring duplicate request');
+      return;
+    }
+    
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const roleData = { ...formData, permissions: formData.permissions.split(',') };
+    setIsApiCallInProgress(true);
 
+    try {
       if (selectedRole) {
-        setRoles(
-          roles.map(r =>
-            r._id === selectedRole._id ? { ...selectedRole, ...roleData } : r
-          )
-        );
-        toast({
-          title: 'Role Updated',
-          status: 'success',
-        });
+        // Prepare edit data - backend will convert name to uppercase
+        const editData = {
+          name: formData.name,
+          description: formData.description,
+        };
+        
+        console.log('Editing role:', selectedRole._id, 'with data:', editData);
+        await updateRole(selectedRole._id, editData);
       } else {
-        setRoles([...roles, { ...roleData, _id: Date.now().toString(), createdAt: new Date().toISOString().split('T')[0], status: true }]);
-        toast({
-          title: 'Role Created',
-          status: 'success',
-        });
+        // Prepare add data - backend will convert name to uppercase
+        const addData = {
+          name: formData.name,
+          description: formData.description,
+        };
+        
+        console.log('Adding new role with data:', addData);
+        await addRole(addData);
       }
-
+      
       setIsSubmitting(false);
+      setIsApiCallInProgress(false);
       setSelectedRole(null);
       setFormData({});
-    }, 1000);
+      onClose();
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setIsSubmitting(false);
+      setIsApiCallInProgress(false);
+      // Don't close the modal on error so user can fix the data
+    }
   };
 
   const columns = [
     { key: 'name', label: 'Role Name' },
     { key: 'description', label: 'Description' },
-    { key: 'permissions', label: 'Permissions' },
-    { key: 'createdAt', label: 'Created Date' },
-    { key: 'status', label: 'Status', render: (s) => (s ? 'Active' : 'Inactive') },
+    { 
+      key: 'createdAt', 
+      label: 'Created Date', 
+      render: (date) => date ? new Date(date).toLocaleDateString() : 'N/A' 
+    },
+    { 
+      key: 'published', 
+      label: 'Status', 
+      render: (published) => published ? 'Active' : 'Inactive' 
+    },
   ];
 
   const renderRowActions = (role) => (
@@ -373,8 +235,6 @@ const RoleManagement = () => {
       />
     </HStack>
   );
-
-  const totalPages = Math.ceil(filteredRoles.length / pageSize);
 
   return (
     <Box p={5}>
@@ -416,13 +276,16 @@ const RoleManagement = () => {
       <TableContainer>
         <CommonTable
           columns={columns}
-          data={filteredRoles}
+          data={filteredRoles.slice(
+            (currentPage - 1) * pageSize,
+            currentPage * pageSize
+          )}
           rowActions={renderRowActions}
           emptyStateMessage="No roles match your search."
         />
         <CommonPagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          totalPages={Math.ceil(filteredRoles.length / pageSize)}
           onPageChange={handlePageChange}
           pageSize={pageSize}
           onPageSizeChange={handlePageSizeChange}
@@ -435,6 +298,11 @@ const RoleManagement = () => {
         onClose={() => {
           onClose();
           setSelectedRole(null);
+          setFormData({
+            name: '',
+            description: '',
+          });
+          setErrors({});
         }}
         title={selectedRole ? 'Edit Role' : 'Add New Role'}
         onSave={handleFormSubmit}
@@ -449,6 +317,7 @@ const RoleManagement = () => {
               value={formData.name || ''}
               onChange={handleInputChange}
               error={errors.name}
+              maxLength={50}
             />
           </FormControl>
           <FormControl isInvalid={!!errors.description}>
@@ -459,15 +328,7 @@ const RoleManagement = () => {
               value={formData.description || ''}
               onChange={handleInputChange}
               error={errors.description}
-            />
-          </FormControl>
-          <FormControl>
-            <FloatingInput
-              id="permissions"
-              name="permissions"
-              label="Permissions (comma-separated)"
-              value={formData.permissions || ''}
-              onChange={handleInputChange}
+              maxLength={200}
             />
           </FormControl>
         </VStack>

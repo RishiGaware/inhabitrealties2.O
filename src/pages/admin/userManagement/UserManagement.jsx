@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Box,
   useDisclosure,
@@ -15,6 +15,8 @@ import {
   Flex,
   useBreakpointValue,
   Heading,
+  Switch,
+  FormLabel,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon, SearchIcon, AddIcon } from '@chakra-ui/icons';
 import CommonTable from '../../../components/common/Table/CommonTable';
@@ -27,7 +29,7 @@ import DeleteConfirmationModal from '../../../components/common/DeleteConfirmati
 import { useUserContext } from '../../../context/UserContext';
 
 const UserManagement = () => {
-  const { users, getAllUsers, addUser, updateUser, removeUser } = useUserContext();
+  // All hooks must be called at the top level
   const [selectedUser, setSelectedUser] = useState(null);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
@@ -36,7 +38,6 @@ const UserManagement = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isDeleteOpen,
@@ -44,13 +45,29 @@ const UserManagement = () => {
     onClose: onDeleteClose,
   } = useDisclosure();
   const [userToDelete, setUserToDelete] = useState(null);
+  const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  useEffect(() => {
-    getAllUsers();
-  }, [getAllUsers]);
+  // Get user context - this will throw an error if not wrapped in UserProvider
+  const userContext = useUserContext();
+  const { users, getAllUsers, addUser, updateUser, removeUser } = userContext;
 
-  useEffect(() => {
+  // Role options based on your backend structure
+  const roleOptions = [
+    { value: '68162f63ff2da55b40ca61b8', label: 'ADMIN' },
+    { value: '68162f63ff2da55b40ca61b9', label: 'SALES' },
+    { value: '68162f63ff2da55b40ca61ba', label: 'MANAGER' },
+    { value: '68162f63ff2da55b40ca61bb', label: 'USER' },
+  ];
+
+  // Helper function to get role label from value
+  const getRoleLabel = (roleValue) => {
+    const role = roleOptions.find(r => r.value === roleValue);
+    return role ? role.label : roleValue;
+  };
+
+  // Memoize filtered users to prevent unnecessary re-renders
+  const filteredUsers = useMemo(() => {
     let filtered = users;
     if (searchTerm) {
       filtered = filtered.filter(user =>
@@ -62,9 +79,20 @@ const UserManagement = () => {
     if (roleFilter) {
       filtered = filtered.filter(user => user.role === roleFilter);
     }
-    setFilteredUsers(filtered);
-    setCurrentPage(1);
+    return filtered;
   }, [users, searchTerm, roleFilter]);
+
+  useEffect(() => {
+    getAllUsers();
+  }, [getAllUsers]);
+
+  // Only reset page when filtered results change significantly
+  useEffect(() => {
+    const maxPage = Math.ceil(filteredUsers.length / pageSize);
+    if (currentPage > maxPage && maxPage > 0) {
+      setCurrentPage(1);
+    }
+  }, [filteredUsers.length, pageSize, currentPage]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -72,19 +100,31 @@ const UserManagement = () => {
 
   const handleAddNew = () => {
     setSelectedUser(null);
-    setFormData({});
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      role: '',
+      password: '',
+      confirmPassword: '',
+      published: true,
+    });
+    setErrors({});
     onOpen();
   };
 
   const handleEdit = (user) => {
     setSelectedUser(user);
     setFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      role: user.role,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      phoneNumber: user.phoneNumber || '',
+      role: user.role || '',
+      published: user.published !== undefined ? user.published : true,
     });
+    setErrors({});
     onOpen();
   };
 
@@ -94,43 +134,142 @@ const UserManagement = () => {
   };
 
   const confirmDelete = async () => {
-    if (userToDelete) {
-      await removeUser(userToDelete._id);
-      onDeleteClose();
-      setUserToDelete(null);
+    if (userToDelete && !isApiCallInProgress) {
+      setIsApiCallInProgress(true);
+      try {
+        await removeUser(userToDelete._id);
+        onDeleteClose();
+        setUserToDelete(null);
+      } catch (error) {
+        console.error('Delete error:', error);
+      } finally {
+        setIsApiCallInProgress(false);
+      }
     }
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-    setIsSubmitting(true);
-    if (selectedUser) {
-      await updateUser(selectedUser._id, formData);
-    } else {
-      await addUser(formData);
+    
+    // Prevent multiple API calls
+    if (isApiCallInProgress || isSubmitting) {
+      console.log('API call already in progress, ignoring duplicate request');
+      return;
     }
-    setIsSubmitting(false);
-    setSelectedUser(null);
-    setFormData({});
-    onClose();
-    setCurrentPage(1);
+    
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    setIsApiCallInProgress(true);
+    
+    try {
+      if (selectedUser) {
+        // Prepare edit data with all necessary fields
+        const editData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          role: formData.role,
+          published: formData.published !== undefined ? formData.published : true,
+        };
+        
+        console.log('Editing user:', selectedUser._id, 'with data:', editData);
+        await updateUser(selectedUser._id, editData);
+      } else {
+        // Prepare add data
+        const addData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          role: formData.role,
+          password: formData.password,
+          published: formData.published !== undefined ? formData.published : true,
+        };
+        
+        console.log('Adding new user with data:', addData);
+        await addUser(addData);
+      }
+      
+      setIsSubmitting(false);
+      setIsApiCallInProgress(false);
+      setSelectedUser(null);
+      setFormData({});
+      onClose();
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setIsSubmitting(false);
+      setIsApiCallInProgress(false);
+      // Don't close the modal on error so user can fix the data
+    }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.firstName) newErrors.firstName = 'First name is required';
-    if (!formData.lastName) newErrors.lastName = 'Last name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email format';
-    if (!formData.role) newErrors.role = 'Role is required';
+    
+    // Essential validations only
+    if (!formData.firstName?.trim()) {
+      newErrors.firstName = 'First name is required';
+    }
+    
+    if (!formData.lastName?.trim()) {
+      newErrors.lastName = 'Last name is required';
+    }
+    
+    if (!formData.email?.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email.trim())) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    // Phone number validation - 10 digits only
+    if (!formData.phoneNumber?.trim()) {
+      newErrors.phoneNumber = 'Phone number is required';
+    } else {
+      const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
+      if (cleanPhone.length !== 10) {
+        newErrors.phoneNumber = 'Phone number must be exactly 10 digits';
+      }
+    }
+    
+    if (!formData.role?.trim()) {
+      newErrors.role = 'Role is required';
+    }
+    
+    // Password validation (only for new users)
+    if (!selectedUser) {
+      if (!formData.password?.trim()) {
+        newErrors.password = 'Password is required';
+      } else if (formData.password.length < 6) {
+        newErrors.password = 'Password must be at least 6 characters';
+      }
+      
+      if (!formData.confirmPassword?.trim()) {
+        newErrors.confirmPassword = 'Please confirm your password';
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      }
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, type, checked } = e.target;
+    let newValue = type === 'checkbox' ? checked : value;
+    
+    // Special handling for phone number formatting
+    if (name === 'phoneNumber') {
+      // Remove all non-digit characters and limit to 10 digits
+      const digitsOnly = value.replace(/\D/g, '');
+      newValue = digitsOnly.slice(0, 10);
+    }
+    
+    setFormData({ ...formData, [name]: newValue });
+    
+    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors({ ...errors, [name]: '' });
     }
@@ -151,7 +290,7 @@ const UserManagement = () => {
     { key: 'name', label: 'Name', render: (_, row) => `${row.firstName} ${row.lastName}` },
     { key: 'email', label: 'Email' },
     { key: 'phoneNumber', label: 'Phone' },
-    { key: 'role', label: 'Role' },
+    { key: 'role', label: 'Role', render: (role) => getRoleLabel(role) },
     { key: 'published', label: 'Status', render: (s) => (s ? 'Active' : 'Inactive') },
     {
       Header: 'Actions',
@@ -234,8 +373,11 @@ const UserManagement = () => {
           onChange={(e) => setRoleFilter(e.target.value)}
           placeholder="Filter by role"
         >
-          <option value="ADMIN">Admin</option>
-          <option value="SALES">Sales</option>
+          {roleOptions.map(role => (
+            <option key={role.value} value={role.value}>
+              {role.label}
+            </option>
+          ))}
         </Select>
       </HStack>
 
@@ -264,7 +406,17 @@ const UserManagement = () => {
         onClose={() => {
           onClose();
           setSelectedUser(null);
-          setFormData({});
+          setFormData({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phoneNumber: '',
+            role: '',
+            password: '',
+            confirmPassword: '',
+            published: true,
+          });
+          setErrors({});
         }}
         title={selectedUser ? 'Edit User' : 'Add New User'}
         onSave={handleFormSubmit}
@@ -272,11 +424,49 @@ const UserManagement = () => {
       >
         <VStack spacing={4}>
           <HStack>
-            <FormControl isInvalid={!!errors.firstName}><FloatingInput id="firstName" name="firstName" label="First Name" value={formData.firstName || ''} onChange={handleInputChange} error={errors.firstName} /></FormControl>
-            <FormControl isInvalid={!!errors.lastName}><FloatingInput id="lastName" name="lastName" label="Last Name" value={formData.lastName || ''} onChange={handleInputChange} error={errors.lastName} /></FormControl>
+            <FormControl isInvalid={!!errors.firstName}>
+              <FloatingInput 
+                id="firstName" 
+                name="firstName" 
+                label="First Name" 
+                value={formData.firstName || ''} 
+                onChange={handleInputChange} 
+                error={errors.firstName} 
+              />
+            </FormControl>
+            <FormControl isInvalid={!!errors.lastName}>
+              <FloatingInput 
+                id="lastName" 
+                name="lastName" 
+                label="Last Name" 
+                value={formData.lastName || ''} 
+                onChange={handleInputChange} 
+                error={errors.lastName} 
+              />
+            </FormControl>
           </HStack>
-          <FormControl isInvalid={!!errors.email}><FloatingInput id="email" name="email" label="Email" type="email" value={formData.email || ''} onChange={handleInputChange} error={errors.email} /></FormControl>
-          <FormControl><FloatingInput id="phoneNumber" name="phoneNumber" label="Phone Number" value={formData.phoneNumber || ''} onChange={handleInputChange} /></FormControl>
+          <FormControl isInvalid={!!errors.email}>
+            <FloatingInput 
+              id="email" 
+              name="email" 
+              label="Email" 
+              type="email" 
+              value={formData.email || ''} 
+              onChange={handleInputChange} 
+              error={errors.email} 
+            />
+          </FormControl>
+          <FormControl isInvalid={!!errors.phoneNumber}>
+            <FloatingInput 
+              id="phoneNumber" 
+              name="phoneNumber" 
+              label="Phone Number" 
+              value={formData.phoneNumber || ''} 
+              onChange={handleInputChange}
+              error={errors.phoneNumber}
+              placeholder="Enter 10 digit number"
+            />
+          </FormControl>
           <FormControl isInvalid={!!errors.role}>
             <FloatingSelect
               id="role"
@@ -285,8 +475,50 @@ const UserManagement = () => {
               value={formData.role || ''}
               onChange={handleInputChange}
               error={errors.role}
-              options={['ADMIN', 'SALES', 'MANAGER']}
+              options={roleOptions.map(role => role.value)}
+              optionLabels={roleOptions.map(role => role.label)}
               placeholder="Select a role"
+            />
+          </FormControl>
+          
+          {/* Password fields - only show for new users */}
+          {!selectedUser && (
+            <>
+              <FormControl isInvalid={!!errors.password}>
+                <FloatingInput 
+                  id="password" 
+                  name="password" 
+                  label="Password" 
+                  type="password" 
+                  value={formData.password || ''} 
+                  onChange={handleInputChange} 
+                  error={errors.password} 
+                />
+              </FormControl>
+              <FormControl isInvalid={!!errors.confirmPassword}>
+                <FloatingInput 
+                  id="confirmPassword" 
+                  name="confirmPassword" 
+                  label="Confirm Password" 
+                  type="password" 
+                  value={formData.confirmPassword || ''} 
+                  onChange={handleInputChange} 
+                  error={errors.confirmPassword} 
+                />
+              </FormControl>
+            </>
+          )}
+          
+          <FormControl display="flex" alignItems="center">
+            <FormLabel htmlFor="published" mb="0">
+              Active Status
+            </FormLabel>
+            <Switch
+              id="published"
+              name="published"
+              isChecked={formData.published !== undefined ? formData.published : true}
+              onChange={handleInputChange}
+              colorScheme="brand"
             />
           </FormControl>
         </VStack>

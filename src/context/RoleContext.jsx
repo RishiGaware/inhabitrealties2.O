@@ -1,33 +1,35 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { fetchUsers, registerUser, editUser, deleteUser } from '../services/usermanagement/userService';
+import { fetchRoles, createRole, editRole, deleteRole } from '../services/rolemanagement/roleService';
 import { showSuccessToast, showErrorToast } from '../utils/toastUtils';
 
 // Default context value
 const defaultContextValue = {
-  users: [],
+  roles: [],
   loading: false,
-  getAllUsers: () => {},
-  addUser: () => {},
-  updateUser: () => {},
-  removeUser: () => {},
+  getAllRoles: () => {},
+  addRole: () => {},
+  updateRole: () => {},
+  removeRole: () => {},
 };
 
-const UserContext = createContext(defaultContextValue);
+const RoleContext = createContext(defaultContextValue);
 
-export const UserProvider = ({ children }) => {
-  const [users, setUsers] = useState([]);
+export const RoleProvider = ({ children }) => {
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getAllUsers = useCallback(async () => {
+  const getAllRoles = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetchUsers();
-      setUsers(res.data || []);
+      const res = await fetchRoles();
+      console.log('RoleContext: Fetch roles response:', res);
+      // Backend returns: { message: 'all roles', count: 2, data: [...] }
+      setRoles(res.data || []);
     } catch (err) {
-      console.error('UserContext: Fetch users error:', err);
+      console.error('RoleContext: Fetch roles error:', err);
       
       // Show more specific error messages based on backend response
-      let errorMessage = 'Failed to fetch users';
+      let errorMessage = 'Failed to fetch roles';
       
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
@@ -38,9 +40,9 @@ export const UserProvider = ({ children }) => {
       } else if (err?.response?.status === 401) {
         errorMessage = 'Unauthorized - Please log in again';
       } else if (err?.response?.status === 403) {
-        errorMessage = 'Forbidden - You do not have permission to view users';
+        errorMessage = 'Forbidden - You do not have permission to view roles';
       } else if (err?.response?.status >= 500) {
-        errorMessage = 'Server error - Please try again later';
+        errorMessage = 'Internal server error - Please try again later';
       } else if (err?.code === 'NETWORK_ERROR') {
         errorMessage = 'Network error - Please check your connection';
       } else if (err?.code === 'ECONNABORTED') {
@@ -53,31 +55,34 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
-  const addUser = async (userData) => {
+  const addRole = async (roleData) => {
     setLoading(true);
     try {
-      const response = await registerUser(userData);
-      console.log('UserContext: Add user response:', response);
+      const response = await createRole(roleData);
+      console.log('RoleContext: Add role response:', response);
       
-      // Add the new user to local state directly
-      const newUser = {
-        ...userData,
+      // Add the new role to local state directly
+      // Backend returns: { message: 'role added successfully', data: role }
+      const newRole = {
+        ...roleData,
         _id: response.data?._id || Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        name: response.data?.name || roleData.name.toUpperCase(),
+        description: response.data?.description || roleData.description,
+        createdAt: response.data?.createdAt || new Date().toISOString(),
+        published: response.data?.published !== undefined ? response.data.published : true,
       };
       
-      setUsers(prevUsers => [...prevUsers, newUser]);
+      setRoles(prevRoles => [...prevRoles, newRole]);
       
       // Show the actual success message from the backend
-      const successMessage = response?.message || 'User added successfully';
+      const successMessage = response?.message || 'Role added successfully';
       showSuccessToast(successMessage);
       
     } catch (err) {
-      console.error('UserContext: Add user error:', err);
+      console.error('RoleContext: Add role error:', err);
       
       // Show more specific error messages based on backend response
-      let errorMessage = 'Failed to add user';
+      let errorMessage = 'Failed to add role';
       
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
@@ -86,13 +91,13 @@ export const UserProvider = ({ children }) => {
       } else if (err?.message) {
         errorMessage = err.message;
       } else if (err?.response?.status === 400) {
-        errorMessage = 'Invalid data provided - Please check your input';
+        errorMessage = 'Bad request - Please check your input data';
       } else if (err?.response?.status === 409) {
-        errorMessage = 'User with this email already exists';
+        errorMessage = 'Role with this name already exists';
       } else if (err?.response?.status === 422) {
         errorMessage = 'Validation error - Please check your input data';
       } else if (err?.response?.status >= 500) {
-        errorMessage = 'Server error - Please try again later';
+        errorMessage = 'Internal server error - Please try again later';
       }
       
       showErrorToast(errorMessage);
@@ -102,31 +107,37 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const updateUser = async (id, userData) => {
+  const updateRole = async (id, roleData) => {
     setLoading(true);
     try {
-      console.log('UserContext: Updating user with ID:', id);
-      console.log('UserContext: Update data:', userData);
+      console.log('RoleContext: Updating role with ID:', id);
+      console.log('RoleContext: Update data:', roleData);
       
-      const response = await editUser(id, userData);
-      console.log('UserContext: Update response:', response);
+      const response = await editRole(id, roleData);
+      console.log('RoleContext: Update response:', response);
       
-      // Update the local state directly instead of fetching all users again
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user._id === id 
-            ? { ...user, ...userData, updatedAt: new Date().toISOString() }
-            : user
+      // Update the local state directly instead of fetching all roles again
+      // Backend returns: { message: 'role updated successfully' } - no data
+      setRoles(prevRoles => 
+        prevRoles.map(role => 
+          role._id === id 
+            ? { 
+                ...role, 
+                name: roleData.name.toUpperCase(),
+                description: roleData.description,
+                updatedAt: new Date().toISOString() 
+              }
+            : role
         )
       );
       
       // Show the actual success message from the backend
-      const successMessage = response?.message || 'User updated successfully';
+      const successMessage = response?.message || 'Role updated successfully';
       showSuccessToast(successMessage);
       
     } catch (err) {
-      console.error('UserContext: Update user error:', err);
-      console.error('UserContext: Error details:', {
+      console.error('RoleContext: Update role error:', err);
+      console.error('RoleContext: Error details:', {
         message: err?.message,
         response: err?.response?.data,
         status: err?.response?.status,
@@ -134,7 +145,7 @@ export const UserProvider = ({ children }) => {
       });
       
       // Show more specific error messages based on backend response
-      let errorMessage = 'Failed to update user';
+      let errorMessage = 'Failed to update role';
       
       if (err?.response?.data?.message) {
         // Use the actual error message from the backend
@@ -145,17 +156,17 @@ export const UserProvider = ({ children }) => {
       } else if (err?.message) {
         errorMessage = err.message;
       } else if (err?.response?.status === 404) {
-        errorMessage = 'User not found';
+        errorMessage = 'Role not found';
       } else if (err?.response?.status === 400) {
-        errorMessage = 'Invalid data provided - Please check your input';
+        errorMessage = 'Bad request - Please check your input data';
       } else if (err?.response?.status === 401) {
         errorMessage = 'Unauthorized - Please log in again';
       } else if (err?.response?.status === 403) {
-        errorMessage = 'Forbidden - You do not have permission to update this user';
+        errorMessage = 'Forbidden - You do not have permission to update this role';
       } else if (err?.response?.status === 422) {
         errorMessage = 'Validation error - Please check your input data';
       } else if (err?.response?.status >= 500) {
-        errorMessage = 'Server error - Please try again later';
+        errorMessage = 'Internal server error - Please try again later';
       } else if (err?.code === 'NETWORK_ERROR') {
         errorMessage = 'Network error - Please check your connection';
       } else if (err?.code === 'ECONNABORTED') {
@@ -169,24 +180,25 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const removeUser = async (id) => {
+  const removeRole = async (id) => {
     setLoading(true);
     try {
-      const response = await deleteUser(id);
-      console.log('UserContext: Delete user response:', response);
+      const response = await deleteRole(id);
+      console.log('RoleContext: Delete role response:', response);
       
-      // Remove the user from local state directly
-      setUsers(prevUsers => prevUsers.filter(user => user._id !== id));
+      // Remove the role from local state directly (soft delete)
+      // Backend returns: { message: 'role deleted successfully' } - no data
+      setRoles(prevRoles => prevRoles.filter(role => role._id !== id));
       
       // Show the actual success message from the backend
-      const successMessage = response?.message || 'User deleted successfully';
+      const successMessage = response?.message || 'Role deleted successfully';
       showSuccessToast(successMessage);
       
     } catch (err) {
-      console.error('UserContext: Delete user error:', err);
+      console.error('RoleContext: Delete role error:', err);
       
       // Show more specific error messages based on backend response
-      let errorMessage = 'Failed to delete user';
+      let errorMessage = 'Failed to delete role';
       
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
@@ -195,11 +207,11 @@ export const UserProvider = ({ children }) => {
       } else if (err?.message) {
         errorMessage = err.message;
       } else if (err?.response?.status === 404) {
-        errorMessage = 'User not found';
+        errorMessage = 'Role not found';
       } else if (err?.response?.status === 403) {
-        errorMessage = 'Forbidden - You do not have permission to delete this user';
+        errorMessage = 'Forbidden - You do not have permission to delete this role';
       } else if (err?.response?.status >= 500) {
-        errorMessage = 'Server error - Please try again later';
+        errorMessage = 'Internal server error - Please try again later';
       }
       
       showErrorToast(errorMessage);
@@ -210,25 +222,25 @@ export const UserProvider = ({ children }) => {
   };
 
   const contextValue = {
-    users,
+    roles,
     loading,
-    getAllUsers,
-    addUser,
-    updateUser,
-    removeUser,
+    getAllRoles,
+    addRole,
+    updateRole,
+    removeRole,
   };
 
   return (
-    <UserContext.Provider value={contextValue}>
+    <RoleContext.Provider value={contextValue}>
       {children}
-    </UserContext.Provider>
+    </RoleContext.Provider>
   );
 };
 
-export const useUserContext = () => {
-  const context = useContext(UserContext);
+export const useRoleContext = () => {
+  const context = useContext(RoleContext);
   if (context === undefined) {
-    throw new Error('useUserContext must be used within a UserProvider');
+    throw new Error('useRoleContext must be used within a RoleProvider');
   }
   return context;
 }; 
