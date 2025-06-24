@@ -4,7 +4,7 @@ import logo from '../../assets/images/logo.png';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
+import { showSuccessToast, showErrorToast } from '../../utils/toastUtils';
 import { AUTH_IMAGES } from '../../config/images';
 
 const NewLogin = () => {
@@ -17,7 +17,7 @@ const NewLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Please enter both username and password.');
+      showErrorToast('Please enter both username and password.');
       return;
     }
     setLoading(true);
@@ -26,29 +26,29 @@ const NewLogin = () => {
       
       // Check if login was successful
       if (result && result.data) {
-        toast.success('Sign in successful! Welcome back.');
+        showSuccessToast('Sign in successful! Welcome back.');
         navigate('/dashboard');
       } else {
-        toast.error('Sign in failed. Please try again.');
+        showErrorToast('Sign in failed. Please try again.');
       }
     } catch (error) {
       // Handle different types of errors
       if (error && error.message) {
-        toast.error(error.message);
+        showErrorToast(error.message);
       } else if (error && error.error) {
-        toast.error(error.error);
+        showErrorToast(error.error);
       } else if (error && error.status === 401) {
-        toast.error('Invalid username or password. Please check your credentials.');
+        showErrorToast('Invalid username or password. Please check your credentials.');
       } else if (error && error.status === 404) {
-        toast.error('User not found. Please check your username.');
+        showErrorToast('User not found. Please check your username.');
       } else if (error && error.status === 500) {
-        toast.error('Server error. Please try again later.');
+        showErrorToast('Server error. Please try again later.');
       } else if (error && error.status >= 400 && error.status < 500) {
-        toast.error('Invalid request. Please check your input.');
+        showErrorToast('Invalid request. Please check your input.');
       } else if (error && error.status >= 500) {
-        toast.error('Server error. Please try again later.');
+        showErrorToast('Server error. Please try again later.');
       } else {
-        toast.error('An unexpected error occurred. Please try again.');
+        showErrorToast('An unexpected error occurred. Please try again.');
       }
     } finally {
       setLoading(false);

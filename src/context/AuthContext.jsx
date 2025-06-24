@@ -5,26 +5,34 @@ import { setApiLogoutHandler } from '../services/api';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState(null); // stores { token, message, data }
+  const [auth, setAuth] = useState(null); // stores complete login response: { message, token, data }
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     setApiLogoutHandler(logout);
-    const token = authService.getToken();
-    if (token) {
-      // In a real app, you'd verify the token with the backend and get user info
-      // For now, we'll assume the token is valid if it exists.
-      // You would also decode the token to get user info if it's a JWT.
-      setIsAuthenticated(true);
+    // Load auth data from localStorage on app start
+    const savedAuth = localStorage.getItem('auth');
+    if (savedAuth) {
+      try {
+        const parsedAuth = JSON.parse(savedAuth);
+        setAuth(parsedAuth);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Error parsing saved auth data:', error);
+        localStorage.removeItem('auth');
+      }
     }
   }, []);
 
   const login = async (credentials) => {
     try {
-      const data = await authService.login(credentials);
-      setAuth(data); // store the full response
+      const response = await authService.login(credentials);
+      // Store the complete response object
+      setAuth(response);
       setIsAuthenticated(true);
-      return data;
+      // Save to localStorage for persistence
+      localStorage.setItem('auth', JSON.stringify(response));
+      return response;
     } catch (error) {
       logout();
       throw error;
@@ -35,10 +43,39 @@ export const AuthProvider = ({ children }) => {
     authService.logout();
     setAuth(null);
     setIsAuthenticated(false);
+    // Clear from localStorage
+    localStorage.removeItem('auth');
   };
 
+  // Helper functions to access specific parts of the auth data
+  const getUser = () => auth?.data || null;
+  const getToken = () => auth?.token || null;
+  const getMessage = () => auth?.message || '';
+  const getUserId = () => auth?.data?._id || null;
+  const getUserEmail = () => auth?.data?.email || '';
+  const getUserName = () => {
+    if (!auth?.data) return '';
+    return `${auth.data.firstName || ''} ${auth.data.lastName || ''}`.trim();
+  };
+  const getUserRole = () => auth?.data?.role || null;
+  const isAdmin = () => auth?.data?.role === 'ADMIN' || auth?.data?.role === '68162f63ff2da55b40ca61b8';
+
   return (
-    <AuthContext.Provider value={{ auth, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ 
+      auth, 
+      isAuthenticated, 
+      login, 
+      logout,
+      // Helper functions
+      getUser,
+      getToken,
+      getMessage,
+      getUserId,
+      getUserEmail,
+      getUserName,
+      getUserRole,
+      isAdmin
+    }}>
       {children}
     </AuthContext.Provider>
   );

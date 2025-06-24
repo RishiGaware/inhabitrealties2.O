@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   useDisclosure,
@@ -6,7 +6,6 @@ import {
   VStack,
   HStack,
   Text,
-  useToast,
   IconButton,
   InputGroup,
   InputLeftElement,
@@ -25,30 +24,10 @@ import FormModal from '../../../components/common/FormModal';
 import FloatingInput from '../../../components/common/FloatingInput';
 import FloatingSelect from '../../../components/common/FloatingSelect';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
-
-const dummyUsers = [
-  {
-    _id: '1',
-    email: 'john.doe@example.com',
-    firstName: 'John',
-    lastName: 'Doe',
-    phoneNumber: '+1234567890',
-    role: 'ADMIN',
-    published: true,
-  },
-  {
-    _id: '2',
-    email: 'jane.smith@example.com',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    phoneNumber: '+1987654321',
-    role: 'SALES',
-    published: true,
-  },
-];
+import { useUserContext } from '../../../context/UserContext';
 
 const UserManagement = () => {
-  const [users, setUsers] = useState(dummyUsers);
+  const { users, getAllUsers, addUser, updateUser, removeUser } = useUserContext();
   const [selectedUser, setSelectedUser] = useState(null);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
@@ -57,7 +36,7 @@ const UserManagement = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState(dummyUsers);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isDeleteOpen,
@@ -65,23 +44,30 @@ const UserManagement = () => {
     onClose: onDeleteClose,
   } = useDisclosure();
   const [userToDelete, setUserToDelete] = useState(null);
-
-  const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const handleSearch = (event) => {
-    const { value } = event.target;
-    setSearchTerm(value);
-    const filtered = dummyUsers.filter(user => {
-      const matchesSearch =
-        user.email.toLowerCase().includes(value.toLowerCase()) ||
-        user.firstName.toLowerCase().includes(value.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(value.toLowerCase());
-      const matchesRole = roleFilter ? user.role === roleFilter : true;
-      return matchesSearch && matchesRole;
-    });
+  useEffect(() => {
+    getAllUsers();
+  }, [getAllUsers]);
+
+  useEffect(() => {
+    let filtered = users;
+    if (searchTerm) {
+      filtered = filtered.filter(user =>
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (roleFilter) {
+      filtered = filtered.filter(user => user.role === roleFilter);
+    }
     setFilteredUsers(filtered);
     setCurrentPage(1);
+  }, [users, searchTerm, roleFilter]);
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
   };
 
   const handleAddNew = () => {
@@ -107,49 +93,28 @@ const UserManagement = () => {
     onDeleteOpen();
   };
 
-  const confirmDelete = () => {
-    if (window.confirm(`Are you sure you want to delete the user "${userToDelete.firstName} ${userToDelete.lastName}"?`)) {
-      setUsers(users.filter(u => u._id !== userToDelete._id));
-      setFilteredUsers(filteredUsers.filter(u => u._id !== userToDelete._id));
-      toast({
-        title: 'User Deleted',
-        description: `User "${userToDelete.firstName} ${userToDelete.lastName}" has been deleted.`,
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
+  const confirmDelete = async () => {
+    if (userToDelete) {
+      await removeUser(userToDelete._id);
       onDeleteClose();
       setUserToDelete(null);
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     setIsSubmitting(true);
-    setTimeout(() => {
-      if (selectedUser) {
-        setUsers(
-          users.map(u =>
-            u._id === selectedUser._id ? { ...selectedUser, ...formData } : u
-          )
-        );
-        setFilteredUsers(users.map(u =>
-          u._id === selectedUser._id ? { ...selectedUser, ...formData } : u
-        ));
-        toast({ title: 'User Updated', status: 'success' });
-      } else {
-        setUsers([...users, { ...formData, _id: Date.now().toString(), published: true }]);
-        setFilteredUsers([...filteredUsers, { ...formData, _id: Date.now().toString(), published: true }]);
-        toast({ title: 'User Created', status: 'success' });
-      }
-
-      setIsSubmitting(false);
-      setSelectedUser(null);
-      setFormData({});
-      setCurrentPage(1);
-    }, 1000);
+    if (selectedUser) {
+      await updateUser(selectedUser._id, formData);
+    } else {
+      await addUser(formData);
+    }
+    setIsSubmitting(false);
+    setSelectedUser(null);
+    setFormData({});
+    onClose();
+    setCurrentPage(1);
   };
 
   const validateForm = () => {
