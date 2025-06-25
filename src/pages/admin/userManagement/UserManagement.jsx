@@ -582,7 +582,7 @@ const UserManagement = () => {
                 type="password" 
                 value={formData.password || ''} 
                 onChange={handleInputChange} 
-                placeholder="Leave blank to keep current password"
+                placeholder=""
               />
             </FormControl>
           )}
