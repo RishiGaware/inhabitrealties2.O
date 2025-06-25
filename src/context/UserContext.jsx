@@ -21,8 +21,13 @@ export const UserProvider = ({ children }) => {
   const getAllUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetchUsers();
-      setUsers(res.data || []);
+      const response = await fetchUsers();
+      console.log('UserContext: Fetch users response:', response);
+      
+      // Handle the new response format: { message, count, data }
+      const usersData = response.data || response;
+      setUsers(usersData);
+      
     } catch (err) {
       console.error('UserContext: Fetch users error:', err);
       
@@ -59,10 +64,10 @@ export const UserProvider = ({ children }) => {
       const response = await registerUser(userData);
       console.log('UserContext: Add user response:', response);
       
-      // Add the new user to local state directly
-      const newUser = {
+      // Handle the new response format
+      const newUser = response.data || {
         ...userData,
-        _id: response.data?._id || Date.now().toString(),
+        _id: Date.now().toString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

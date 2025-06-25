@@ -10,14 +10,17 @@ import {
   Button,
 } from '@chakra-ui/react';
 
-const FormModal = ({ isOpen, onClose, title, children, onSubmit, isSubmitting }) => {
+const FormModal = ({ isOpen, onClose, title, children, onSave, onSubmit, isSubmitting }) => {
+  // Use onSave if provided, otherwise fall back to onSubmit for backward compatibility
+  const handleSubmit = onSave || onSubmit;
+  
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
-        <form onSubmit={onSubmit}>
+        <form onSubmit={handleSubmit}>
           <ModalBody>{children}</ModalBody>
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose} disabled={isSubmitting}>

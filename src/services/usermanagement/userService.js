@@ -19,25 +19,7 @@ export const fetchUsers = async () => {
   }
 };
 
-// Create a new user
-export const createUser = async (userData) => {
-  try {
-    console.log('userService: Creating user with data:', userData);
-    const response = await api.post(USER_ENDPOINTS.CREATE, userData);
-    console.log('userService: Create user response:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('userService: Create user error:', error);
-    console.error('userService: Error details:', {
-      message: error?.message,
-      status: error?.response?.status,
-      data: error?.response?.data
-    });
-    throw error;
-  }
-};
-
-// Register a new user
+// Register a new user (admin creates user)
 export const registerUser = async (userData) => {
   try {
     console.log('userService: Registering user with data:', userData);
@@ -79,7 +61,7 @@ export const editUser = async (id, userData) => {
   }
 };
 
-// Delete user
+// Delete user (soft delete)
 export const deleteUser = async (id) => {
   try {
     console.log('userService: Deleting user with ID:', id);
@@ -101,5 +83,3 @@ export const deleteUser = async (id) => {
     throw error;
   }
 };
-
-// Add more user management functions as needed 

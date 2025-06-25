@@ -17,6 +17,7 @@ import {
   Heading,
   Switch,
   FormLabel,
+  useToast,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon, SearchIcon, AddIcon } from '@chakra-ui/icons';
 import CommonTable from '../../../components/common/Table/CommonTable';
@@ -24,9 +25,10 @@ import CommonPagination from '../../../components/common/pagination/CommonPagina
 import TableContainer from '../../../components/common/Table/TableContainer';
 import FormModal from '../../../components/common/FormModal';
 import FloatingInput from '../../../components/common/FloatingInput';
-import FloatingSelect from '../../../components/common/FloatingSelect';
+import SearchableSelect from '../../../components/common/SearchableSelect';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 import { useUserContext } from '../../../context/UserContext';
+import { fetchRoles } from '../../../services/rolemanagement/roleService';
 
 const UserManagement = () => {
   // All hooks must be called at the top level
@@ -38,6 +40,8 @@ const UserManagement = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+  const [roles, setRoles] = useState([]);
+  const [rolesLoading, setRolesLoading] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isDeleteOpen,
@@ -47,23 +51,51 @@ const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const toast = useToast();
 
-  // Get user context - this will throw an error if not wrapped in UserProvider
+  // Get user context
   const userContext = useUserContext();
   const { users, getAllUsers, addUser, updateUser, removeUser } = userContext;
 
-  // Role options based on your backend structure
-  const roleOptions = [
-    { value: '68162f63ff2da55b40ca61b8', label: 'ADMIN' },
-    { value: '68162f63ff2da55b40ca61b9', label: 'SALES' },
-    { value: '68162f63ff2da55b40ca61ba', label: 'MANAGER' },
-    { value: '68162f63ff2da55b40ca61bb', label: 'USER' },
-  ];
+  // Convert roles to options for dropdown - display name but use _id as value
+  const roleOptions = useMemo(() => {
+    return roles.map(role => ({
+      value: role._id,        // Use _id as value (this will be sent in payload)
+      label: role.name        // Use name as label (this will be displayed)
+    }));
+  }, [roles]);
 
-  // Helper function to get role label from value
+  // Helper function to get role label from value (for table display)
   const getRoleLabel = (roleValue) => {
     const role = roleOptions.find(r => r.value === roleValue);
     return role ? role.label : roleValue;
+  };
+
+  // Fetch roles from API
+  const getAllRoles = async () => {
+    setRolesLoading(true);
+    try {
+      console.log('UserManagement: Fetching roles...');
+      const response = await fetchRoles();
+      console.log('UserManagement: Roles response:', response);
+      
+      // Handle the response format: { message, count, data }
+      const rolesData = response.data || response;
+      setRoles(rolesData);
+      
+      console.log('UserManagement: Roles loaded:', rolesData.length);
+    } catch (error) {
+      console.error('UserManagement: Fetch roles error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load roles. Please refresh the page.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setRolesLoading(false);
+    }
   };
 
   // Memoize filtered users to prevent unnecessary re-renders
@@ -84,6 +116,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     getAllUsers();
+    getAllRoles(); // Fetch roles directly using the service
   }, [getAllUsers]);
 
   // Only reset page when filtered results change significantly
@@ -121,7 +154,7 @@ const UserManagement = () => {
       lastName: user.lastName || '',
       email: user.email || '',
       phoneNumber: user.phoneNumber || '',
-      role: user.role || '',
+      role: user.role || '', // This should be the role ID
       published: user.published !== undefined ? user.published : true,
     });
     setErrors({});
@@ -138,8 +171,8 @@ const UserManagement = () => {
       setIsApiCallInProgress(true);
       try {
         await removeUser(userToDelete._id);
-        onDeleteClose();
-        setUserToDelete(null);
+      onDeleteClose();
+      setUserToDelete(null);
       } catch (error) {
         console.error('Delete error:', error);
       } finally {
@@ -150,6 +183,9 @@ const UserManagement = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted!');
+    console.log('Form data:', formData);
+    console.log('Selected user:', selectedUser);
     
     // Prevent multiple API calls
     if (isApiCallInProgress || isSubmitting) {
@@ -157,8 +193,12 @@ const UserManagement = () => {
       return;
     }
     
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      console.log('Form validation failed');
+      return;
+    }
     
+    console.log('Starting API call...');
     setIsSubmitting(true);
     setIsApiCallInProgress(true);
     
@@ -170,12 +210,19 @@ const UserManagement = () => {
           lastName: formData.lastName,
           email: formData.email,
           phoneNumber: formData.phoneNumber,
-          role: formData.role,
+          role: formData.role, // This will be the role ID (e.g., "68162f63ff2da55b40ca61b8")
           published: formData.published !== undefined ? formData.published : true,
         };
         
+        // Add password only if provided
+        if (formData.password) {
+          editData.password = formData.password;
+        }
+        
         console.log('Editing user:', selectedUser._id, 'with data:', editData);
-        await updateUser(selectedUser._id, editData);
+        console.log('Role ID being sent:', editData.role);
+        const result = await updateUser(selectedUser._id, editData);
+        console.log('Edit result:', result);
       } else {
         // Prepare add data
         const addData = {
@@ -183,15 +230,18 @@ const UserManagement = () => {
           lastName: formData.lastName,
           email: formData.email,
           phoneNumber: formData.phoneNumber,
-          role: formData.role,
+          role: formData.role, // This will be the role ID (e.g., "68162f63ff2da55b40ca61b8")
           password: formData.password,
           published: formData.published !== undefined ? formData.published : true,
         };
         
         console.log('Adding new user with data:', addData);
-        await addUser(addData);
+        console.log('Role ID being sent:', addData.role);
+        const result = await addUser(addData);
+        console.log('Add result:', result);
       }
       
+      console.log('API call successful, closing modal...');
       setIsSubmitting(false);
       setIsApiCallInProgress(false);
       setSelectedUser(null);
@@ -272,6 +322,15 @@ const UserManagement = () => {
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors({ ...errors, [name]: '' });
+    }
+  };
+
+  const handleRoleChange = (roleId) => {
+    console.log('Role selected - ID:', roleId);
+    console.log('Role selected - Name:', roleOptions.find(r => r.value === roleId)?.label);
+    setFormData({ ...formData, role: roleId });
+    if (errors.role) {
+      setErrors({ ...errors, role: '' });
     }
   };
 
@@ -372,6 +431,7 @@ const UserManagement = () => {
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
           placeholder="Filter by role"
+          isDisabled={rolesLoading}
         >
           {roleOptions.map(role => (
             <option key={role.value} value={role.value}>
@@ -431,17 +491,19 @@ const UserManagement = () => {
                 label="First Name" 
                 value={formData.firstName || ''} 
                 onChange={handleInputChange} 
-                error={errors.firstName} 
+                error={errors.firstName}  
+                required={true}
               />
             </FormControl>
             <FormControl isInvalid={!!errors.lastName}>
               <FloatingInput 
                 id="lastName" 
                 name="lastName" 
-                label="Last Name" 
+                label="Last Name " 
                 value={formData.lastName || ''} 
                 onChange={handleInputChange} 
                 error={errors.lastName} 
+                required={true}
               />
             </FormControl>
           </HStack>
@@ -454,6 +516,7 @@ const UserManagement = () => {
               value={formData.email || ''} 
               onChange={handleInputChange} 
               error={errors.email} 
+              required={true}
             />
           </FormControl>
           <FormControl isInvalid={!!errors.phoneNumber}>
@@ -464,25 +527,26 @@ const UserManagement = () => {
               value={formData.phoneNumber || ''} 
               onChange={handleInputChange}
               error={errors.phoneNumber}
-              placeholder="Enter 10 digit number"
+              placeholder=""
+              required={true}
             />
           </FormControl>
-          <FormControl isInvalid={!!errors.role}>
-            <FloatingSelect
-              id="role"
-              name="role"
-              label="Role"
+          <FormControl isInvalid={!!errors.role} mb={4}>
+            <SearchableSelect
+              options={roleOptions}
               value={formData.role || ''}
-              onChange={handleInputChange}
+              onChange={handleRoleChange}
+              placeholder={rolesLoading ? "Loading roles..." : "Select a role"}
+              searchPlaceholder="Search roles..."
+              label="Role"
               error={errors.role}
-              options={roleOptions.map(role => role.value)}
-              optionLabels={roleOptions.map(role => role.label)}
-              placeholder="Select a role"
+              isRequired={true}
+              isDisabled={rolesLoading}
             />
           </FormControl>
           
-          {/* Password fields - only show for new users */}
-          {!selectedUser && (
+          {/* Password fields - show for new users or when editing */}
+          {!selectedUser ? (
             <>
               <FormControl isInvalid={!!errors.password}>
                 <FloatingInput 
@@ -493,6 +557,7 @@ const UserManagement = () => {
                   value={formData.password || ''} 
                   onChange={handleInputChange} 
                   error={errors.password} 
+                  required={true}
                 />
               </FormControl>
               <FormControl isInvalid={!!errors.confirmPassword}>
@@ -504,9 +569,22 @@ const UserManagement = () => {
                   value={formData.confirmPassword || ''} 
                   onChange={handleInputChange} 
                   error={errors.confirmPassword} 
+                  required={true}
                 />
               </FormControl>
             </>
+          ) : (
+            <FormControl>
+              <FloatingInput 
+                id="password" 
+                name="password" 
+                label="Password (optional)" 
+                type="password" 
+                value={formData.password || ''} 
+                onChange={handleInputChange} 
+                placeholder="Leave blank to keep current password"
+              />
+            </FormControl>
           )}
           
           <FormControl display="flex" alignItems="center">

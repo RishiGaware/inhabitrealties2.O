@@ -55,9 +55,9 @@ const FloatingInput = ({
         placeholder={placeholder}
         disabled={disabled}
       />
-      <label htmlFor={id} className={styles.floatingLabel}>
-        {label}
-      </label>
+     <label htmlFor={id} className={styles.floatingLabel}>
+      {label} {required && <span style={{ color: 'red' }}>*</span>}
+    </label>
       {isPassword && (
         <span className={styles.eyeIcon} onClick={onTogglePassword}>
           {showPassword ? <FaEyeSlash /> : <FaEye />}
