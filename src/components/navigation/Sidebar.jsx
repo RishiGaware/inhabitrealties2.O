@@ -31,7 +31,7 @@ const Sidebar = ({ open, setOpen, subMenus, toggleSubMenu, isMobile }) => {
     {
       title: "Lead Management",
       icon: <BiUserPlus />,
-      subMenu: ["Add Lead", "View Leads", "Lead Qualification"],
+      subMenu: ["Leads", "Lead Status", "Lead Follow Up"],
       key: "leads"
     },
     {
@@ -126,9 +126,9 @@ const Sidebar = ({ open, setOpen, subMenus, toggleSubMenu, isMobile }) => {
       'property-types': '/property/property-types'
     },
     'leads': {
-      'add-lead': '/lead/add',
-      'view-leads': '/lead/view',
-      'lead-qualification': '/lead/qualification'
+      'leads': '/lead/leads',
+      'lead-status': '/lead/status',
+      'lead-follow-up': '/lead/follow-up'
     },
     'customers': {
       'customer-profiles': '/customers/profiles',

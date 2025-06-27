@@ -16,21 +16,18 @@ import {
   useBreakpointValue,
   Switch,
   FormLabel,
-  Image,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon, SearchIcon, AddIcon } from '@chakra-ui/icons';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import CommonTable from '../../../components/common/Table/CommonTable';
-import CommonPagination from '../../../components/common/pagination/CommonPagination';
-import TableContainer from '../../../components/common/Table/TableContainer';
-import FloatingInput from '../../../components/common/FloatingInput';
-import FormModal from '../../../components/common/FormModal';
-import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
-import { usePropertyTypeContext } from '../../../context/PropertyTypeContext';
-import Loader from '../../../components/common/Loader';
+import CommonTable from '../../components/common/Table/CommonTable';
+import CommonPagination from '../../components/common/pagination/CommonPagination';
+import TableContainer from '../../components/common/Table/TableContainer';
+import FormModal from '../../components/common/FormModal';
+import FloatingInput from '../../components/common/FloatingInput';
+import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal';
+import { useFollowUpStatusContext } from '../../context/FollowUpStatusContext';
 
-const PropertyTypes = () => {
-  const [selectedPropertyType, setSelectedPropertyType] = useState(null);
+const LeadFollowUp = () => {
+  const [selectedFollowUpStatus, setSelectedFollowUpStatus] = useState(null);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,51 +35,50 @@ const PropertyTypes = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
-  const [propertyTypeToDelete, setPropertyTypeToDelete] = useState(null);
+  const [followUpStatusToDelete, setFollowUpStatusToDelete] = useState(null);
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  // Get property type context
-  const propertyTypeContext = usePropertyTypeContext();
-  const { propertyTypes, getAllPropertyTypes, addPropertyType, updatePropertyType, removePropertyType, loading } = propertyTypeContext;
+  // Get followup status context
+  const followUpStatusContext = useFollowUpStatusContext();
+  const { followUpStatuses, getAllFollowUpStatuses, addFollowUpStatus, updateFollowUpStatus, removeFollowUpStatus } = followUpStatusContext;
 
-  // Memoize filtered property types to prevent unnecessary re-renders
-  const filteredPropertyTypes = useMemo(() => {
-    let filtered = propertyTypes;
+  // Memoize filtered followup statuses to prevent unnecessary re-renders
+  const filteredFollowUpStatuses = useMemo(() => {
+    let filtered = followUpStatuses;
     if (searchTerm) {
-      filtered = filtered.filter(propertyType =>
-        propertyType.typeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        propertyType.description.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(followUpStatus =>
+        followUpStatus.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        followUpStatus.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     return filtered;
-  }, [propertyTypes, searchTerm]);
+  }, [followUpStatuses, searchTerm]);
 
   useEffect(() => {
-    getAllPropertyTypes();
-  }, [getAllPropertyTypes]);
+    getAllFollowUpStatuses();
+  }, [getAllFollowUpStatuses]);
 
   // Only reset page when filtered results change significantly
   useEffect(() => {
-    const maxPage = Math.ceil(filteredPropertyTypes.length / pageSize);
+    const maxPage = Math.ceil(filteredFollowUpStatuses.length / pageSize);
     if (currentPage > maxPage && maxPage > 0) {
       setCurrentPage(1);
     }
-  }, [filteredPropertyTypes.length, pageSize, currentPage]);
+  }, [filteredFollowUpStatuses.length, pageSize, currentPage]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const handlePageChange = (newPage) => {
-    if (newPage > 0 && newPage <= Math.ceil(filteredPropertyTypes.length / pageSize)) {
+    if (newPage > 0 && newPage <= Math.ceil(filteredFollowUpStatuses.length / pageSize)) {
       setCurrentPage(newPage);
     }
   };
@@ -102,22 +98,14 @@ const PropertyTypes = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, image: file });
-      setPreviewImage(URL.createObjectURL(file));
-    }
-  };
-
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.typeName?.trim()) {
-      newErrors.typeName = 'Property type name is required';
-    } else if (formData.typeName.trim().length < 2) {
-      newErrors.typeName = 'Property type name must be at least 2 characters';
-    } else if (formData.typeName.trim().length > 50) {
-      newErrors.typeName = 'Property type name must be less than 50 characters';
+    if (!formData.name?.trim()) {
+      newErrors.name = 'Followup status name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Followup status name must be at least 2 characters';
+    } else if (formData.name.trim().length > 50) {
+      newErrors.name = 'Followup status name must be less than 50 characters';
     }
     if (!formData.description?.trim()) {
       newErrors.description = 'Description is required';
@@ -129,42 +117,39 @@ const PropertyTypes = () => {
   };
 
   const handleAddNew = () => {
-    setSelectedPropertyType(null);
+    setSelectedFollowUpStatus(null);
     setFormData({
-      typeName: '',
+      name: '',
       description: '',
-      image: null,
       published: true,
     });
     setErrors({});
-    setPreviewImage(null);
     onOpen();
   };
 
-  const handleEdit = (propertyType) => {
-    setSelectedPropertyType(propertyType);
+  const handleEdit = (followUpStatus) => {
+    setSelectedFollowUpStatus(followUpStatus);
     setFormData({
-      typeName: propertyType.typeName || '',
-      description: propertyType.description || '',
-      published: propertyType.published !== undefined ? propertyType.published : true,
+      name: followUpStatus.name || '',
+      description: followUpStatus.description || '',
+      published: followUpStatus.published !== undefined ? followUpStatus.published : true,
     });
     setErrors({});
-    setPreviewImage(propertyType.imageUrl || null);
     onOpen();
   };
 
-  const handleDelete = (propertyType) => {
-    setPropertyTypeToDelete(propertyType);
+  const handleDelete = (followUpStatus) => {
+    setFollowUpStatusToDelete(followUpStatus);
     onDeleteOpen();
   };
 
   const confirmDelete = async () => {
-    if (propertyTypeToDelete && !isApiCallInProgress) {
+    if (followUpStatusToDelete && !isApiCallInProgress) {
       setIsApiCallInProgress(true);
       try {
-        await removePropertyType(propertyTypeToDelete._id);
+        await removeFollowUpStatus(followUpStatusToDelete._id);
         onDeleteClose();
-        setPropertyTypeToDelete(null);
+        setFollowUpStatusToDelete(null);
       } catch (error) {
         console.error('Delete error:', error);
       } finally {
@@ -188,31 +173,31 @@ const PropertyTypes = () => {
     setIsApiCallInProgress(true);
 
     try {
-      if (selectedPropertyType) {
+      if (selectedFollowUpStatus) {
         // Prepare edit data
         const editData = {
-          typeName: formData.typeName,
+          name: formData.name,
           description: formData.description,
+          published: formData.published,
         };
         
-        console.log('Editing property type:', selectedPropertyType._id, 'with data:', editData);
-        await updatePropertyType(selectedPropertyType._id, editData);
+        console.log('Editing followup status:', selectedFollowUpStatus._id, 'with data:', editData);
+        await updateFollowUpStatus(selectedFollowUpStatus._id, editData);
       } else {
         // Prepare add data
         const addData = {
-          typeName: formData.typeName,
+          name: formData.name,
           description: formData.description,
         };
         
-        console.log('Adding new property type with data:', addData);
-        await addPropertyType(addData);
+        console.log('Adding new followup status with data:', addData);
+        await addFollowUpStatus(addData);
       }
       
       setIsSubmitting(false);
       setIsApiCallInProgress(false);
-      setSelectedPropertyType(null);
+      setSelectedFollowUpStatus(null);
       setFormData({});
-      setPreviewImage(null);
       onClose();
     } catch (error) {
       console.error('Form submission error:', error);
@@ -222,30 +207,9 @@ const PropertyTypes = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      typeName: '',
-      description: '',
-      image: null,
-      published: true,
-    });
-    setErrors({});
-    setPreviewImage(null);
-  };
-
   const columns = [
-    { key: 'typeName', label: 'Property Type Name' },
+    { key: 'name', label: 'Followup Status Name' },
     { key: 'description', label: 'Description' },
-    { 
-      key: 'createdAt', 
-      label: 'Created Date', 
-      render: (date) => date ? new Date(date).toLocaleDateString() : 'N/A' 
-    },
-    { 
-      key: 'updatedAt', 
-      label: 'Updated Date', 
-      render: (date) => date ? new Date(date).toLocaleDateString() : 'N/A' 
-    },
     { 
       key: 'published', 
       label: 'Status', 
@@ -253,21 +217,21 @@ const PropertyTypes = () => {
     },
   ];
 
-  const renderRowActions = (propertyType) => (
+  const renderRowActions = (followUpStatus) => (
     <HStack spacing={2}>
       <IconButton
-        aria-label="Edit property type"
+        aria-label="Edit followup status"
         icon={<EditIcon />}
         size="sm"
-        onClick={() => handleEdit(propertyType)}
+        onClick={() => handleEdit(followUpStatus)}
         colorScheme="brand"
         variant="outline"
       />
       <IconButton
-        aria-label="Delete property type"
+        aria-label="Delete followup status"
         icon={<DeleteIcon />}
         size="sm"
-        onClick={() => handleDelete(propertyType)}
+        onClick={() => handleDelete(followUpStatus)}
         colorScheme="red"
         variant="outline"
       />
@@ -276,16 +240,13 @@ const PropertyTypes = () => {
 
   return (
     <Box p={5}>
-      {loading && (
-        <Loader size="xl" label="Loading property types..." />
-      )}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" variant="pageTitle">
-          Property Types
+          Followup Status Management
         </Heading>
         {isMobile ? (
           <IconButton
-            aria-label="Add New Property Type"
+            aria-label="Add New Followup Status"
             icon={<AddIcon />}
             colorScheme="brand"
             onClick={handleAddNew}
@@ -296,7 +257,7 @@ const PropertyTypes = () => {
             colorScheme="brand"
             onClick={handleAddNew}
           >
-            Add New Property Type
+            Add New Followup Status
           </Button>
         )}
       </Flex>
@@ -307,7 +268,7 @@ const PropertyTypes = () => {
             <SearchIcon color="gray.300" />
           </InputLeftElement>
           <Input
-            placeholder="Search property types..."
+            placeholder="Search followup statuses..."
             value={searchTerm}
             onChange={handleSearch}
           />
@@ -317,20 +278,20 @@ const PropertyTypes = () => {
       <TableContainer>
         <CommonTable
           columns={columns}
-          data={filteredPropertyTypes.slice(
+          data={filteredFollowUpStatuses.slice(
             (currentPage - 1) * pageSize,
             currentPage * pageSize
           )}
           rowActions={renderRowActions}
-          emptyStateMessage="No property types match your search."
+          emptyStateMessage="No followup statuses match your search."
         />
         <CommonPagination
           currentPage={currentPage}
-          totalPages={Math.ceil(filteredPropertyTypes.length / pageSize)}
+          totalPages={Math.ceil(filteredFollowUpStatuses.length / pageSize)}
           onPageChange={handlePageChange}
           pageSize={pageSize}
           onPageSizeChange={handlePageSizeChange}
-          totalItems={filteredPropertyTypes.length}
+          totalItems={filteredFollowUpStatuses.length}
         />
       </TableContainer>
 
@@ -338,22 +299,27 @@ const PropertyTypes = () => {
         isOpen={isOpen}
         onClose={() => {
           onClose();
-          setSelectedPropertyType(null);
-          resetForm();
+          setSelectedFollowUpStatus(null);
+          setFormData({
+            name: '',
+            description: '',
+            published: true,
+          });
+          setErrors({});
         }}
-        title={selectedPropertyType ? 'Edit Property Type' : 'Add New Property Type'}
+        title={selectedFollowUpStatus ? 'Edit Followup Status' : 'Add New Followup Status'}
         onSave={handleFormSubmit}
         isSubmitting={isSubmitting}
       >
         <VStack spacing={4}>
-          <FormControl isInvalid={!!errors.typeName}>
+          <FormControl isInvalid={!!errors.name}>
             <FloatingInput
-              id="typeName"
-              name="typeName"
-              label="Property Type Name"
-              value={formData.typeName || ''}
+              id="name"
+              name="name"
+              label="Followup Status Name"
+              value={formData.name || ''}
               onChange={handleInputChange}
-              error={errors.typeName}
+              error={errors.name}
               maxLength={50}
             />
           </FormControl>
@@ -367,38 +333,6 @@ const PropertyTypes = () => {
               error={errors.description}
               maxLength={200}
             />
-          </FormControl>
-          
-          {/* Image Upload Section */}
-          <FormControl>
-            <FormLabel fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
-              Property Type Image
-            </FormLabel>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              style={{
-                width: '100%',
-                fontSize: '13px',
-                padding: '8px',
-                border: '1px solid #e2e8f0',
-                borderRadius: '6px',
-                backgroundColor: 'white'
-              }}
-            />
-            {previewImage && (
-              <Box mt={2}>
-                <Image
-                  src={previewImage}
-                  alt="Preview"
-                  w="100%"
-                  h="32"
-                  objectFit="cover"
-                  borderRadius="md"
-                />
-              </Box>
-            )}
           </FormControl>
           
           <FormControl display="flex" alignItems="center">
@@ -420,11 +354,11 @@ const PropertyTypes = () => {
         isOpen={isDeleteOpen}
         onClose={onDeleteClose}
         onConfirm={confirmDelete}
-        title="Delete Property Type"
-        message={`Are you sure you want to delete the property type "${propertyTypeToDelete?.typeName}"?`}
+        title="Delete Followup Status"
+        message={`Are you sure you want to delete the followup status "${followUpStatusToDelete?.name}"?`}
       />
     </Box>
   );
 };
 
-export default PropertyTypes; 
+export default LeadFollowUp; 
