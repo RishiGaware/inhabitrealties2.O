@@ -48,3 +48,15 @@ export const LEADS_ENDPOINTS = {
   DELETE: (id) => `/leads/delete/${id}`,
   GET_ALL_WITH_PARAMS: '/leads/getallleadswithparams',
 };
+
+export const PROPERTY_ENDPOINTS = {
+  CREATE: '/property/create',
+  GET_ALL: '/property/',
+  GET_WITH_PARAMS: '/property/withparams',
+  EDIT: (id) => `/property/edit/${id}`,
+  DELETE: (id) => `/property/delete/${id}`,
+  UPLOAD_IMAGE: (id) => `/property/image/create/${id}`,
+  GET_IMAGES: (id) => `/property/images/all/${id}`,
+  DELETE_IMAGE: (id) => `/property/delete/${id}`,
+  DELETE_ALL_IMAGES: (id) => `/property/delete/all/${id}`,
+};

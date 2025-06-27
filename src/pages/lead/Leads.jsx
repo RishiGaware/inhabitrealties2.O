@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Heading, Text, Flex, Button, useBreakpointValue, IconButton, Avatar, Badge, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, InputGroup, InputLeftElement, Input, Stack, SimpleGrid, useTheme, Tooltip, VStack, Icon, Circle, FormControl, FormLabel, Select, Textarea } from '@chakra-ui/react';
-import { AddIcon, SearchIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
+import { AddIcon, SearchIcon, EditIcon, DeleteIcon, CloseIcon } from '@chakra-ui/icons';
 import { useLeadsContext } from '../../context/LeadsContext';
 import FormModal from '../../components/common/FormModal';
 import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal';
@@ -8,6 +8,10 @@ import { fetchLeads } from '../../services/leadmanagement/leadsService';
 import { FiUser, FiMail, FiPhone, FiHome, FiFlag, FiRepeat, FiLink, FiUsers, FiUserCheck, FiUserPlus, FiEdit2, FiInfo } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import Loader from '../../components/common/Loader';
+import { fetchLeadStatuses } from '../../services/leadmanagement/leadStatusService';
+import { fetchFollowUpStatuses } from '../../services/leadmanagement/followUpStatusService';
+import { fetchUsers } from '../../services/usermanagement/userService';
+import SearchableSelect from '../../components/common/SearchableSelect';
 
 const Leads = () => {
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -39,6 +43,10 @@ const Leads = () => {
     note: '',
   });
 
+  const [leadStatusOptions, setLeadStatusOptions] = useState([]);
+  const [followUpStatusOptions, setFollowUpStatusOptions] = useState([]);
+  const [userOptions, setUserOptions] = useState([]);
+
   useEffect(() => {
     const getLeads = async () => {
       try {
@@ -47,6 +55,10 @@ const Leads = () => {
       } catch {/* ignore error */}
     };
     getLeads();
+
+    fetchLeadStatuses().then(res => setLeadStatusOptions(res.data || []));
+    fetchFollowUpStatuses().then(res => setFollowUpStatusOptions(res.data || []));
+    fetchUsers().then(res => setUserOptions(res.data || []));
   }, []);
 
   const closeDetails = () => {
@@ -111,6 +123,11 @@ const Leads = () => {
     setLeadToDelete(null);
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
   return (
     <Box p={5}>
       {loading && (
@@ -170,8 +187,6 @@ const Leads = () => {
                 borderRadius="2xl"
                 boxShadow="md"
                 mb={4}
-                borderLeft="6px solid"
-                borderColor="brand.500"
                 w="100%"
                 minW={0}
                 maxW="100%"
@@ -183,6 +198,18 @@ const Leads = () => {
                 minH={{ base: '220px', md: '240px' }}
                 position="relative"
                 p={{ base: 3, md: 5 }}
+                cursor="pointer"
+                transition="all 0.2s"
+                _hover={{ 
+                  transform: 'translateY(-2px)', 
+                  boxShadow: 'lg',
+                  borderColor: 'brand.600'
+                }}
+                style={{ borderLeft: '6px solid var(--light-primary)' }}
+                onClick={() => {
+                  setSelectedLeadDetails(lead);
+                  setIsDetailsOpen(true);
+                }}
               >
                 <Flex
                   direction="column"
@@ -293,199 +320,286 @@ const Leads = () => {
       </SimpleGrid>
 
       {/* Lead Details Modal */}
-      <Modal isOpen={isDetailsOpen} onClose={closeDetails} size="md" isCentered motionPreset="slideInBottom">
-        <ModalOverlay />
+      <Modal isOpen={isDetailsOpen} onClose={closeDetails} size="lg" isCentered motionPreset="slideInBottom">
+        <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
         <ModalContent
-          maxW={{ base: '98vw', sm: '95vw', md: '600px', lg: '700px' }}
           w="100%"
-          minH="400px"
+          maxW={{ base: '95vw', sm: '90vw', md: '500px', lg: '600px' }}
+          minW={{ base: '0', md: '400px' }}
+          minH="320px"
+          maxH={{ base: '90vh', md: '80vh' }}
           borderRadius="2xl"
-          boxShadow="2xl"
+          boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.25)"
           p={0}
           position="relative"
-          bgGradient="linear(to-br, brand.50 60%, white 100%)"
+          overflowX="hidden"
+          overflowY="auto"
+          bgGradient="linear(135deg, #f3ebff 0%, #e9d8fd 100%)"
+          m={{ base: 2, sm: 3, md: 2 }}
         >
           {selectedLeadDetails && (
-            <>
-              {/* Floating Avatar */}
-              <Flex direction="column" align="center" mt={-16} mb={2} zIndex={2} position="relative">
+            <Box
+              bg="transparent"
+              borderRadius="2xl"
+              boxShadow="md"
+              position="relative"
+              w="100%"
+              maxW="100%"
+              minW={0}
+              className="css-mypptw"
+            >
+              {/* Close Button inside the card */}
+              <IconButton
+                aria-label="Close preview"
+                icon={<CloseIcon boxSize={3} color="white" />}
+                onClick={closeDetails}
+                position="absolute"
+                top={2}
+                right={2}
+                zIndex={10}
+                size="sm"
+                bg="#6B46C1"
+                borderRadius="full"
+                boxShadow="md"
+                _hover={{ bg: '#5536A6' }}
+              />
+              {/* Gradient Header Background */}
+              <Box
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                h={{ base: '90px', md: '120px' }}
+                bgGradient="linear(135deg, #7C3AED 0%, #6B46C1 50%, #5536A6 100%)"
+                opacity={0.9}
+                borderTopLeftRadius="2xl"
+                borderTopRightRadius="2xl"
+              />
+              
+              {/* Floating Avatar Section */}
+              <Flex direction="column" align="center" pt={{ base: 5, sm: 6, md: 6 }} pb={{ base: 2, sm: 3, md: 3 }} position="relative" zIndex={2}>
                 <Box
                   as={motion.div}
-                  initial={{ y: -40, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
+                  initial={{ y: -20, opacity: 0, scale: 0.8 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
                 >
                   <Avatar
                     name={`${selectedLeadDetails.userId?.firstName || ''} ${selectedLeadDetails.userId?.lastName || ''}`}
-                    size={{ base: '2xl', md: '3xl' }}
+                    size={{ base: 'md', sm: 'lg', md: 'xl' }}
                     bg="white"
                     color="brand.600"
-                    borderWidth="6px"
-                    borderColor="brand.400"
-                    boxShadow="0 0 0 6px rgba(128,0,255,0.15), 0 8px 32px 0 rgba(31,38,135,0.15)"
+                    borderWidth="4px"
+                    borderColor="white"
+                    boxShadow="0 0 0 4px rgba(255,255,255,0.3), 0 8px 16px rgba(0,0,0,0.08)"
                     mb={2}
                     zIndex={3}
                     position="relative"
                   />
                 </Box>
-                <Text fontWeight="bold" fontSize={{ base: '2xl', md: '3xl' }} mt={2} color="brand.700">
-                  {selectedLeadDetails.userId?.firstName} {selectedLeadDetails.userId?.lastName}
-                </Text>
-                <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.600">{selectedLeadDetails.userId?.email}</Text>
-                <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.600">{selectedLeadDetails.userId?.phoneNumber}</Text>
-                <Flex gap={2} mt={2} flexWrap="wrap" justify="center">
-                  {selectedLeadDetails.leadStatus?.name && (
-                    <Badge colorScheme="yellow" variant="solid" borderRadius="full" px={4} py={2} fontSize="md" fontWeight="bold" letterSpacing="wide">
-                      {selectedLeadDetails.leadStatus.name}
-                    </Badge>
-                  )}
-                  {selectedLeadDetails.followUpStatus?.name && (
-                    <Badge colorScheme="blue" variant="solid" borderRadius="full" px={4} py={2} fontSize="md" fontWeight="bold" letterSpacing="wide">
-                      {selectedLeadDetails.followUpStatus.name}
-                    </Badge>
-                  )}
-                </Flex>
+                
+                <Box
+                  as={motion.div}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                  textAlign="center"
+                  color="white"
+                  px={{ base: 2, sm: 3, md: 2 }}
+                >
+                  <Text 
+                    fontWeight="bold" 
+                    fontSize={{ base: 'md', sm: 'lg', md: 'xl' }} 
+                    mb={1}
+                    textShadow="0 2px 4px rgba(0,0,0,0.3)"
+                  >
+                    {selectedLeadDetails.userId?.firstName} {selectedLeadDetails.userId?.lastName}
+                  </Text>
+                  <Text 
+                    fontSize={{ base: 'xs', sm: 'sm', md: 'md' }} 
+                    opacity={0.9}
+                    mb={1}
+                  >
+                    {selectedLeadDetails.userId?.email}
+                  </Text>
+                  <Text 
+                    fontSize={{ base: 'xs', sm: 'sm', md: 'md' }} 
+                    opacity={0.9}
+                    mb={2}
+                  >
+                    {selectedLeadDetails.userId?.phoneNumber}
+                  </Text>
+                  
+                  {/* Status Badges */}
+                  <Flex gap={2} justify="center" flexWrap="wrap">
+                    {selectedLeadDetails.leadStatus?.name && (
+                      <Badge 
+                        colorScheme="yellow" 
+                        variant="solid" 
+                        borderRadius="full" 
+                        px={2} 
+                        py={1} 
+                        fontSize="2xs" 
+                        fontWeight="bold"
+                        boxShadow="0 2px 8px rgba(255,193,7,0.3)"
+                      >
+                        {selectedLeadDetails.leadStatus.name}
+                      </Badge>
+                    )}
+                    {selectedLeadDetails.followUpStatus?.name && (
+                      <Badge 
+                        colorScheme="blue" 
+                        variant="solid" 
+                        borderRadius="full" 
+                        px={2} 
+                        py={1} 
+                        fontSize="2xs" 
+                        fontWeight="bold"
+                        boxShadow="0 2px 8px rgba(59,130,246,0.3)"
+                      >
+                        {selectedLeadDetails.followUpStatus.name}
+                      </Badge>
+                    )}
+                  </Flex>
+                </Box>
               </Flex>
-              <Box w="100%" h="2px" bgGradient="linear(to-r, brand.100, gray.100, brand.100)" opacity={0.5} mb={2} />
-              {/* Timeline Sections */}
-              <ModalBody bg="transparent" px={0} py={0}>
-                <VStack spacing={0} align="stretch" w="100%" position="relative">
-                  {/* Timeline vertical line */}
-                  <Box position="absolute" left="36px" top={0} bottom={0} w="2px" bgGradient="linear(to-b, brand.200, gray.200)" zIndex={0} />
-                  {/* Timeline Items */}
-                  {/* Contact Information */}
-                  <Flex align="flex-start" position="relative" zIndex={1}>
-                    <Box mt={6} ml={6} mr={4} position="relative">
-                      <Circle size="48px" bg="white" boxShadow="0 0 0 4px #805ad5, 0 2px 8px rgba(128,90,213,0.15)" border="3px solid" borderColor="brand.400" display="flex" alignItems="center" justifyContent="center">
-                        <Icon as={FiUser} color="brand.500" boxSize={7} />
-                      </Circle>
-                    </Box>
+
+              {/* Content Section */}
+              <ModalBody bg="gray.50" px={0} py={0} w="100%" maxW="100%">
+                <Box p={{ base: 2, sm: 3, md: 3 }} w="100%" maxW="100%">
+                  <VStack spacing={{ base: 2, sm: 3, md: 3 }} align="stretch" w="100%" maxW="100%" minW={0} flexShrink={1}>
+                    {/* Contact Information Card */}
                     <Box
                       as={motion.div}
-                      initial={{ x: 40, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 0.1, duration: 0.5 }}
-                      bg="rgba(255,255,255,0.7)"
-                      borderRadius="xl"
-                      boxShadow="lg"
-                      backdropFilter="blur(8px)"
-                      p={{ base: 5, md: 7 }}
-                      mt={6}
-                      mb={6}
-                      flex="1"
-                      ml={2}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.3, duration: 0.4 }}
+                      bg="white"
+                      borderRadius="md"
+                      boxShadow="0 1px 8px rgba(0,0,0,0.05)"
+                      p={{ base: 2, sm: 3, md: 3 }}
+                      borderLeft="3px solid"
+                      borderColor="brand.400"
+                      w="100%"
+                      maxW="100%"
                     >
-                      <Heading size="md" color="brand.700" fontWeight="bold" mb={2}>Contact Information</Heading>
-                      <Flex align="center" gap={3} mb={2}><Icon as={FiMail} color="gray.500" boxSize={5} /><Text fontWeight="medium">Email:</Text><Text>{selectedLeadDetails.userId?.email}</Text></Flex>
-                      <Flex align="center" gap={3}><Icon as={FiPhone} color="gray.500" boxSize={5} /><Text fontWeight="medium">Phone:</Text><Text>{selectedLeadDetails.userId?.phoneNumber}</Text></Flex>
+                      <Flex align="center" mb={1} minW={0} flexShrink={1}>
+                        <Circle size="22px" bg="brand.50" color="brand.600" mr={2}>
+                          <Icon as={FiUser} boxSize={3} />
+                        </Circle>
+                        <Heading size="xs" color="gray.800" fontWeight="bold" fontSize={{ base: 'xs', md: 'sm' }}>
+                          Contact Information
+                        </Heading>
+                      </Flex>
+                      <VStack spacing={1} align="stretch" w="100%" maxW="100%" minW={0} flexShrink={1}>
+                        <Flex align="center" gap={2} minW={0} flexShrink={1}>
+                          <Icon as={FiMail} color="gray.400" boxSize={3} />
+                          <Text fontWeight="medium" color="gray.600" minW="40px" fontSize="2xs">Email:</Text>
+                          <Text color="gray.800" fontSize="2xs" isTruncated w="100%">{selectedLeadDetails.userId?.email}</Text>
+                        </Flex>
+                        <Flex align="center" gap={2} minW={0} flexShrink={1}>
+                          <Icon as={FiPhone} color="gray.400" boxSize={3} />
+                          <Text fontWeight="medium" color="gray.600" minW="40px" fontSize="2xs">Phone:</Text>
+                          <Text color="gray.800" fontSize="2xs" isTruncated w="100%">{selectedLeadDetails.userId?.phoneNumber}</Text>
+                        </Flex>
+                      </VStack>
                     </Box>
-                  </Flex>
-                  {/* Interested Property */}
-                  <Flex align="flex-start" position="relative" zIndex={1}>
-                    <Box mt={0} ml={6} mr={4} position="relative">
-                      <Circle size="48px" bg="white" boxShadow="0 0 0 4px #805ad5, 0 2px 8px rgba(128,90,213,0.15)" border="3px solid" borderColor="brand.400" display="flex" alignItems="center" justifyContent="center">
-                        <Icon as={FiHome} color="brand.500" boxSize={7} />
-                      </Circle>
-                    </Box>
+
+                    {/* Property Information Card */}
                     <Box
                       as={motion.div}
-                      initial={{ x: 40, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 0.2, duration: 0.5 }}
-                      bg="rgba(255,255,255,0.7)"
-                      borderRadius="xl"
-                      boxShadow="lg"
-                      backdropFilter="blur(8px)"
-                      p={{ base: 5, md: 7 }}
-                      mb={6}
-                      flex="1"
-                      ml={2}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.4, duration: 0.4 }}
+                      bg="white"
+                      borderRadius="md"
+                      boxShadow="0 1px 8px rgba(0,0,0,0.05)"
+                      p={{ base: 2, sm: 3, md: 3 }}
+                      borderLeft="3px solid"
+                      borderColor="green.400"
+                      w="100%"
+                      maxW="100%"
                     >
-                      <Heading size="md" color="brand.700" fontWeight="bold" mb={2}>Interested Property</Heading>
-                      <Flex align="center" gap={3}><Icon as={FiHome} color="gray.500" boxSize={5} /><Text fontWeight="medium">Property ID:</Text><Text>{selectedLeadDetails.leadInterestedPropertyId || 'N/A'}</Text></Flex>
+                      <Flex align="center" mb={1} minW={0} flexShrink={1}>
+                        <Circle size="22px" bg="green.50" color="green.600" mr={2}>
+                          <Icon as={FiHome} boxSize={3} />
+                        </Circle>
+                        <Heading size="xs" color="gray.800" fontWeight="bold" fontSize={{ base: 'xs', md: 'sm' }}>
+                          Interested Property
+                        </Heading>
+                      </Flex>
+                      <Flex align="center" gap={2} minW={0} flexShrink={1}>
+                        <Icon as={FiHome} color="gray.400" boxSize={3} />
+                        <Text fontWeight="medium" color="gray.600" minW="55px" fontSize="2xs">Property ID:</Text>
+                        <Text color="gray.800" fontSize="2xs" isTruncated w="100%">{selectedLeadDetails.leadInterestedPropertyId || 'N/A'}</Text>
+                      </Flex>
                     </Box>
-                  </Flex>
-                  {/* Referral Information */}
-                  <Flex align="flex-start" position="relative" zIndex={1}>
-                    <Box mt={0} ml={6} mr={4} position="relative">
-                      <Circle size="48px" bg="white" boxShadow="0 0 0 4px #805ad5, 0 2px 8px rgba(128,90,213,0.15)" border="3px solid" borderColor="brand.400" display="flex" alignItems="center" justifyContent="center">
-                        <Icon as={FiUsers} color="brand.500" boxSize={7} />
-                      </Circle>
-                    </Box>
+
+                    {/* Assignment Information Card */}
                     <Box
                       as={motion.div}
-                      initial={{ x: 40, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 0.3, duration: 0.5 }}
-                      bg="rgba(255,255,255,0.7)"
-                      borderRadius="xl"
-                      boxShadow="lg"
-                      backdropFilter="blur(8px)"
-                      p={{ base: 5, md: 7 }}
-                      mb={6}
-                      flex="1"
-                      ml={2}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.5, duration: 0.4 }}
+                      bg="white"
+                      borderRadius="md"
+                      boxShadow="0 1px 8px rgba(0,0,0,0.05)"
+                      p={{ base: 2, sm: 3, md: 3 }}
+                      borderLeft="3px solid"
+                      borderColor="blue.400"
+                      w="100%"
+                      maxW="100%"
                     >
-                      <Heading size="md" color="brand.700" fontWeight="bold" mb={2}>Referral Information</Heading>
-                      <Flex align="center" gap={3}><Icon as={FiUserPlus} color="gray.500" boxSize={5} /><Text fontWeight="medium">Reference Source:</Text><Text>{selectedLeadDetails.referanceFrom?.name || 'N/A'}</Text></Flex>
+                      <Flex align="center" mb={1} minW={0} flexShrink={1}>
+                        <Circle size="22px" bg="blue.50" color="blue.600" mr={2}>
+                          <Icon as={FiUserCheck} boxSize={3} />
+                        </Circle>
+                        <Heading size="xs" color="gray.800" fontWeight="bold" fontSize={{ base: 'xs', md: 'sm' }}>
+                          Assignment Information
+                        </Heading>
+                      </Flex>
+                      <Flex align="center" gap={2} minW={0} flexShrink={1}>
+                        <Icon as={FiUser} color="gray.400" boxSize={3} />
+                        <Text fontWeight="medium" color="gray.600" minW="55px" fontSize="2xs">Assigned To:</Text>
+                        <Text color="gray.800" fontSize="2xs" isTruncated w="100%">
+                          {selectedLeadDetails.assignedToUserId?.firstName} {selectedLeadDetails.assignedToUserId?.lastName}
+                        </Text>
+                      </Flex>
                     </Box>
-                  </Flex>
-                  {/* Assignment Information */}
-                  <Flex align="flex-start" position="relative" zIndex={1}>
-                    <Box mt={0} ml={6} mr={4} position="relative">
-                      <Circle size="48px" bg="white" boxShadow="0 0 0 4px #805ad5, 0 2px 8px rgba(128,90,213,0.15)" border="3px solid" borderColor="brand.400" display="flex" alignItems="center" justifyContent="center">
-                        <Icon as={FiUserCheck} color="brand.500" boxSize={7} />
-                      </Circle>
-                    </Box>
+
+                    {/* Notes Card */}
                     <Box
                       as={motion.div}
-                      initial={{ x: 40, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 0.4, duration: 0.5 }}
-                      bg="rgba(255,255,255,0.7)"
-                      borderRadius="xl"
-                      boxShadow="lg"
-                      backdropFilter="blur(8px)"
-                      p={{ base: 5, md: 7 }}
-                      mb={6}
-                      flex="1"
-                      ml={2}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.6, duration: 0.4 }}
+                      bg="white"
+                      borderRadius="md"
+                      boxShadow="0 1px 8px rgba(0,0,0,0.05)"
+                      p={{ base: 2, sm: 3, md: 3 }}
+                      borderLeft="3px solid"
+                      borderColor="orange.400"
+                      w="100%"
+                      maxW="100%"
                     >
-                      <Heading size="md" color="brand.700" fontWeight="bold" mb={2}>Assignment Information</Heading>
-                      <Flex align="center" gap={3}><Icon as={FiUser} color="gray.500" boxSize={5} /><Text fontWeight="medium">Assigned To:</Text><Text>{selectedLeadDetails.assignedToUserId?.firstName} {selectedLeadDetails.assignedToUserId?.lastName}</Text></Flex>
+                      <Flex align="center" mb={1} minW={0} flexShrink={1}>
+                        <Circle size="22px" bg="orange.50" color="orange.600" mr={2}>
+                          <Icon as={FiInfo} boxSize={3} />
+                        </Circle>
+                        <Heading size="xs" color="gray.800" fontWeight="bold" fontSize={{ base: 'xs', md: 'sm' }}>
+                          Notes
+                        </Heading>
+                      </Flex>
+                      <Text color="gray.800" lineHeight="1.4" fontSize="2xs" isTruncated w="100%">
+                        {selectedLeadDetails.note || 'No notes available'}
+                      </Text>
                     </Box>
-                  </Flex>
-                  {/* Notes */}
-                  <Flex align="flex-start" position="relative" zIndex={1}>
-                    <Box mt={0} ml={6} mr={4} position="relative">
-                      <Circle size="48px" bg="white" boxShadow="0 0 0 4px #805ad5, 0 2px 8px rgba(128,90,213,0.15)" border="3px solid" borderColor="brand.400" display="flex" alignItems="center" justifyContent="center">
-                        <Icon as={FiInfo} color="brand.500" boxSize={7} />
-                      </Circle>
-                    </Box>
-                    <Box
-                      as={motion.div}
-                      initial={{ x: 40, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 0.5, duration: 0.5 }}
-                      bg="rgba(255,255,255,0.7)"
-                      borderRadius="xl"
-                      boxShadow="lg"
-                      backdropFilter="blur(8px)"
-                      p={{ base: 5, md: 7 }}
-                      mb={8}
-                      flex="1"
-                      ml={2}
-                    >
-                      <Heading size="md" color="brand.700" fontWeight="bold" mb={2}>Notes</Heading>
-                      <Text>{selectedLeadDetails.note || 'N/A'}</Text>
-                    </Box>
-                  </Flex>
-                </VStack>
+                  </VStack>
+                </Box>
               </ModalBody>
-              <ModalFooter bg="gray.50" borderBottomRadius="2xl">
-                <Button onClick={closeDetails} colorScheme="brand" borderRadius="full" px={8} py={2} fontWeight="bold">Close</Button>
-              </ModalFooter>
-            </>
+
+              {/* Footer */}
+            </Box>
           )}
         </ModalContent>
       </Modal>
@@ -526,48 +640,64 @@ const Leads = () => {
           <Flex gap={4}>
             <FormControl isRequired>
               <FormLabel>First Name</FormLabel>
-              <Input name="firstName" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
+              <Input name="firstName" value={formData.firstName} onChange={handleInputChange} />
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Last Name</FormLabel>
-              <Input name="lastName" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
+              <Input name="lastName" value={formData.lastName} onChange={handleInputChange} />
             </FormControl>
           </Flex>
           <FormControl isRequired>
             <FormLabel>Email</FormLabel>
-            <Input name="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+            <Input name="email" value={formData.email} onChange={handleInputChange} />
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Phone Number</FormLabel>
-            <Input name="phoneNumber" value={formData.phoneNumber} onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })} />
+            <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} />
           </FormControl>
           <FormControl>
             <FormLabel>Interested Property</FormLabel>
-            <Select name="propertyId" value={formData.propertyId} onChange={e => setFormData({ ...formData, propertyId: e.target.value })}>
-              {/* Map property options */}
-            </Select>
+            <SearchableSelect
+              options={[] /* TODO: Map your property options here as [{ label, value }] */}
+              value={formData.propertyId}
+              onChange={val => setFormData(f => ({ ...f, propertyId: val }))}
+              placeholder="Select Property"
+            //   label="Interested Property"
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Lead Status</FormLabel>
-            <Select name="leadStatusId" value={formData.leadStatusId} onChange={e => setFormData({ ...formData, leadStatusId: e.target.value })}>
-              {/* Map status options */}
-            </Select>
+            <SearchableSelect
+              options={leadStatusOptions.map(s => ({ label: s.name, value: s._id }))}
+              value={formData.leadStatusId}
+              onChange={val => setFormData(f => ({ ...f, leadStatusId: val }))}
+              placeholder="Select Lead Status"
+            //   label="Lead Status"
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Follow Up Status</FormLabel>
-            <Select name="followUpStatusId" value={formData.followUpStatusId} onChange={e => setFormData({ ...formData, followUpStatusId: e.target.value })}>
-              {/* Map follow up status options */}
-            </Select>
+            <SearchableSelect
+              options={followUpStatusOptions.map(s => ({ label: s.name, value: s._id }))}
+              value={formData.followUpStatusId}
+              onChange={val => setFormData(f => ({ ...f, followUpStatusId: val }))}
+              placeholder="Select Follow Up Status"
+            //   label="Follow Up Status"
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Assigned To</FormLabel>
-            <Select name="assignedToUserId" value={formData.assignedToUserId} onChange={e => setFormData({ ...formData, assignedToUserId: e.target.value })}>
-              {/* Map user options */}
-            </Select>
+            <SearchableSelect
+              options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
+              value={formData.assignedToUserId}
+              onChange={val => setFormData(f => ({ ...f, assignedToUserId: val }))}
+              placeholder="Select User"
+            //   label="Assigned To"
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Notes</FormLabel>
-            <Textarea name="note" value={formData.note} onChange={e => setFormData({ ...formData, note: e.target.value })} />
+            <Textarea name="note" value={formData.note} onChange={handleInputChange} />
           </FormControl>
         </VStack>
       </FormModal>

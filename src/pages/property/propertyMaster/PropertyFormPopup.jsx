@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { Box, Heading, Flex, Grid, Button } from '@chakra-ui/react';
 import CommonCard from '../../../components/common/Card/CommonCard';
 import FloatingInput from '../../../components/common/floatingInput/FloatingInput';
 
-const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialData = null }) => {
-  const [formData, setFormData] = useState(initialData || {
+const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialData = null, isSubmitting = false }) => {
+  const [formData, setFormData] = useState({
     name: '',
     propertyTypeId: '',
     description: '',
@@ -34,6 +34,73 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
     published: true
   });
 
+  const [errors, setErrors] = useState({});
+
+  // Update form data when initialData changes (for editing)
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || '',
+        propertyTypeId: initialData.propertyTypeId || '',
+        description: initialData.description || '',
+        propertyAddress: {
+          street: initialData.propertyAddress?.street || '',
+          area: initialData.propertyAddress?.area || '',
+          city: initialData.propertyAddress?.city || '',
+          state: initialData.propertyAddress?.state || '',
+          zipOrPinCode: initialData.propertyAddress?.zipOrPinCode || '',
+          country: initialData.propertyAddress?.country || '',
+          location: {
+            lat: initialData.propertyAddress?.location?.lat || '',
+            lng: initialData.propertyAddress?.location?.lng || ''
+          }
+        },
+        owner: initialData.owner || '',
+        price: initialData.price || '',
+        propertyStatus: initialData.propertyStatus || 'FOR SALE',
+        features: {
+          bedRooms: initialData.features?.bedRooms || '',
+          bathRooms: initialData.features?.bathRooms || '',
+          areaInSquarFoot: initialData.features?.areaInSquarFoot || '',
+          amenities: initialData.features?.amenities || []
+        },
+        listedDate: initialData.listedDate || '',
+        published: initialData.published !== undefined ? initialData.published : true
+      });
+    } else {
+      // Reset form for new property
+      setFormData({
+        name: '',
+        propertyTypeId: '',
+        description: '',
+        propertyAddress: {
+          street: '',
+          area: '',
+          city: '',
+          state: '',
+          zipOrPinCode: '',
+          country: '',
+          location: {
+            lat: '',
+            lng: ''
+          }
+        },
+        owner: '',
+        price: '',
+        propertyStatus: 'FOR SALE',
+        features: {
+          bedRooms: '',
+          bathRooms: '',
+          areaInSquarFoot: '',
+          amenities: []
+        },
+        listedDate: '',
+        published: true
+      });
+    }
+    setErrors({}); // Clear errors when form data changes
+  }, [initialData, isOpen]);
+
   const amenitiesOptions = [
     'Parking',
     'Swimming Pool',
@@ -49,9 +116,99 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
 
   const statusOptions = ['FOR SALE', 'FOR RENT', 'SOLD', 'RENTED'];
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Basic validation
+    if (!formData.name?.trim()) {
+      newErrors.name = 'Property name is required';
+    }
+    if (!formData.propertyTypeId) {
+      newErrors.propertyTypeId = 'Property type is required';
+    }
+    if (!formData.description?.trim()) {
+      newErrors.description = 'Description is required';
+    }
+    if (!formData.propertyAddress?.street?.trim()) {
+      newErrors.street = 'Street address is required';
+    }
+    if (!formData.propertyAddress?.area?.trim()) {
+      newErrors.area = 'Area is required';
+    }
+    if (!formData.propertyAddress?.city?.trim()) {
+      newErrors.city = 'City is required';
+    }
+    if (!formData.propertyAddress?.state?.trim()) {
+      newErrors.state = 'State is required';
+    }
+    if (!formData.propertyAddress?.zipOrPinCode?.trim()) {
+      newErrors.zipOrPinCode = 'ZIP/PIN code is required';
+    }
+    if (!formData.propertyAddress?.country?.trim()) {
+      newErrors.country = 'Country is required';
+    }
+    if (!formData.owner?.trim()) {
+      newErrors.owner = 'Owner is required';
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      newErrors.price = 'Valid price is required';
+    }
+    if (!formData.features?.bedRooms || parseInt(formData.features.bedRooms) < 0) {
+      newErrors.bedRooms = 'Valid number of bedrooms is required';
+    }
+    if (!formData.features?.bathRooms || parseInt(formData.features.bathRooms) < 0) {
+      newErrors.bathRooms = 'Valid number of bathrooms is required';
+    }
+    if (!formData.features?.areaInSquarFoot || parseFloat(formData.features.areaInSquarFoot) <= 0) {
+      newErrors.areaInSquarFoot = 'Valid area is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (validateForm()) {
+      onSubmit(formData);
+    }
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleAddressChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      propertyAddress: { ...prev.propertyAddress, [field]: value }
+    }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleLocationChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      propertyAddress: {
+        ...prev.propertyAddress,
+        location: { ...prev.propertyAddress.location, [field]: value }
+      }
+    }));
+  };
+
+  const handleFeaturesChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      features: { ...prev.features, [field]: value }
+    }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   if (!isOpen) return null;
@@ -88,13 +245,14 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
           _hover={{ color: 'gray.700' }}
           variant="ghost"
           onClick={onClose}
+          isDisabled={isSubmitting}
         >
           <FaTimes size={20} />
         </Button>
 
         <Box mb={6}>
           <Heading size="lg" color="gray.900">
-            Add Property Details
+            {initialData ? 'Edit Property Details' : 'Add Property Details'}
           </Heading>
         </Box>
 
@@ -108,8 +266,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="name"
                 label="Property Name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => handleInputChange('name', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.name}
               />
             </Box>
             <Box>
@@ -118,16 +278,19 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               </Box>
               <select
                 value={formData.propertyTypeId}
-                onChange={(e) => setFormData({ ...formData, propertyTypeId: e.target.value })}
+                onChange={(e) => handleInputChange('propertyTypeId', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
-                  border: '1px solid #e2e8f0',
+                  border: errors.propertyTypeId ? '1px solid #e53e3e' : '1px solid #e2e8f0',
                   borderRadius: '8px',
                   fontSize: '14px',
-                  color: '#1a202c'
+                  color: '#1a202c',
+                  backgroundColor: isSubmitting ? '#f7fafc' : 'white',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer'
                 }}
                 required
+                disabled={isSubmitting}
               >
                 <option value="">Select Property Type</option>
                 {propertyTypes.map((type) => (
@@ -136,6 +299,11 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                   </option>
                 ))}
               </select>
+              {errors.propertyTypeId && (
+                <Box color="red.500" fontSize="sm" mt={1}>
+                  {errors.propertyTypeId}
+                </Box>
+              )}
             </Box>
           </Grid>
 
@@ -147,8 +315,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               name="description"
               label="Description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               required
+              isDisabled={isSubmitting}
+              error={errors.description}
             />
           </Box>
 
@@ -164,11 +334,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="street"
                 label="Street"
                 value={formData.propertyAddress.street}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  propertyAddress: { ...formData.propertyAddress, street: e.target.value }
-                })}
+                onChange={(e) => handleAddressChange('street', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.street}
               />
               <FloatingInput
                 type="text"
@@ -176,11 +345,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="area"
                 label="Area"
                 value={formData.propertyAddress.area}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  propertyAddress: { ...formData.propertyAddress, area: e.target.value }
-                })}
+                onChange={(e) => handleAddressChange('area', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.area}
               />
             </Grid>
             <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mb={4}>
@@ -190,11 +358,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="city"
                 label="City"
                 value={formData.propertyAddress.city}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  propertyAddress: { ...formData.propertyAddress, city: e.target.value }
-                })}
+                onChange={(e) => handleAddressChange('city', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.city}
               />
               <FloatingInput
                 type="text"
@@ -202,11 +369,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="state"
                 label="State"
                 value={formData.propertyAddress.state}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  propertyAddress: { ...formData.propertyAddress, state: e.target.value }
-                })}
+                onChange={(e) => handleAddressChange('state', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.state}
               />
               <FloatingInput
                 type="text"
@@ -214,11 +380,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="zipOrPinCode"
                 label="ZIP/PIN Code"
                 value={formData.propertyAddress.zipOrPinCode}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  propertyAddress: { ...formData.propertyAddress, zipOrPinCode: e.target.value }
-                })}
+                onChange={(e) => handleAddressChange('zipOrPinCode', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.zipOrPinCode}
               />
             </Grid>
             <FloatingInput
@@ -227,11 +392,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               name="country"
               label="Country"
               value={formData.propertyAddress.country}
-              onChange={(e) => setFormData({
-                ...formData,
-                propertyAddress: { ...formData.propertyAddress, country: e.target.value }
-              })}
+              onChange={(e) => handleAddressChange('country', e.target.value)}
               required
+              isDisabled={isSubmitting}
+              error={errors.country}
             />
           </Box>
 
@@ -247,13 +411,8 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="latitude"
                 label="Latitude (optional)"
                 value={formData.propertyAddress.location.lat}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  propertyAddress: {
-                    ...formData.propertyAddress,
-                    location: { ...formData.propertyAddress.location, lat: e.target.value }
-                  }
-                })}
+                onChange={(e) => handleLocationChange('lat', e.target.value)}
+                isDisabled={isSubmitting}
               />
               <FloatingInput
                 type="number"
@@ -261,13 +420,8 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="longitude"
                 label="Longitude (optional)"
                 value={formData.propertyAddress.location.lng}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  propertyAddress: {
-                    ...formData.propertyAddress,
-                    location: { ...formData.propertyAddress.location, lng: e.target.value }
-                  }
-                })}
+                onChange={(e) => handleLocationChange('lng', e.target.value)}
+                isDisabled={isSubmitting}
               />
             </Grid>
           </Box>
@@ -283,22 +437,30 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               </Box>
               <select
                 value={formData.owner}
-                onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
+                onChange={(e) => handleInputChange('owner', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
-                  border: '1px solid #e2e8f0',
+                  border: errors.owner ? '1px solid #e53e3e' : '1px solid #e2e8f0',
                   borderRadius: '8px',
                   fontSize: '14px',
-                  color: '#1a202c'
+                  color: '#1a202c',
+                  backgroundColor: isSubmitting ? '#f7fafc' : 'white',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer'
                 }}
                 required
+                disabled={isSubmitting}
               >
                 <option value="">Select Owner</option>
                 <option value="owner1">Owner 1</option>
                 <option value="owner2">Owner 2</option>
                 <option value="owner3">Owner 3</option>
               </select>
+              {errors.owner && (
+                <Box color="red.500" fontSize="sm" mt={1}>
+                  {errors.owner}
+                </Box>
+              )}
             </Box>
           </Box>
 
@@ -310,8 +472,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               name="price"
               label="Price"
               value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              onChange={(e) => handleInputChange('price', e.target.value)}
               required
+              isDisabled={isSubmitting}
+              error={errors.price}
             />
             <Box>
               <Box as="label" display="block" color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
@@ -319,16 +483,19 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               </Box>
               <select
                 value={formData.propertyStatus}
-                onChange={(e) => setFormData({ ...formData, propertyStatus: e.target.value })}
+                onChange={(e) => handleInputChange('propertyStatus', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
                   border: '1px solid #e2e8f0',
                   borderRadius: '8px',
                   fontSize: '14px',
-                  color: '#1a202c'
+                  color: '#1a202c',
+                  backgroundColor: isSubmitting ? '#f7fafc' : 'white',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer'
                 }}
                 required
+                disabled={isSubmitting}
               >
                 {statusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -351,11 +518,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="bedRooms"
                 label="Bedrooms"
                 value={formData.features.bedRooms}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  features: { ...formData.features, bedRooms: e.target.value }
-                })}
+                onChange={(e) => handleFeaturesChange('bedRooms', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.bedRooms}
               />
               <FloatingInput
                 type="number"
@@ -363,11 +529,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="bathRooms"
                 label="Bathrooms"
                 value={formData.features.bathRooms}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  features: { ...formData.features, bathRooms: e.target.value }
-                })}
+                onChange={(e) => handleFeaturesChange('bathRooms', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.bathRooms}
               />
               <FloatingInput
                 type="number"
@@ -375,11 +540,10 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                 name="areaInSquarFoot"
                 label="Area (sq ft)"
                 value={formData.features.areaInSquarFoot}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  features: { ...formData.features, areaInSquarFoot: e.target.value }
-                })}
+                onChange={(e) => handleFeaturesChange('areaInSquarFoot', e.target.value)}
                 required
+                isDisabled={isSubmitting}
+                error={errors.areaInSquarFoot}
               />
             </Grid>
             <Box>
@@ -397,11 +561,9 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
                         const newAmenities = e.target.checked
                           ? [...formData.features.amenities, amenity]
                           : formData.features.amenities.filter(a => a !== amenity);
-                        setFormData({
-                          ...formData,
-                          features: { ...formData.features, amenities: newAmenities }
-                        });
+                        handleFeaturesChange('amenities', newAmenities);
                       }}
+                      disabled={isSubmitting}
                     />
                     <Box as="label" htmlFor={amenity} fontSize="sm" color="gray.700">
                       {amenity}
@@ -418,12 +580,16 @@ const PropertyFormPopup = ({ isOpen, onClose, onSubmit, propertyTypes, initialDa
               type="button"
               variant="outline"
               onClick={onClose}
+              isDisabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               colorScheme="brand"
+              isLoading={isSubmitting}
+              loadingText={initialData ? 'Updating...' : 'Adding...'}
+              isDisabled={isSubmitting}
             >
               {initialData ? 'Update Property' : 'Add Property'}
             </Button>

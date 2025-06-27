@@ -344,6 +344,7 @@ const PropertyTypes = () => {
         title={selectedPropertyType ? 'Edit Property Type' : 'Add New Property Type'}
         onSave={handleFormSubmit}
         isSubmitting={isSubmitting}
+        buttonLabel={selectedPropertyType ? 'Update' : 'Save'}
       >
         <VStack spacing={4}>
           <FormControl isInvalid={!!errors.typeName}>
