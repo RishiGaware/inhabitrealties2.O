@@ -5,7 +5,7 @@ import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { AUTH_IMAGES } from '../../config/images';
-import { registerNormalUser } from '../../services/auth/AuthService';
+import { registerNormalUser } from '../../services/auth/AuthService.js';
 
 const DEFAULT_ROLE_ID = '681632b6ab1624e874bb2dcf';
 
