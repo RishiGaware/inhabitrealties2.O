@@ -14,8 +14,9 @@ import {
   HStack,
   Icon,
   useOutsideClick,
+  Badge,
 } from '@chakra-ui/react';
-import { ChevronDownIcon, CheckIcon, SearchIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, CheckIcon, SearchIcon, CloseIcon } from '@chakra-ui/icons';
 
 const SearchableSelect = ({
   options = [],
@@ -28,6 +29,9 @@ const SearchableSelect = ({
   isRequired = false,
   isDisabled = false,
   maxHeight = '200px',
+  size = 'md',
+  variant = 'outline',
+  showClearButton = true,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -69,6 +73,13 @@ const SearchableSelect = ({
     setIsOpen(false);
   };
 
+  const handleClear = (e) => {
+    e.stopPropagation();
+    setSelectedOption(null);
+    onChange('');
+    setSearchTerm('');
+  };
+
   const handleInputChange = (e) => {
     setSearchTerm(e.target.value);
     if (!isOpen) {
@@ -98,12 +109,27 @@ const SearchableSelect = ({
 
   const displayValue = selectedOption ? selectedOption.label : '';
 
+  // Size configurations
+  const sizeConfig = {
+    sm: { height: '32px', fontSize: 'xs', padding: 2 },
+    md: { height: '40px', fontSize: 'sm', padding: 3 },
+    lg: { height: '48px', fontSize: 'md', padding: 4 },
+  };
+
+  const currentSize = sizeConfig[size];
+
   return (
     <Box position="relative" ref={containerRef}>
       {label && (
-        <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={1}>
+        <Text 
+          fontSize="sm" 
+          fontWeight="600" 
+          color="gray.700" 
+          mb={2}
+          letterSpacing="0.025em"
+        >
           {label}
-          {isRequired && <Text as="span" color="red.500"> *</Text>}
+          {isRequired && <Text as="span" color="red.500" ml={1}>*</Text>}
         </Text>
       )}
       
@@ -116,71 +142,173 @@ const SearchableSelect = ({
         placement="bottom-start"
         closeOnBlur={false}
         autoFocus={false}
+        matchWidth={true}
       >
         <PopoverTrigger>
           <Button
             ref={popoverRef}
             w="full"
             justifyContent="space-between"
-            variant="outline"
+            variant={variant}
             onClick={handleToggle}
             isDisabled={isDisabled}
-            borderColor={error ? 'red.300' : 'gray.300'}
+            borderColor={error ? 'red.300' : isOpen ? '#015958' : 'gray.300'}
+            borderWidth="1px"
+            borderRadius="lg"
             _hover={{ 
-              borderColor: error ? 'red.400' : 'gray.400',
-              bg: 'gray.50'
+              borderColor: error ? 'red.400' : isOpen ? '#015958' : 'gray.400',
+              bg: isDisabled ? 'gray.50' : 'white',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
             }}
             _focus={{ 
-              borderColor: error ? 'red.500' : 'blue.500', 
-              boxShadow: error ? '0 0 0 1px #f56565' : '0 0 0 1px #3182ce',
-              bg: 'white'
+              borderColor: error ? 'red.500' : '#015958', 
+              boxShadow: error 
+                ? '0 0 0 3px rgba(235, 84, 99, 0.1)' 
+                : '0 0 0 3px rgba(1, 89, 88, 0.1)',
+              bg: 'white',
+              transform: 'translateY(-1px)',
             }}
             _active={{
-              bg: 'gray.100'
+              bg: 'gray.50',
+              transform: 'translateY(0px)',
             }}
-            transition="all 0.2s"
-            h="40px"
-            fontSize="sm"
+            _disabled={{
+              bg: 'gray.50',
+              color: 'gray.400',
+              cursor: 'not-allowed',
+              transform: 'none',
+              boxShadow: 'none',
+            }}
+            transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+            h={currentSize.height}
+            fontSize={currentSize.fontSize}
+            fontWeight="500"
+            position="relative"
+            overflow="hidden"
+            _before={{
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(135deg, rgba(1, 89, 88, 0.02) 0%, rgba(0, 168, 150, 0.02) 100%)',
+              opacity: isOpen ? 1 : 0,
+              transition: 'opacity 0.2s ease',
+            }}
           >
-            <Text
-              color={displayValue ? 'gray.900' : 'gray.500'}
-              textAlign="left"
-              noOfLines={1}
-              fontWeight={displayValue ? 'medium' : 'normal'}
-            >
-              {displayValue || placeholder}
-            </Text>
-            <Icon 
-              as={ChevronDownIcon} 
-              transition="transform 0.2s"
-              transform={isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
-              color="gray.500"
-            />
+            <HStack spacing={2} flex={1} justify="flex-start">
+              <Text
+                color={displayValue ? 'gray.900' : 'gray.500'}
+                textAlign="left"
+                noOfLines={1}
+                fontWeight={displayValue ? '600' : '400'}
+                fontSize={currentSize.fontSize}
+                transition="all 0.2s ease"
+                width="100%"
+              >
+                {displayValue || placeholder}
+              </Text>
+              {selectedOption && showClearButton && (
+                <Badge
+                  colorScheme="teal"
+                  variant="subtle"
+                  fontSize="xs"
+                  px={2}
+                  py={1}
+                  borderRadius="full"
+                  bg="rgba(1, 89, 88, 0.1)"
+                  color="#015958"
+                  fontWeight="500"
+                >
+                  Selected
+                </Badge>
+              )}
+            </HStack>
+            
+            <HStack spacing={1}>
+              {selectedOption && showClearButton && (
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  onClick={handleClear}
+                  p={1}
+                  minW="auto"
+                  h="auto"
+                  color="gray.400"
+                  _hover={{
+                    color: 'red.500',
+                    bg: 'red.50',
+                  }}
+                  _active={{
+                    bg: 'red.100',
+                  }}
+                  transition="all 0.15s ease"
+                >
+                  <Icon as={CloseIcon} boxSize={3} />
+                </Button>
+              )}
+              <Icon 
+                as={ChevronDownIcon} 
+                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                transform={isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
+                color={isOpen ? '#015958' : 'gray.400'}
+                boxSize={4}
+              />
+            </HStack>
           </Button>
         </PopoverTrigger>
         
         <PopoverContent 
-          w="full" 
-          maxW="400px"
-          boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+          w="100%"
+          minW={0}
+          maxW="100vw"
+          overflowX="hidden"
+          boxShadow="0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
           border="1px solid"
           borderColor="gray.200"
-          borderRadius="md"
+          borderRadius="xl"
+          overflow="hidden"
+          _before={{
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '1px',
+            background: 'linear-gradient(90deg, #015958 0%, #00A896 100%)',
+          }}
         >
           <PopoverBody p={0}>
-            <VStack spacing={0} maxH={maxHeight} overflowY="auto">
+            <VStack spacing={0} maxH={maxHeight} overflowY="auto" width="100%" >
               {/* Search Input */}
               <Box 
-                p={3} 
+                p={{ base: 2.5, sm: currentSize.padding }}
                 borderBottom="1px solid" 
-                borderColor="gray.200"
+                borderColor="gray.100"
                 bg="gray.50"
                 position="sticky"
                 top={0}
                 zIndex={1}
+                _before={{
+                  content: '""',
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: '1px',
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(1, 89, 88, 0.1) 50%, transparent 100%)',
+                }}
+                width="100%"
               >
-                <HStack spacing={2}>
-                  <Icon as={SearchIcon} color="gray.400" boxSize={4} />
+                <HStack spacing={{ base: 2, sm: 3 }} width="100%">
+                  <Icon 
+                    as={SearchIcon} 
+                    color="gray.400" 
+                    boxSize={4}
+                    transition="color 0.2s ease"
+                  />
                   <Input
                     ref={inputRef}
                     placeholder={searchPlaceholder}
@@ -190,12 +318,25 @@ const SearchableSelect = ({
                     size="sm"
                     border="none"
                     bg="white"
+                    borderRadius="md"
+                    w="100%"
+                    minW={0}
                     _focus={{ 
-                      boxShadow: 'none',
-                      bg: 'white'
+                      boxShadow: '0 0 0 3px rgba(1, 89, 88, 0.1)',
+                      bg: 'white',
+                      border: '1px solid',
+                      borderColor: '#015958',
                     }}
-                    _placeholder={{ color: 'gray.400' }}
-                    fontSize="sm"
+                    _placeholder={{ 
+                      color: 'gray.400',
+                      fontWeight: '400',
+                    }}
+                    fontSize={{ base: 'md', sm: 'sm', md: 'md' }}
+                    fontWeight="500"
+                    _hover={{
+                      bg: 'gray.50',
+                    }}
+                    transition="all 0.2s ease"
                   />
                 </HStack>
               </Box>
@@ -206,41 +347,98 @@ const SearchableSelect = ({
                   filteredOptions.map((option, index) => (
                     <ListItem
                       key={option.value}
-                      px={3}
-                      py={2.5}
+                      px={{ base: 2.5, sm: currentSize.padding }}
+                      py={{ base: 3, sm: 3 }}
                       cursor="pointer"
                       _hover={{ 
-                        bg: 'blue.50',
-                        color: 'blue.700'
+                        bg: 'rgba(1, 89, 88, 0.05)',
+                        color: '#015958',
+                        transform: 'translateX(4px)',
                       }}
                       _active={{
-                        bg: 'blue.100'
+                        bg: 'rgba(1, 89, 88, 0.1)',
                       }}
                       onClick={() => handleSelect(option)}
                       display="flex"
                       alignItems="center"
                       justifyContent="space-between"
-                      transition="all 0.15s"
+                      transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
                       borderBottom={index < filteredOptions.length - 1 ? "1px solid" : "none"}
                       borderColor="gray.100"
+                      position="relative"
+                      _before={{
+                        content: '""',
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: '3px',
+                        background: selectedOption?.value === option.value 
+                          ? 'linear-gradient(180deg, #015958 0%, #00A896 100%)' 
+                          : 'transparent',
+                        transition: 'all 0.2s ease',
+                      }}
                     >
                       <Text 
-                        fontSize="sm" 
-                        fontWeight={selectedOption?.value === option.value ? 'medium' : 'normal'}
-                        color={selectedOption?.value === option.value ? 'blue.700' : 'inherit'}
+                        fontSize={{ base: 'md', sm: 'sm', md: 'md' }}
+                        fontWeight={selectedOption?.value === option.value ? '600' : '500'}
+                        color={selectedOption?.value === option.value ? '#015958' : 'gray.700'}
+                        transition="all 0.2s ease"
+                        ml={selectedOption?.value === option.value ? 2 : 0}
                       >
                         {option.label}
                       </Text>
                       {selectedOption?.value === option.value && (
-                        <CheckIcon color="blue.500" boxSize={4} />
+                        <HStack spacing={2}>
+                          <Badge
+                            colorScheme="teal"
+                            variant="subtle"
+                            fontSize="xs"
+                            px={2}
+                            py={1}
+                            borderRadius="full"
+                            bg="rgba(1, 89, 88, 0.1)"
+                            color="#015958"
+                            fontWeight="500"
+                          >
+                            Current
+                          </Badge>
+                          <Icon 
+                            as={CheckIcon} 
+                            color="#015958" 
+                            boxSize={4}
+                            transition="all 0.2s ease"
+                          />
+                        </HStack>
                       )}
                     </ListItem>
                   ))
                 ) : (
-                  <ListItem px={3} py={4}>
-                    <Text fontSize="sm" color="gray.500" textAlign="center">
-                      {searchTerm ? 'No options found' : 'No options available'}
-                    </Text>
+                  <ListItem px={{ base: 2.5, sm: currentSize.padding }} py={{ base: 5, sm: 6 }}>
+                    <VStack spacing={2}>
+                      <Icon 
+                        as={SearchIcon} 
+                        color="gray.300" 
+                        boxSize={6}
+                      />
+                      <Text 
+                        fontSize={{ base: 'md', sm: 'sm', md: 'md' }}
+                        color="gray.500" 
+                        textAlign="center"
+                        fontWeight="500"
+                      >
+                        {searchTerm ? 'No options found' : 'No options available'}
+                      </Text>
+                      {searchTerm && (
+                        <Text 
+                          fontSize={{ base: 'sm', sm: 'sm' }}
+                          color="gray.400" 
+                          textAlign="center"
+                        >
+                          Try adjusting your search terms
+                        </Text>
+                      )}
+                    </VStack>
                   </ListItem>
                 )}
               </List>
@@ -250,9 +448,17 @@ const SearchableSelect = ({
       </Popover>
       
       {error && (
-        <Text fontSize="xs" color="red.500" mt={1} fontWeight="medium">
-          ⚠ {error}
-        </Text>
+        <HStack spacing={1} mt={2}>
+          <Icon as={CloseIcon} color="red.500" boxSize={3} />
+          <Text 
+            fontSize="xs" 
+            color="red.500" 
+            fontWeight="500"
+            letterSpacing="0.025em"
+          >
+            {error}
+          </Text>
+        </HStack>
       )}
     </Box>
   );

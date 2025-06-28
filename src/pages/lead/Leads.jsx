@@ -11,6 +11,7 @@ import Loader from '../../components/common/Loader';
 import { fetchLeadStatuses } from '../../services/leadmanagement/leadStatusService';
 import { fetchFollowUpStatuses } from '../../services/leadmanagement/followUpStatusService';
 import { fetchUsers } from '../../services/usermanagement/userService';
+import { fetchProperties } from '../../services/propertyService';
 import SearchableSelect from '../../components/common/SearchableSelect';
 
 const Leads = () => {
@@ -46,6 +47,14 @@ const Leads = () => {
   const [leadStatusOptions, setLeadStatusOptions] = useState([]);
   const [followUpStatusOptions, setFollowUpStatusOptions] = useState([]);
   const [userOptions, setUserOptions] = useState([]);
+  const [propertyOptions, setPropertyOptions] = useState([]);
+
+  // Helper function to get property name by ID
+  const getPropertyNameById = (propertyId) => {
+    if (!propertyId) return 'N/A';
+    const property = propertyOptions.find(option => option.value === propertyId);
+    return property ? property.label : 'Property not found';
+  };
 
   useEffect(() => {
     const getLeads = async () => {
@@ -59,6 +68,22 @@ const Leads = () => {
     fetchLeadStatuses().then(res => setLeadStatusOptions(res.data || []));
     fetchFollowUpStatuses().then(res => setFollowUpStatusOptions(res.data || []));
     fetchUsers().then(res => setUserOptions(res.data || []));
+    
+    // Fetch properties for the Interested Property dropdown
+    const fetchPropertyOptions = async () => {
+      try {
+        const response = await fetchProperties();
+        const properties = response.data || [];
+        const options = properties.map(property => ({
+          label: `${property.name} - ${property.propertyAddress?.area}, ${property.propertyAddress?.city} (₹${property.price?.toLocaleString()})`,
+          value: property._id
+        }));
+        setPropertyOptions(options);
+      } catch (error) {
+        console.error('Failed to fetch properties:', error);
+      }
+    };
+    fetchPropertyOptions();
   }, []);
 
   const closeDetails = () => {
@@ -69,12 +94,37 @@ const Leads = () => {
   const handleAddNew = () => {
     setSelectedLead(null);
     setIsEditMode(false);
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      propertyId: '',
+      leadStatusId: '',
+      followUpStatusId: '',
+      referanceFromId: '',
+      assignedToUserId: '',
+      note: '',
+    });
     setIsOpen(true);
   };
 
   const handleEdit = (lead) => {
     setSelectedLead(lead);
     setIsEditMode(true);
+    // Initialize form data with lead information
+    setFormData({
+      firstName: lead.userId?.firstName || '',
+      lastName: lead.userId?.lastName || '',
+      email: lead.userId?.email || '',
+      phoneNumber: lead.userId?.phoneNumber || '',
+      propertyId: lead.leadInterestedPropertyId || '',
+      leadStatusId: lead.leadStatusId || '',
+      followUpStatusId: lead.followUpStatusId || '',
+      referanceFromId: lead.referanceFromId || '',
+      assignedToUserId: lead.assignedToUserId || '',
+      note: lead.note || '',
+    });
     setIsOpen(true);
   };
 
@@ -531,7 +581,7 @@ const Leads = () => {
                       <Flex align="center" gap={2} minW={0} flexShrink={1}>
                         <Icon as={FiHome} color="gray.400" boxSize={3} />
                         <Text fontWeight="medium" color="gray.600" minW="55px" fontSize="2xs">Property ID:</Text>
-                        <Text color="gray.800" fontSize="2xs" isTruncated w="100%">{selectedLeadDetails.leadInterestedPropertyId || 'N/A'}</Text>
+                        <Text color="gray.800" fontSize="2xs" isTruncated w="100%">{getPropertyNameById(selectedLeadDetails.leadInterestedPropertyId)}</Text>
                       </Flex>
                     </Box>
 
@@ -658,11 +708,10 @@ const Leads = () => {
           <FormControl>
             <FormLabel>Interested Property</FormLabel>
             <SearchableSelect
-              options={[] /* TODO: Map your property options here as [{ label, value }] */}
+              options={propertyOptions}
               value={formData.propertyId}
               onChange={val => setFormData(f => ({ ...f, propertyId: val }))}
               placeholder="Select Property"
-            //   label="Interested Property"
             />
           </FormControl>
           <FormControl>
@@ -672,7 +721,6 @@ const Leads = () => {
               value={formData.leadStatusId}
               onChange={val => setFormData(f => ({ ...f, leadStatusId: val }))}
               placeholder="Select Lead Status"
-            //   label="Lead Status"
             />
           </FormControl>
           <FormControl>
@@ -682,7 +730,6 @@ const Leads = () => {
               value={formData.followUpStatusId}
               onChange={val => setFormData(f => ({ ...f, followUpStatusId: val }))}
               placeholder="Select Follow Up Status"
-            //   label="Follow Up Status"
             />
           </FormControl>
           <FormControl>
@@ -692,7 +739,6 @@ const Leads = () => {
               value={formData.assignedToUserId}
               onChange={val => setFormData(f => ({ ...f, assignedToUserId: val }))}
               placeholder="Select User"
-            //   label="Assigned To"
             />
           </FormControl>
           <FormControl>
