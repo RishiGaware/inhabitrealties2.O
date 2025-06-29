@@ -125,18 +125,25 @@ const Leads = () => {
   const handleEdit = (lead) => {
     setSelectedLead(lead);
     setIsEditMode(true);
-    // Initialize form data with lead information
     setFormData({
-      firstName: lead.userId?.firstName || '',
-      lastName: lead.userId?.lastName || '',
-      email: lead.userId?.email || '',
-      phoneNumber: lead.userId?.phoneNumber || '',
-      propertyId: lead.leadInterestedPropertyId || '',
-      leadStatusId: lead.leadStatusId || '',
-      followUpStatusId: lead.followUpStatusId || '',
-      referanceFromId: lead.referanceFromId || '',
-      assignedToUserId: lead.assignedToUserId || '',
+      userId: lead.userId?._id || '',
+      leadDesignation: lead.leadDesignation || '',
+      leadInterestedPropertyId: lead.leadInterestedPropertyId || '',
+      leadStatus: lead.leadStatus?._id || '',
+      followUpStatus: lead.followUpStatus?._id || '',
+      referanceFrom: lead.referanceFrom?._id || '',
+      assignedToUserId: lead.assignedToUserId?._id || '',
+      leadAltEmail: lead.leadAltEmail || '',
+      leadAltPhoneNumber: lead.leadAltPhoneNumber || '',
+      leadLandLineNumber: lead.leadLandLineNumber || '',
+      leadWebsite: lead.leadWebsite || '',
       note: lead.note || '',
+      referredByUserId: lead.referredByUserId?._id || '',
+      referredByUserFirstName: lead.referredByUserFirstName || '',
+      referredByUserLastName: lead.referredByUserLastName || '',
+      referredByUserEmail: lead.referredByUserEmail || '',
+      referredByUserPhoneNumber: lead.referredByUserPhoneNumber || '',
+      referredByUserDesignation: lead.referredByUserDesignation || '',
     });
     setIsOpen(true);
   };
@@ -212,6 +219,25 @@ const Leads = () => {
     }
     setLoading(false);
   };
+
+  // Build the options from all users
+  const referenceSourceOptions = [
+    ...userOptions.map(u => ({
+      label: `${u.firstName} ${u.lastName} (${u.email})`,
+      value: u._id
+    }))
+  ];
+
+  // If editing and the saved value is not in the options, add a fallback
+  if (
+    formData.referanceFrom &&
+    !referenceSourceOptions.some(opt => opt.value === formData.referanceFrom)
+  ) {
+    referenceSourceOptions.push({
+      label: selectedLead?.referanceFrom?.name || 'Current Reference',
+      value: formData.referanceFrom
+    });
+  }
 
   if (errorType === 'network') return <NoInternet onRetry={fetchAllLeads} />;
   if (errorType === 'server') return <ServerError onRetry={fetchAllLeads} />;
@@ -760,13 +786,6 @@ const Leads = () => {
             onChange={val => setFormData(f => ({ ...f, followUpStatus: val }))}
             placeholder="Select Follow-up Status"
             isRequired
-          />
-          <SearchableSelect
-            label="Reference Source (Optional)"
-            options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
-            value={formData.referanceFrom}
-            onChange={val => setFormData(f => ({ ...f, referanceFrom: val }))}
-            placeholder="Select Reference Source"
           />
 
           {/* Contact Information */}
