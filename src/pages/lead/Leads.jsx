@@ -565,9 +565,10 @@ const Leads = () => {
 
       <SimpleGrid
         columns={{ base: 1, sm: 2, md: 3, lg: 4 }}
-        minChildWidth="250px"
-        spacing={{ base: 3, sm: 4, md: 6 }}
-        mb={8}
+        minChildWidth="220px"
+        spacing={{ base: 2, sm: 3, md: 4 }}
+        mb={6}
+        justifyItems="center"
       >
         {!loading && filteredLeads.length === 0 ? (
           <Text color="gray.400">No leads match your search.</Text>
@@ -578,28 +579,32 @@ const Leads = () => {
               <Box
                 key={lead._id}
                 bg="white"
-                borderRadius="2xl"
-                boxShadow="md"
-                mb={4}
+                borderRadius="xl"
+                boxShadow="sm"
+                mb={2}
                 w="100%"
-                minW={0}
-                maxW="100%"
+                maxW="350px"
+                minW="200px"
                 overflow="hidden"
                 display="flex"
                 flexDirection="column"
                 alignItems="flex-start"
                 justifyContent="flex-start"
-                minH={{ base: '220px', md: '240px' }}
                 position="relative"
-                p={{ base: 3, md: 5 }}
+                p={3}
                 cursor="pointer"
-                transition="all 0.2s"
+                transition="all 0.15s"
                 _hover={{ 
-                  transform: 'translateY(-2px)', 
-                  boxShadow: 'lg',
+                  transform: 'translateY(-2px) scale(1.03)', 
+                  boxShadow: 'md',
                   borderColor: 'brand.600'
                 }}
-                style={{ borderLeft: '6px solid var(--light-primary)' }}
+                style={{
+                  borderLeft: '4px solid var(--light-primary)',
+                  margin: '0 auto',
+                  width: filteredLeads.length === 1 ? '100%' : undefined,
+                  maxWidth: filteredLeads.length === 1 ? '350px' : '320px',
+                }}
                 onClick={() => {
                   setSelectedLeadDetails(lead);
                   setIsDetailsOpen(true);
@@ -617,7 +622,7 @@ const Leads = () => {
                     name={`${user.firstName || ''} ${user.lastName || ''}`}
                     bg="gray.100"
                     color={theme.colors.brand[600] || 'purple.600'}
-                    size={{ base: 'lg', md: 'xl' }}
+                    size={{ base: 'md', md: 'lg' }}
                     src={user.avatarUrl}
                     border={`3px solid ${theme.colors.brand[200] || '#E9D8FD'}`}
                     boxShadow="md"
@@ -625,10 +630,9 @@ const Leads = () => {
                   />
                   <Text
                     fontWeight="bold"
-                    fontSize={{ base: 'md', md: 'lg' }}
+                    fontSize={{ base: 'sm', md: 'md' }}
                     color={theme.colors.brand[700] || 'purple.700'}
                     textTransform="capitalize"
-                    isTruncated
                     maxW="100%"
                     whiteSpace="normal"
                     wordBreak="break-word"
@@ -639,14 +643,14 @@ const Leads = () => {
                     direction="column"
                     align={{ base: 'center', md: 'flex-start' }}
                     gap={1}
-                    fontSize={{ base: 'sm', md: 'md' }}
+                    fontSize={{ base: 'xs', md: 'sm' }}
                     color="gray.500"
                     mt={1}
                     wrap="wrap"
                     w="100%"
                   >
-                    <Text as="span" display="flex" alignItems="center" gap={1} isTruncated maxW="100%" whiteSpace="normal" wordBreak="break-word">📧 <span>{user.email}</span></Text>
-                    <Text as="span" display="flex" alignItems="center" gap={1} isTruncated maxW="100%" whiteSpace="normal" wordBreak="break-word">📞 <span>{user.phoneNumber}</span></Text>
+                    <Text as="span" display="flex" alignItems="center" gap={1} maxW="100%" whiteSpace="normal" wordBreak="break-word">📧 <span>{user.email}</span></Text>
+                    <Text as="span" display="flex" alignItems="center" gap={1} maxW="100%" whiteSpace="normal" wordBreak="break-word">📞 <span>{user.phoneNumber}</span></Text>
                   </Flex>
                 </Flex>
                 <Flex gap={1} flexWrap="wrap" w="100%" mt={2}>
@@ -682,7 +686,7 @@ const Leads = () => {
                     <IconButton
                       aria-label="Edit Lead"
                       icon={<EditIcon />}
-                      size={{ base: 'sm', md: 'sm' }}
+                      size={{ base: 'xs', md: 'sm' }}
                       colorScheme="brand"
                       variant="ghost"
                       onClick={(e) => {
@@ -696,7 +700,7 @@ const Leads = () => {
                     <IconButton
                       aria-label="Delete Lead"
                       icon={<DeleteIcon />}
-                      size={{ base: 'sm', md: 'sm' }}
+                      size={{ base: 'xs', md: 'sm' }}
                       colorScheme="red"
                       variant="ghost"
                       onClick={(e) => {
