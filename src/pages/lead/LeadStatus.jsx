@@ -25,6 +25,7 @@ import FormModal from '../../components/common/FormModal';
 import FloatingInput from '../../components/common/FloatingInput';
 import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal';
 import { useLeadStatusContext } from '../../context/LeadStatusContext';
+import Loader from '../../components/common/Loader';
 
 const LeadStatus = () => {
   const [selectedLeadStatus, setSelectedLeadStatus] = useState(null);
@@ -240,6 +241,9 @@ const LeadStatus = () => {
 
   return (
     <Box p={5}>
+      {(isApiCallInProgress || isSubmitting || isDeleteOpen) && (
+        <Loader size="xl" />
+      )}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" variant="pageTitle">
           Lead Status Management

@@ -178,11 +178,16 @@ const Leads = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  if (loading) {
+    return (
+      <Box p={5}>
+        <Loader size="xl" />
+      </Box>
+    );
+  }
+
   return (
     <Box p={5}>
-      {loading && (
-        <Loader size="xl" label="Loading leads..." />
-      )}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" variant="pageTitle">
           Leads
@@ -756,22 +761,7 @@ const Leads = () => {
         message={`Are you sure you want to delete the lead "${leadToDelete?.userId?.firstName} ${leadToDelete?.userId?.lastName}"?`}
       />
 
-      {/* Section Card */}
-      <Box
-        bg="white"
-        borderRadius="2xl"
-        boxShadow="md"
-        p={{ base: 4, md: 6 }}
-        mb={6}
-        borderLeft="6px solid"
-        borderColor="brand.500"
-      >
-        <Flex align="center" mb={2}>
-          <Icon as={FiUser} color="brand.500" mr={2} />
-          <Heading size="md" color="brand.700">Contact Information</Heading>
-        </Flex>
-        {/* ...fields or info rows... */}
-      </Box>
+     
     </Box>
   );
 };

@@ -257,7 +257,7 @@ const PropertyMaster = () => {
   if (loading || propertyTypesLoading) {
     return (
       <Box p={5}>
-        <Loader size="xl" label="Loading properties..." />
+        <Loader size="xl" />
       </Box>
     );
   }

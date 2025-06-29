@@ -277,7 +277,7 @@ const PropertyTypes = () => {
   return (
     <Box p={5}>
       {loading && (
-        <Loader size="xl" label="Loading property types..." />
+        <Loader size="xl" />
       )}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" variant="pageTitle">
