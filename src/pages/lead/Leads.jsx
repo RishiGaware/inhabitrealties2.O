@@ -299,49 +299,71 @@ const Leads = () => {
       </Flex>
 
       {/* Search and Filter Section */}
-      <Box mb={6}>
-        <Flex gap={4} align="center" wrap="wrap">
+      <Box
+        mb={6}
+        w="100%"
+        bgGradient="linear(135deg, #f8fafc 0%, #f3ebff 100%)"
+        borderRadius="2xl"
+        boxShadow="0 4px 24px 0 rgba(80, 36, 143, 0.07)"
+        p={{ base: 3, md: 6 }}
+        border="1px solid"
+        borderColor="gray.100"
+        maxW="100%"
+      >
+        <Flex gap={2} align="center" wrap="wrap" direction={{ base: 'column', md: 'row' }}>
           {/* Search Box */}
-          <Box flex="1" minW="300px">
-            <InputGroup>
-              <InputLeftElement pointerEvents="none">
-                <SearchIcon color="gray.300" />
+          <Box flex="1" minW={{ base: '100%', sm: '180px' }}>
+            <InputGroup size="sm">
+              <InputLeftElement pointerEvents="none" h="full">
+                <SearchIcon color="brand.500" boxSize={3} />
               </InputLeftElement>
               <Input
-                placeholder="Search leads by name, email, or phone..."
+                placeholder="Search leads..."
                 value={searchTerm}
                 onChange={handleSearch}
-                borderRadius="xl"
+                borderRadius="md"
                 bg="white"
-                border="2px solid"
-                borderColor="gray.200"
+                border="1px solid"
+                borderColor="brand.100"
+                fontSize="xs"
+                fontWeight="medium"
+                py={2}
+                px={3}
                 _focus={{
                   borderColor: 'brand.500',
-                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-200)',
+                  bg: 'white',
                 }}
-                _hover={{ borderColor: 'gray.300' }}
+                _hover={{ borderColor: 'brand.300', bg: 'white' }}
+                transition="all 0.2s"
+                boxShadow="0 1px 2px 0 rgba(80, 36, 143, 0.04)"
               />
             </InputGroup>
           </Box>
 
           {/* Filter Button */}
           <Button
-            leftIcon={<Icon as={FiFilter} />}
-            rightIcon={activeFilters > 0 ? <ChakraBadge colorScheme="brand" borderRadius="full" fontSize="xs">{activeFilters}</ChakraBadge> : null}
+            size="xs"
+            leftIcon={<Icon as={FiFilter} boxSize={3} />}
+            rightIcon={activeFilters > 0 ? <ChakraBadge colorScheme="brand" borderRadius="full" fontSize="2xs">{activeFilters}</ChakraBadge> : null}
             onClick={onFilterToggle}
             colorScheme="brand"
-            variant="outline"
-            borderRadius="xl"
-            px={6}
+            variant="solid"
+            borderRadius="md"
+            px={3}
             py={2}
-            border="2px solid"
+            fontWeight="semibold"
+            fontSize="xs"
+            boxShadow="0 1px 2px 0 rgba(80, 36, 143, 0.08)"
             _hover={{
-              bg: 'brand.50',
+              bg: 'brand.600',
               borderColor: 'brand.600',
-              transform: 'translateY(-1px)',
-              boxShadow: 'lg',
+              transform: 'translateY(-1px) scale(1.01)',
+              boxShadow: '0 2px 6px 0 rgba(80, 36, 143, 0.10)',
             }}
+            _active={{ bg: 'brand.700' }}
             transition="all 0.2s"
+            w={{ base: '100%', md: 'auto' }}
           >
             Filters
           </Button>
@@ -355,39 +377,40 @@ const Leads = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            mt={4}
-            p={{ base: 3, md: 6 }}
-            bg="white"
-            borderRadius="2xl"
-            boxShadow="0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+            mt={2}
+            p={{ base: 1, md: 2 }}
+            bgGradient="linear(135deg, #fff 0%, #f3ebff 100%)"
+            borderRadius="md"
+            boxShadow="0 2px 8px 0 rgba(80, 36, 143, 0.08)"
             border="1px solid"
             borderColor="gray.100"
             overflowY="auto"
-            maxH={{ base: '60vh', md: 'none' }}
+            maxH={{ base: '40vh', md: 'none' }}
             w="100%"
           >
-            <Flex justify="space-between" align="center" mb={{ base: 2, md: 4 }}>
-              <Heading size="md" color="gray.800" fontWeight="bold">
+            <Flex justify="space-between" align="center" mb={1}>
+              <Heading size="xs" color="brand.700" fontWeight="bold" letterSpacing="tight">
                 Filter Leads
               </Heading>
-              <HStack spacing={2}>
+              <HStack spacing={1}>
                 {activeFilters > 0 && (
                   <Button
-                    size="sm"
+                    size="xs"
                     variant="ghost"
                     colorScheme="red"
-                    leftIcon={<Icon as={FiX} />}
+                    leftIcon={<Icon as={FiX} boxSize={3} />}
                     onClick={clearFilters}
                     borderRadius="full"
                     w={{ base: '100%', sm: 'auto' }}
+                    fontSize="2xs"
                   >
                     Clear All
                   </Button>
                 )}
                 <IconButton
                   aria-label="Close filters"
-                  icon={<CloseIcon />}
-                  size="sm"
+                  icon={<CloseIcon boxSize={2.5} />}
+                  size="xs"
                   variant="ghost"
                   onClick={onFilterClose}
                   borderRadius="full"
@@ -395,28 +418,31 @@ const Leads = () => {
               </HStack>
             </Flex>
 
-            <Divider mb={{ base: 2, md: 4 }} />
+            <Divider mb={2} />
 
-            <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={4} w="100%">
+            <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={2} w="100%">
               {/* Lead User Filter */}
               <FormControl>
-                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="2xs" mb={1}>
                   Lead User
                 </FormLabel>
                 <Select
+                  size="xs"
                   placeholder="Select User"
                   value={filter.userId}
                   onChange={(e) => handleFilterChange('userId', e.target.value)}
-                  borderRadius="lg"
-                  border="2px solid"
+                  borderRadius="sm"
+                  border="1px solid"
                   borderColor="gray.200"
+                  fontSize="2xs"
+                  py={1}
                   _focus={{
                     borderColor: 'brand.500',
                     boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
                   }}
                 >
                   {userOptions.map(user => (
-                    <option key={user._id} value={user._id}>
+                    <option key={user._id} value={user._id} style={{ fontSize: '11px' }}>
                       {user.firstName} {user.lastName} ({user.email})
                     </option>
                   ))}
@@ -425,23 +451,26 @@ const Leads = () => {
 
               {/* Lead Status Filter */}
               <FormControl>
-                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="2xs" mb={1}>
                   Lead Status
                 </FormLabel>
                 <Select
+                  size="xs"
                   placeholder="Select Status"
                   value={filter.leadStatus}
                   onChange={(e) => handleFilterChange('leadStatus', e.target.value)}
-                  borderRadius="lg"
-                  border="2px solid"
+                  borderRadius="sm"
+                  border="1px solid"
                   borderColor="gray.200"
+                  fontSize="2xs"
+                  py={1}
                   _focus={{
                     borderColor: 'brand.500',
                     boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
                   }}
                 >
                   {leadStatusOptions.map(status => (
-                    <option key={status._id} value={status._id}>
+                    <option key={status._id} value={status._id} style={{ fontSize: '11px' }}>
                       {status.name}
                     </option>
                   ))}
@@ -450,173 +479,63 @@ const Leads = () => {
 
               {/* Follow-up Status Filter */}
               <FormControl>
-                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="2xs" mb={1}>
                   Follow-up Status
                 </FormLabel>
                 <Select
+                  size="xs"
                   placeholder="Select Follow-up Status"
                   value={filter.followUpStatus}
                   onChange={(e) => handleFilterChange('followUpStatus', e.target.value)}
-                  borderRadius="lg"
-                  border="2px solid"
+                  borderRadius="sm"
+                  border="1px solid"
                   borderColor="gray.200"
+                  fontSize="2xs"
+                  py={1}
                   _focus={{
                     borderColor: 'brand.500',
                     boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
                   }}
                 >
                   {followUpStatusOptions.map(status => (
-                    <option key={status._id} value={status._id}>
+                    <option key={status._id} value={status._id} style={{ fontSize: '11px' }}>
                       {status.name}
                     </option>
                   ))}
                 </Select>
               </FormControl>
-
-              {/* Assigned To Filter */}
-              <FormControl>
-                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
-                  Assigned To
-                </FormLabel>
-                <Select
-                  placeholder="Select Assigned User"
-                  value={filter.assignedToUserId}
-                  onChange={(e) => handleFilterChange('assignedToUserId', e.target.value)}
-                  borderRadius="lg"
-                  border="2px solid"
-                  borderColor="gray.200"
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  }}
-                >
-                  {userOptions.map(user => (
-                    <option key={user._id} value={user._id}>
-                      {user.firstName} {user.lastName} ({user.email})
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Property Filter */}
-              <FormControl>
-                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
-                  Interested Property
-                </FormLabel>
-                <Select
-                  placeholder="Select Property"
-                  value={filter.propertyId}
-                  onChange={(e) => handleFilterChange('propertyId', e.target.value)}
-                  borderRadius="lg"
-                  border="2px solid"
-                  borderColor="gray.200"
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  }}
-                >
-                  {propertyOptions.map(property => (
-                    <option key={property.value} value={property.value}>
-                      {property.label}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Designation Filter */}
-              <FormControl>
-                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
-                  Designation
-                </FormLabel>
-                <Select
-                  placeholder="Select Designation"
-                  value={filter.designation}
-                  onChange={(e) => handleFilterChange('designation', e.target.value)}
-                  borderRadius="lg"
-                  border="2px solid"
-                  borderColor="gray.200"
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  }}
-                >
-                  <option value="Buyer">Buyer</option>
-                  <option value="Seller">Seller</option>
-                </Select>
-              </FormControl>
-
-              {/* Reference Source Filter */}
-              <FormControl>
-                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
-                  Reference Source
-                </FormLabel>
-                <Select
-                  placeholder="Select Reference Source"
-                  value={filter.referanceFrom}
-                  onChange={e => handleFilterChange('referanceFrom', e.target.value)}
-                  borderRadius="lg"
-                  border="2px solid"
-                  borderColor="gray.200"
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  }}
-                >
-                  {userOptions.map(user => (
-                    <option key={user._id} value={user._id}>
-                      {user.firstName} {user.lastName} ({user.email})
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Published Filter */}
-              <FormControl>
-                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
-                  Published
-                </FormLabel>
-                <Select
-                  placeholder="All"
-                  value={filter.published}
-                  onChange={e => handleFilterChange('published', e.target.value)}
-                  borderRadius="lg"
-                  border="2px solid"
-                  borderColor="gray.200"
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  }}
-                >
-                  <option value="true">Published</option>
-                  <option value="false">Not Published</option>
-                </Select>
-              </FormControl>
             </SimpleGrid>
 
             {/* Filter Actions */}
-            <Flex direction={{ base: 'column', sm: 'row' }} justify="flex-end" gap={3} mt={6}>
+            <Flex direction={{ base: 'column', sm: 'row' }} justify="flex-end" gap={1} mt={2}>
               <Button
+                size="xs"
                 variant="outline"
                 onClick={onFilterClose}
-                borderRadius="lg"
-                px={6}
+                borderRadius="sm"
+                px={2}
                 w={{ base: '100%', sm: 'auto' }}
+                fontWeight="semibold"
+                fontSize="2xs"
               >
                 Cancel
               </Button>
               <Button
+                size="xs"
                 colorScheme="brand"
                 onClick={() => {
                   applyFilters();
                   onFilterClose();
                 }}
-                leftIcon={<Icon as={FiCheck} />}
-                borderRadius="lg"
-                px={6}
+                leftIcon={<Icon as={FiCheck} boxSize={3} />}
+                borderRadius="sm"
+                px={2}
                 w={{ base: '100%', sm: 'auto' }}
+                fontWeight="semibold"
+                fontSize="2xs"
                 _hover={{
                   transform: 'translateY(-1px)',
-                  boxShadow: 'lg',
+                  boxShadow: 'sm',
                 }}
                 transition="all 0.2s"
               >
