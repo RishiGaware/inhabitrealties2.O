@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Heading, Text, Flex, Button, IconButton, Avatar, Badge, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, InputGroup, InputLeftElement, Input, Stack, SimpleGrid, useTheme, Tooltip, VStack, Icon, Circle, FormControl, FormLabel, Select, Textarea } from '@chakra-ui/react';
+import { Box, Heading, Text, Flex, Button, IconButton, Avatar, Badge, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, InputGroup, InputLeftElement, Input, Stack, SimpleGrid, useTheme, Tooltip, VStack, Icon, Circle, FormControl, FormLabel, Select, Textarea, Collapse, useDisclosure, HStack, Divider, Badge as ChakraBadge } from '@chakra-ui/react';
 import { AddIcon, SearchIcon, EditIcon, DeleteIcon, CloseIcon } from '@chakra-ui/icons';
 import { useLeadsContext } from '../../context/LeadsContext';
 import FormModal from '../../components/common/FormModal';
 import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal';
-import { fetchLeads } from '../../services/leadmanagement/leadsService';
-import { FiUser, FiMail, FiPhone, FiHome, FiFlag, FiRepeat, FiLink, FiUsers, FiUserCheck, FiUserPlus, FiEdit2, FiInfo } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { fetchLeads, fetchLeadsWithParams } from '../../services/leadmanagement/leadsService';
+import { FiUser, FiMail, FiPhone, FiHome, FiFlag, FiRepeat, FiLink, FiUsers, FiUserCheck, FiUserPlus, FiEdit2, FiInfo, FiFilter, FiX, FiCheck } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
 import Loader from '../../components/common/Loader';
 import { fetchLeadStatuses } from '../../services/leadmanagement/leadStatusService';
 import { fetchFollowUpStatuses } from '../../services/leadmanagement/followUpStatusService';
@@ -27,6 +27,7 @@ const Leads = () => {
   const [errorType, setErrorType] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isOpen: isFilterOpen, onToggle: onFilterToggle, onClose: onFilterClose } = useDisclosure();
 
   const { leads: contextLeads, addLead, updateLead, removeLead, getAllLeads } = useLeadsContext();
 
@@ -53,12 +54,32 @@ const Leads = () => {
   const [userOptions, setUserOptions] = useState([]);
   const [propertyOptions, setPropertyOptions] = useState([]);
 
+  // Filter state
+  const [filter, setFilter] = useState({
+    userId: '',
+    leadStatus: '',
+    followUpStatus: '',
+    assignedToUserId: '',
+    propertyId: '',
+    designation: '',
+    referanceFrom: '',
+    published: ''
+  });
+
+  const [activeFilters, setActiveFilters] = useState(0);
+
   // Helper function to get property name by ID
   const getPropertyNameById = (propertyId) => {
     if (!propertyId) return 'N/A';
     const property = propertyOptions.find(option => option.value === propertyId);
     return property ? property.label : 'Property not found';
   };
+
+  // Count active filters
+  useEffect(() => {
+    const count = Object.values(filter).filter(value => value !== '').length;
+    setActiveFilters(count);
+  }, [filter]);
 
   useEffect(() => {
     fetchAllLeads();
@@ -170,7 +191,7 @@ const Leads = () => {
     setIsSubmitting(true);
     try {
       const cleanData = Object.fromEntries(
-        Object.entries(formData).filter(([_, v]) => v !== "")
+        Object.entries(formData).filter(([, v]) => v !== "")
       );
       if (isEditMode && selectedLead) {
         await updateLead(selectedLead._id, cleanData);
@@ -180,7 +201,12 @@ const Leads = () => {
       setIsOpen(false);
       setSelectedLead(null);
       setIsEditMode(false);
-      getAllLeads();
+      // Refresh leads list after edit/add
+      if (Object.values(filter).some(v => v !== '' && v !== null)) {
+        await applyFilters();
+      } else {
+        await fetchAllLeads();
+      }
     } catch (error) {
       console.error('Form submission error:', error);
       setIsSubmitting(false);
@@ -207,17 +233,36 @@ const Leads = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const [filter, setFilter] = useState({});
-
   const applyFilters = async () => {
     setLoading(true);
     try {
-      const res = await fetchLeads(filter);
-      setFilteredLeads(res.data.data);
-    } catch {
-      // handle error
+      // Clean up filter object: send null for empty fields
+      const params = Object.fromEntries(
+        Object.entries(filter).map(([k, v]) => [k, v === '' ? null : v])
+      );
+      const res = await fetchLeadsWithParams(params);
+      setFilteredLeads(res.data);
+    } catch (error) {
+      console.error('Filter error:', error);
     }
     setLoading(false);
+  };
+
+  const clearFilters = () => {
+    setFilter({
+      userId: '',
+      leadStatus: '',
+      followUpStatus: '',
+      assignedToUserId: '',
+      propertyId: '',
+      designation: '',
+      referanceFrom: '',
+      published: ''
+    });
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilter(prev => ({ ...prev, [key]: value }));
   };
 
   // Build the options from all users
@@ -253,27 +298,352 @@ const Leads = () => {
         <CommonAddButton onClick={handleAddNew} />
       </Flex>
 
-      <Box mb={6} maxW="400px">
-        <InputGroup>
-          <InputLeftElement pointerEvents="none">
-            <SearchIcon color="gray.300" />
-          </InputLeftElement>
-          <Input
-            placeholder="Search leads..."
-            value={searchTerm}
-            onChange={handleSearch}
-          />
-        </InputGroup>
+      {/* Search and Filter Section */}
+      <Box mb={6}>
+        <Flex gap={4} align="center" wrap="wrap">
+          {/* Search Box */}
+          <Box flex="1" minW="300px">
+            <InputGroup>
+              <InputLeftElement pointerEvents="none">
+                <SearchIcon color="gray.300" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search leads by name, email, or phone..."
+                value={searchTerm}
+                onChange={handleSearch}
+                borderRadius="xl"
+                bg="white"
+                border="2px solid"
+                borderColor="gray.200"
+                _focus={{
+                  borderColor: 'brand.500',
+                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                }}
+                _hover={{ borderColor: 'gray.300' }}
+              />
+            </InputGroup>
+          </Box>
+
+          {/* Filter Button */}
+          <Button
+            leftIcon={<Icon as={FiFilter} />}
+            rightIcon={activeFilters > 0 ? <ChakraBadge colorScheme="brand" borderRadius="full" fontSize="xs">{activeFilters}</ChakraBadge> : null}
+            onClick={onFilterToggle}
+            colorScheme="brand"
+            variant="outline"
+            borderRadius="xl"
+            px={6}
+            py={2}
+            border="2px solid"
+            _hover={{
+              bg: 'brand.50',
+              borderColor: 'brand.600',
+              transform: 'translateY(-1px)',
+              boxShadow: 'lg',
+            }}
+            transition="all 0.2s"
+          >
+            Filters
+          </Button>
+        </Flex>
+
+        {/* Filter Panel */}
+        <Collapse in={isFilterOpen} animateOpacity>
+          <Box
+            as={motion.div}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            mt={4}
+            p={{ base: 3, md: 6 }}
+            bg="white"
+            borderRadius="2xl"
+            boxShadow="0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+            border="1px solid"
+            borderColor="gray.100"
+            overflowY="auto"
+            maxH={{ base: '60vh', md: 'none' }}
+            w="100%"
+          >
+            <Flex justify="space-between" align="center" mb={{ base: 2, md: 4 }}>
+              <Heading size="md" color="gray.800" fontWeight="bold">
+                Filter Leads
+              </Heading>
+              <HStack spacing={2}>
+                {activeFilters > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    colorScheme="red"
+                    leftIcon={<Icon as={FiX} />}
+                    onClick={clearFilters}
+                    borderRadius="full"
+                    w={{ base: '100%', sm: 'auto' }}
+                  >
+                    Clear All
+                  </Button>
+                )}
+                <IconButton
+                  aria-label="Close filters"
+                  icon={<CloseIcon />}
+                  size="sm"
+                  variant="ghost"
+                  onClick={onFilterClose}
+                  borderRadius="full"
+                />
+              </HStack>
+            </Flex>
+
+            <Divider mb={{ base: 2, md: 4 }} />
+
+            <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={4} w="100%">
+              {/* Lead User Filter */}
+              <FormControl>
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                  Lead User
+                </FormLabel>
+                <Select
+                  placeholder="Select User"
+                  value={filter.userId}
+                  onChange={(e) => handleFilterChange('userId', e.target.value)}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                >
+                  {userOptions.map(user => (
+                    <option key={user._id} value={user._id}>
+                      {user.firstName} {user.lastName} ({user.email})
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Lead Status Filter */}
+              <FormControl>
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                  Lead Status
+                </FormLabel>
+                <Select
+                  placeholder="Select Status"
+                  value={filter.leadStatus}
+                  onChange={(e) => handleFilterChange('leadStatus', e.target.value)}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                >
+                  {leadStatusOptions.map(status => (
+                    <option key={status._id} value={status._id}>
+                      {status.name}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Follow-up Status Filter */}
+              <FormControl>
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                  Follow-up Status
+                </FormLabel>
+                <Select
+                  placeholder="Select Follow-up Status"
+                  value={filter.followUpStatus}
+                  onChange={(e) => handleFilterChange('followUpStatus', e.target.value)}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                >
+                  {followUpStatusOptions.map(status => (
+                    <option key={status._id} value={status._id}>
+                      {status.name}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Assigned To Filter */}
+              <FormControl>
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                  Assigned To
+                </FormLabel>
+                <Select
+                  placeholder="Select Assigned User"
+                  value={filter.assignedToUserId}
+                  onChange={(e) => handleFilterChange('assignedToUserId', e.target.value)}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                >
+                  {userOptions.map(user => (
+                    <option key={user._id} value={user._id}>
+                      {user.firstName} {user.lastName} ({user.email})
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Property Filter */}
+              <FormControl>
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                  Interested Property
+                </FormLabel>
+                <Select
+                  placeholder="Select Property"
+                  value={filter.propertyId}
+                  onChange={(e) => handleFilterChange('propertyId', e.target.value)}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                >
+                  {propertyOptions.map(property => (
+                    <option key={property.value} value={property.value}>
+                      {property.label}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Designation Filter */}
+              <FormControl>
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                  Designation
+                </FormLabel>
+                <Select
+                  placeholder="Select Designation"
+                  value={filter.designation}
+                  onChange={(e) => handleFilterChange('designation', e.target.value)}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                >
+                  <option value="Buyer">Buyer</option>
+                  <option value="Seller">Seller</option>
+                </Select>
+              </FormControl>
+
+              {/* Reference Source Filter */}
+              <FormControl>
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                  Reference Source
+                </FormLabel>
+                <Select
+                  placeholder="Select Reference Source"
+                  value={filter.referanceFrom}
+                  onChange={e => handleFilterChange('referanceFrom', e.target.value)}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                >
+                  {userOptions.map(user => (
+                    <option key={user._id} value={user._id}>
+                      {user.firstName} {user.lastName} ({user.email})
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Published Filter */}
+              <FormControl>
+                <FormLabel fontWeight="semibold" color="gray.700" fontSize="sm">
+                  Published
+                </FormLabel>
+                <Select
+                  placeholder="All"
+                  value={filter.published}
+                  onChange={e => handleFilterChange('published', e.target.value)}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                >
+                  <option value="true">Published</option>
+                  <option value="false">Not Published</option>
+                </Select>
+              </FormControl>
+            </SimpleGrid>
+
+            {/* Filter Actions */}
+            <Flex direction={{ base: 'column', sm: 'row' }} justify="flex-end" gap={3} mt={6}>
+              <Button
+                variant="outline"
+                onClick={onFilterClose}
+                borderRadius="lg"
+                px={6}
+                w={{ base: '100%', sm: 'auto' }}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="brand"
+                onClick={() => {
+                  applyFilters();
+                  onFilterClose();
+                }}
+                leftIcon={<Icon as={FiCheck} />}
+                borderRadius="lg"
+                px={6}
+                w={{ base: '100%', sm: 'auto' }}
+                _hover={{
+                  transform: 'translateY(-1px)',
+                  boxShadow: 'lg',
+                }}
+                transition="all 0.2s"
+              >
+                Apply Filters
+              </Button>
+            </Flex>
+          </Box>
+        </Collapse>
       </Box>
 
-      <Flex gap={4} mb={4} wrap="wrap">
-        <Select placeholder="User" onChange={e => setFilter(f => ({ ...f, userId: e.target.value }))} />
-        <Select placeholder="Status" onChange={e => setFilter(f => ({ ...f, leadStatus: e.target.value }))} />
-        {/* Add more filters as needed */}
-        <Button onClick={applyFilters}>Apply Filters</Button>
+      {/* Results Count */}
+      <Flex justify="space-between" align="center" mb={4}>
+        <Text fontWeight="bold" color="gray.700">
+          {filteredLeads.length} leads found
+        </Text>
+        {activeFilters > 0 && (
+          <HStack spacing={2}>
+            <Text fontSize="sm" color="gray.500">
+              Active filters:
+            </Text>
+            <ChakraBadge colorScheme="brand" borderRadius="full" px={3} py={1}>
+              {activeFilters}
+            </ChakraBadge>
+          </HStack>
+        )}
       </Flex>
 
-      <Text fontWeight="bold" mb={2}>{filteredLeads.length} leads found</Text>
       <SimpleGrid
         columns={{ base: 1, sm: 2, md: 3, lg: 4 }}
         minChildWidth="250px"
