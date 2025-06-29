@@ -16,6 +16,7 @@ import {
   Textarea,
   Select,
   Text,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import SearchableSelect from '../../components/common/SearchableSelect';
 
@@ -46,6 +47,7 @@ const LeadFormModal = ({
   });
   const [referenceType, setReferenceType] = useState('internal');
   const [referanceFromExternalName, setReferanceFromExternalName] = useState('');
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
@@ -86,9 +88,35 @@ const LeadFormModal = ({
     }
   }, [initialData, isOpen]);
 
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required.';
+    else if (!/^[A-Za-z]+$/.test(formData.firstName)) newErrors.firstName = 'First name must contain only letters.';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required.';
+    else if (!/^[A-Za-z]+$/.test(formData.lastName)) newErrors.lastName = 'Last name must contain only letters.';
+    if (!formData.email.trim()) newErrors.email = 'Email is required.';
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Email is not valid.';
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required.';
+    else if (!/^\d{10}$/.test(formData.phoneNumber)) newErrors.phoneNumber = 'Phone number must be 10 digits.';
+    if (!formData.leadStatusId) newErrors.leadStatusId = 'Lead status is required.';
+    if (!formData.followUpStatusId) newErrors.followUpStatusId = 'Follow up status is required.';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  const handleBlur = () => {
+    validate();
+  };
+
+  const handleSelectChange = (name, value) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   // Reference From options: users + sources
@@ -115,7 +143,7 @@ const LeadFormModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Pass formData, referenceType, referanceFromExternalName to parent
+    if (!validate()) return;
     onSave({
       ...formData,
       referenceType,
@@ -133,49 +161,57 @@ const LeadFormModal = ({
           <ModalBody>
             <VStack spacing={4} align="stretch">
               <Flex gap={4}>
-                <FormControl isRequired>
+                <FormControl isRequired isInvalid={!!errors.firstName}>
                   <FormLabel>First Name</FormLabel>
-                  <Input name="firstName" value={formData.firstName} onChange={handleInputChange} />
+                  <Input name="firstName" value={formData.firstName} onChange={handleInputChange} onBlur={handleBlur} placeholder="Enter first name" autoComplete="off" />
+                  <FormErrorMessage>{errors.firstName}</FormErrorMessage>
                 </FormControl>
-                <FormControl isRequired>
+                <FormControl isRequired isInvalid={!!errors.lastName}>
                   <FormLabel>Last Name</FormLabel>
-                  <Input name="lastName" value={formData.lastName} onChange={handleInputChange} />
+                  <Input name="lastName" value={formData.lastName} onChange={handleInputChange} onBlur={handleBlur} placeholder="Enter last name" autoComplete="off" />
+                  <FormErrorMessage>{errors.lastName}</FormErrorMessage>
                 </FormControl>
               </Flex>
-              <FormControl isRequired>
+              <FormControl isRequired isInvalid={!!errors.email}>
                 <FormLabel>Email</FormLabel>
-                <Input name="email" value={formData.email} onChange={handleInputChange} />
+                <Input name="email" value={formData.email} onChange={handleInputChange} onBlur={handleBlur} placeholder="Enter email address" autoComplete="off" />
+                <FormErrorMessage>{errors.email}</FormErrorMessage>
               </FormControl>
-              <FormControl isRequired>
+              <FormControl isRequired isInvalid={!!errors.phoneNumber}>
                 <FormLabel>Phone Number</FormLabel>
-                <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} />
+                <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} onBlur={handleBlur} placeholder="Enter 10-digit phone number" autoComplete="off" maxLength={10} />
+                <FormErrorMessage>{errors.phoneNumber}</FormErrorMessage>
               </FormControl>
               <FormControl>
                 <FormLabel>Interested Property</FormLabel>
                 <SearchableSelect
                   options={propertyOptions}
                   value={formData.propertyId}
-                  onChange={val => setFormData(f => ({ ...f, propertyId: val }))}
-                  placeholder="Select Property"
+                  onChange={val => handleSelectChange('propertyId', val)}
+                  placeholder="Select property (optional)"
                 />
               </FormControl>
-              <FormControl>
+              <FormControl isInvalid={!!errors.leadStatusId} isRequired>
                 <FormLabel>Lead Status</FormLabel>
                 <SearchableSelect
                   options={leadStatusOptions.map(s => ({ label: s.name, value: s._id }))}
                   value={formData.leadStatusId}
-                  onChange={val => setFormData(f => ({ ...f, leadStatusId: val }))}
+                  onChange={val => handleSelectChange('leadStatusId', val)}
                   placeholder="Select Lead Status"
+                  onBlur={handleBlur}
                 />
+                <FormErrorMessage>{errors.leadStatusId}</FormErrorMessage>
               </FormControl>
-              <FormControl>
+              <FormControl isInvalid={!!errors.followUpStatusId} isRequired>
                 <FormLabel>Follow Up Status</FormLabel>
                 <SearchableSelect
                   options={followUpStatusOptions.map(s => ({ label: s.name, value: s._id }))}
                   value={formData.followUpStatusId}
-                  onChange={val => setFormData(f => ({ ...f, followUpStatusId: val }))}
+                  onChange={val => handleSelectChange('followUpStatusId', val)}
                   placeholder="Select Follow Up Status"
+                  onBlur={handleBlur}
                 />
+                <FormErrorMessage>{errors.followUpStatusId}</FormErrorMessage>
               </FormControl>
               <FormControl>
                 <FormLabel>Assigned To</FormLabel>
@@ -185,8 +221,8 @@ const LeadFormModal = ({
                     ...assignedUserOption
                   ]}
                   value={formData.assignedToUserId}
-                  onChange={val => setFormData(f => ({ ...f, assignedToUserId: val }))}
-                  placeholder="Select User"
+                  onChange={val => handleSelectChange('assignedToUserId', val)}
+                  placeholder="Select user (optional)"
                 />
               </FormControl>
               <FormControl>
@@ -205,8 +241,8 @@ const LeadFormModal = ({
                       ...referenceFromFallback
                     ]}
                     value={formData.referanceFromId}
-                    onChange={val => setFormData(f => ({ ...f, referanceFromId: val }))}
-                    placeholder="Select Reference"
+                    onChange={val => handleSelectChange('referanceFromId', val)}
+                    placeholder="Select reference (optional)"
                   />
                 </FormControl>
               ) : (
@@ -215,14 +251,14 @@ const LeadFormModal = ({
                   <Input
                     value={referanceFromExternalName}
                     onChange={e => setReferanceFromExternalName(e.target.value)}
-                    placeholder="Enter external reference name"
+                    placeholder="Enter external reference name (optional)"
                   />
                   <Text fontSize="xs" color="gray.500">Not required</Text>
                 </FormControl>
               )}
               <FormControl>
                 <FormLabel>Notes</FormLabel>
-                <Textarea name="note" value={formData.note} onChange={handleInputChange} />
+                <Textarea name="note" value={formData.note} onChange={handleInputChange} placeholder="Add any notes (optional)" />
               </FormControl>
             </VStack>
           </ModalBody>
