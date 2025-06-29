@@ -57,6 +57,7 @@ export const PROPERTY_ENDPOINTS = {
   DELETE: (id) => `/property/delete/${id}`,
   UPLOAD_IMAGE: (id) => `/property/image/create/${id}`,
   GET_IMAGES: (id) => `/property/images/all/${id}`,
-  DELETE_IMAGE: (id) => `/property/delete/${id}`,
-  DELETE_ALL_IMAGES: (id) => `/property/delete/all/${id}`,
+  DELETE_IMAGE: (id) => `/property/image/delete/${id}`,
+  DELETE_ALL_IMAGES: (id) => `/property/image/delete/all/${id}`,
+  GET_IMAGE_BY_ID: (id) => `/property/image/${id}`,
 };

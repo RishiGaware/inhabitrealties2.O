@@ -200,15 +200,15 @@ const Leads = () => {
     } catch (error) {
       console.error('Search error:', error);
       // Fallback to client-side search if API fails
-      const filtered = contextLeads.filter(lead =>
+    const filtered = contextLeads.filter(lead =>
         lead.userId?.firstName?.toLowerCase().includes(term.toLowerCase()) ||
         lead.userId?.lastName?.toLowerCase().includes(term.toLowerCase()) ||
         lead.userId?.email?.toLowerCase().includes(term.toLowerCase()) ||
         lead.userId?.phoneNumber?.toLowerCase().includes(term.toLowerCase()) ||
         lead.note?.toLowerCase().includes(term.toLowerCase()) ||
         getPropertyNameById(lead.propertyId)?.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredLeads(filtered);
+    );
+    setFilteredLeads(filtered);
     } finally {
       setLoading(false);
     }
@@ -389,11 +389,11 @@ const Leads = () => {
             <InputGroup size="sm">
               <InputLeftElement pointerEvents="none" h="full">
                 <SearchIcon color="brand.500" boxSize={3} />
-              </InputLeftElement>
-              <Input
-                placeholder="Search leads..."
-                value={searchTerm}
-                onChange={handleSearch}
+          </InputLeftElement>
+          <Input
+            placeholder="Search leads..."
+            value={searchTerm}
+            onChange={handleSearch}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     handleSearchSubmit();
@@ -415,9 +415,9 @@ const Leads = () => {
                 _hover={{ borderColor: 'brand.300', bg: 'white' }}
                 transition="all 0.2s"
                 boxShadow="0 1px 2px 0 rgba(80, 36, 143, 0.04)"
-              />
-            </InputGroup>
-          </Box>
+          />
+        </InputGroup>
+      </Box>
 
           {/* Search Button */}
           <Button
@@ -1146,7 +1146,7 @@ const Leads = () => {
           <Box borderLeft="4px solid #D53F8C" pl={3} mb={2}>
             <Text fontWeight="bold" fontSize="lg" color="gray.800">Basic Information</Text>
           </Box>
-          <SearchableSelect
+            <SearchableSelect
             label="Lead User"
             options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
             value={formData.userId}
@@ -1185,7 +1185,7 @@ const Leads = () => {
             onChange={val => setFormData(f => ({ ...f, followUpStatus: val }))}
             placeholder="Select Follow-up Status"
             isRequired
-          />
+            />
 
           {/* Contact Information */}
           <Box borderLeft="4px solid #D53F8C" pl={3} mb={2} mt={4}>
@@ -1200,7 +1200,7 @@ const Leads = () => {
           <Box borderLeft="4px solid #D53F8C" pl={3} mb={2} mt={4}>
             <Text fontWeight="bold" fontSize="lg" color="gray.800">Referral Information</Text>
           </Box>
-          <SearchableSelect
+            <SearchableSelect
             label="Referred By (Optional)"
             options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
             value={formData.referredByUserId}
