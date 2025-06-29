@@ -263,16 +263,10 @@ const PropertyMaster = () => {
   if (errorType === 'network') return <NoInternet onRetry={fetchAllProperties} />;
   if (errorType === 'server') return <ServerError onRetry={fetchAllProperties} />;
 
-  if (loading || propertyTypesLoading) {
-    return (
-      <Box p={{ base: 3, md: 5 }}>
-        <Loader size="xl" />
-      </Box>
-    );
-  }
-
   return (
     <Box p={{ base: 3, md: 5 }}>
+      {/* Loader at the top, non-blocking */}
+      {(loading || propertyTypesLoading) && <Loader size="xl" />}
       {/* Header Section */}
       <Flex 
         direction={{ base: 'column', sm: 'row' }}
@@ -384,204 +378,191 @@ const PropertyMaster = () => {
         gap={{ base: 3, md: 4 }}
         mb={8}
       >
-        {filteredProperties.map((property) => (
-          <Box
-            key={property._id}
-            bg="white"
-            borderRadius="2xl"
-            shadow="md"
-            border="1px"
-            borderColor="gray.200"
-            overflow="hidden"
-            _hover={{ 
-              transform: 'translateY(-2px)', 
-              boxShadow: 'lg',
-              borderColor: 'brand.300'
-            }}
-            transition="all 0.2s"
-            position="relative"
-            minH={{ base: '220px', md: '240px' }}
-            maxW="100%"
-          >
-            {/* Property Image */}
-            <Box 
-              h={{ base: '32', sm: '36', md: '40' }} 
-              overflow="hidden" 
-              cursor="pointer" 
-              onClick={() => handlePreview(property)}
-              position="relative"
-            >
-              <img
-                src={property.images?.[0] || 'default-property.jpg'}
-                alt={property.name}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transition: 'transform 0.3s ease'
-                }}
-                onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-              />
-              
-              {/* Status Badge */}
-              <Badge
-                position="absolute"
-                top={2}
-                right={2}
-                bg="brand.500"
-                color="white"
-                px={2}
-                py={1}
-                borderRadius="full"
-                fontSize="2xs"
-                fontWeight="bold"
-                textTransform="uppercase"
-                letterSpacing="wide"
-                boxShadow="md"
-              >
-                {property.propertyStatus}
-              </Badge>
-            </Box>
-
-            {/* Property Details */}
-            <Box p={{ base: 2, md: 3 }}>
-              {/* Property Name */}
-              <Text
-                fontSize={{ base: 'sm', md: 'md' }}
-                fontWeight="bold"
-                color="gray.900"
-                cursor="pointer"
-                onClick={() => handlePreview(property)}
-                _hover={{ color: 'brand.500' }}
-                mb={1}
-                noOfLines={1}
-                lineHeight="tight"
-              >
-                {property.name}
-              </Text>
-
-              {/* Price */}
-              <Text 
-                color="brand.500" 
-                fontWeight="bold" 
-                fontSize={{ base: 'sm', md: 'md' }} 
-                mb={2}
-              >
-                {formatPrice(property.price)}
-              </Text>
-
-              {/* Location */}
-              <Flex 
-                align="center" 
-                gap={1} 
-                color="gray.600" 
-                fontSize="xs" 
-                mb={2}
-              >
-                <MdLocationOn size={12} />
-                <Text
-                  as="a"
-                  href={`https://www.google.com/maps/search/?api=1&query=${property.propertyAddress?.location?.lat},${property.propertyAddress?.location?.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  _hover={{ color: 'brand.500' }}
-                  noOfLines={1}
-                  flex={1}
-                >
-                  {`${property.propertyAddress?.area}, ${property.propertyAddress?.city}`}
-                </Text>
-              </Flex>
-
-              {/* Property Features */}
-              <Flex 
-                justify="space-between" 
-                color="gray.600" 
-                fontSize="xs" 
-                mb={3}
-                gap={1}
-              >
-                <Flex align="center" gap={1} flex={1}>
-                  <FaBed size={10} />
-                  <Text fontWeight="medium">{property.features?.bedRooms || 0}</Text>
-                </Flex>
-                <Flex align="center" gap={1} flex={1}>
-                  <FaBath size={10} />
-                  <Text fontWeight="medium">{property.features?.bathRooms || 0}</Text>
-                </Flex>
-                <Flex align="center" gap={1} flex={1}>
-                  <FaRuler size={10} />
-                  <Text fontWeight="medium">{property.features?.areaInSquarFoot || 0}</Text>
-                </Flex>
-              </Flex>
-
-              {/* Action Buttons */}
-              <Flex 
-                justify="space-between" 
-                gap={1}
-                pt={2}
-                borderTop="1px"
-                borderColor="gray.100"
-              >
-                <IconButton
-                  icon={<FaEye />}
-                  size="xs"
-                  variant="ghost"
-                  colorScheme="brand"
-                  onClick={() => handlePreview(property)}
-                  aria-label="Preview Property"
-                  flex={1}
-                />
-                <IconButton
-                  icon={<FaEdit />}
-                  size="xs"
-                  variant="ghost"
-                  colorScheme="brand"
-                  onClick={() => handleEditProperty(property)}
-                  aria-label="Edit Property"
-                  flex={1}
-                />
-                <IconButton
-                  icon={<FaTrash />}
-                  size="xs"
-                  variant="ghost"
-                  colorScheme="red"
-                  onClick={() => handleDeleteProperty(property)}
-                  aria-label="Delete Property"
-                  flex={1}
-                />
-              </Flex>
-            </Box>
+        {!loading && !propertyTypesLoading && filteredProperties.length === 0 ? (
+          <Box textAlign="center" py={12} px={4}>
+            <Text fontSize={{ base: 'lg', md: 'xl' }} color="gray.500" fontWeight="medium">
+              No properties found
+            </Text>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.400" mt={2}>
+              {selectedType === 'ALL' 
+                ? 'Add your first property to get started' 
+                : `No properties found for ${selectedType}`
+              }
+            </Text>
           </Box>
-        ))}
-      </Grid>
+        ) : (
+          filteredProperties.map((property) => (
+            <Box
+              key={property._id}
+              bg="white"
+              borderRadius="2xl"
+              shadow="md"
+              border="1px"
+              borderColor="gray.200"
+              overflow="hidden"
+              _hover={{ 
+                transform: 'translateY(-2px)', 
+                boxShadow: 'lg',
+                borderColor: 'brand.300'
+              }}
+              transition="all 0.2s"
+              position="relative"
+              minH={{ base: '220px', md: '240px' }}
+              maxW="100%"
+            >
+              {/* Property Image */}
+              <Box 
+                h={{ base: '32', sm: '36', md: '40' }} 
+                overflow="hidden" 
+                cursor="pointer" 
+                onClick={() => handlePreview(property)}
+                position="relative"
+              >
+                <img
+                  src={property.images?.[0] || 'default-property.jpg'}
+                  alt={property.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transition: 'transform 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                />
+                
+                {/* Status Badge */}
+                <Badge
+                  position="absolute"
+                  top={2}
+                  right={2}
+                  bg="brand.500"
+                  color="white"
+                  px={2}
+                  py={1}
+                  borderRadius="full"
+                  fontSize="2xs"
+                  fontWeight="bold"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
+                  boxShadow="md"
+                >
+                  {property.propertyStatus}
+                </Badge>
+              </Box>
 
-      {/* Empty State */}
-      {filteredProperties.length === 0 && (
-        <Box 
-          textAlign="center" 
-          py={12}
-          px={4}
-        >
-          <Text 
-            fontSize={{ base: 'lg', md: 'xl' }} 
-            color="gray.500" 
-            fontWeight="medium"
-          >
-            No properties found
-          </Text>
-          <Text 
-            fontSize={{ base: 'sm', md: 'md' }} 
-            color="gray.400" 
-            mt={2}
-          >
-            {selectedType === 'ALL' 
-              ? 'Add your first property to get started' 
-              : `No properties found for ${selectedType}`
-            }
-          </Text>
-        </Box>
-      )}
+              {/* Property Details */}
+              <Box p={{ base: 2, md: 3 }}>
+                {/* Property Name */}
+                <Text
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  fontWeight="bold"
+                  color="gray.900"
+                  cursor="pointer"
+                  onClick={() => handlePreview(property)}
+                  _hover={{ color: 'brand.500' }}
+                  mb={1}
+                  noOfLines={1}
+                  lineHeight="tight"
+                >
+                  {property.name}
+                </Text>
+
+                {/* Price */}
+                <Text 
+                  color="brand.500" 
+                  fontWeight="bold" 
+                  fontSize={{ base: 'sm', md: 'md' }} 
+                  mb={2}
+                >
+                  {formatPrice(property.price)}
+                </Text>
+
+                {/* Location */}
+                <Flex 
+                  align="center" 
+                  gap={1} 
+                  color="gray.600" 
+                  fontSize="xs" 
+                  mb={2}
+                >
+                  <MdLocationOn size={12} />
+                  <Text
+                    as="a"
+                    href={`https://www.google.com/maps/search/?api=1&query=${property.propertyAddress?.location?.lat},${property.propertyAddress?.location?.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    _hover={{ color: 'brand.500' }}
+                    noOfLines={1}
+                    flex={1}
+                  >
+                    {`${property.propertyAddress?.area}, ${property.propertyAddress?.city}`}
+                  </Text>
+                </Flex>
+
+                {/* Property Features */}
+                <Flex 
+                  justify="space-between" 
+                  color="gray.600" 
+                  fontSize="xs" 
+                  mb={3}
+                  gap={1}
+                >
+                  <Flex align="center" gap={1} flex={1}>
+                    <FaBed size={10} />
+                    <Text fontWeight="medium">{property.features?.bedRooms || 0}</Text>
+                  </Flex>
+                  <Flex align="center" gap={1} flex={1}>
+                    <FaBath size={10} />
+                    <Text fontWeight="medium">{property.features?.bathRooms || 0}</Text>
+                  </Flex>
+                  <Flex align="center" gap={1} flex={1}>
+                    <FaRuler size={10} />
+                    <Text fontWeight="medium">{property.features?.areaInSquarFoot || 0}</Text>
+                  </Flex>
+                </Flex>
+
+                {/* Action Buttons */}
+                <Flex 
+                  justify="space-between" 
+                  gap={1}
+                  pt={2}
+                  borderTop="1px"
+                  borderColor="gray.100"
+                >
+                  <IconButton
+                    icon={<FaEye />}
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="brand"
+                    onClick={() => handlePreview(property)}
+                    aria-label="Preview Property"
+                    flex={1}
+                  />
+                  <IconButton
+                    icon={<FaEdit />}
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="brand"
+                    onClick={() => handleEditProperty(property)}
+                    aria-label="Edit Property"
+                    flex={1}
+                  />
+                  <IconButton
+                    icon={<FaTrash />}
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="red"
+                    onClick={() => handleDeleteProperty(property)}
+                    aria-label="Delete Property"
+                    flex={1}
+                  />
+                </Flex>
+              </Box>
+            </Box>
+          ))
+        )}
+      </Grid>
 
       {/* Property Form Popup */}
       <PropertyFormPopup

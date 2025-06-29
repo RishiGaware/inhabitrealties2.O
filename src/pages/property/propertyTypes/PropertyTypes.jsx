@@ -40,7 +40,6 @@ const PropertyTypes = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isDeleteOpen,
@@ -48,7 +47,7 @@ const PropertyTypes = () => {
     onClose: onDeleteClose,
   } = useDisclosure();
   const [propertyTypeToDelete, setPropertyTypeToDelete] = useState(null);
-  const [errorType, setErrorType] = useState(null);
+  const [errorType] = useState(null);
 
   // Get property type context
   const propertyTypeContext = usePropertyTypeContext();
@@ -103,14 +102,6 @@ const PropertyTypes = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, image: file });
-      setPreviewImage(URL.createObjectURL(file));
-    }
-  };
-
   const validateForm = () => {
     const newErrors = {};
     if (!formData.typeName?.trim()) {
@@ -138,7 +129,6 @@ const PropertyTypes = () => {
       published: true,
     });
     setErrors({});
-    setPreviewImage(null);
     onOpen();
   };
 
@@ -150,8 +140,6 @@ const PropertyTypes = () => {
       published: propertyType.published !== undefined ? propertyType.published : true,
     });
     setErrors({});
-    setPreviewImage(propertyType.imageUrl || null);
-    onOpen();
   };
 
   const handleDelete = (propertyType) => {
@@ -213,7 +201,6 @@ const PropertyTypes = () => {
       setIsApiCallInProgress(false);
       setSelectedPropertyType(null);
       setFormData({});
-      setPreviewImage(null);
       onClose();
     } catch (error) {
       console.error('Form submission error:', error);
@@ -231,7 +218,6 @@ const PropertyTypes = () => {
       published: true,
     });
     setErrors({});
-    setPreviewImage(null);
   };
 
   const columns = [
@@ -358,39 +344,6 @@ const PropertyTypes = () => {
               maxLength={200}
             />
           </FormControl>
-          
-          {/* Image Upload Section */}
-          <FormControl>
-            <FormLabel fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
-              Property Type Image
-            </FormLabel>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              style={{
-                width: '100%',
-                fontSize: '13px',
-                padding: '8px',
-                border: '1px solid #e2e8f0',
-                borderRadius: '6px',
-                backgroundColor: 'white'
-              }}
-            />
-            {previewImage && (
-              <Box mt={2}>
-                <Image
-                  src={previewImage}
-                  alt="Preview"
-                  w="100%"
-                  h="32"
-                  objectFit="cover"
-                  borderRadius="md"
-                />
-              </Box>
-            )}
-          </FormControl>
-          
           <FormControl display="flex" alignItems="center">
             <FormLabel htmlFor="published" mb="0">
               Active Status

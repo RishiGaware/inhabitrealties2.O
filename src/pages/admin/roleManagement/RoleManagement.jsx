@@ -235,23 +235,19 @@ const RoleManagement = () => {
     </HStack>
   );
 
-  if (loading) {
-    return (
-      <Box p={5}>
-        <Loader size="xl" />
-      </Box>
-    );
-  }
 
   return (
     <Box p={5}>
+      {/* Loader at the top, non-blocking */}
+      {loading && (
+        <Loader size="xl" />
+      )}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Role Management
         </Heading>
         <CommonAddButton onClick={handleAddNew} />
       </Flex>
-
       <Box mb={6} maxW="400px">
         <InputGroup>
           <InputLeftElement pointerEvents="none">
@@ -264,7 +260,6 @@ const RoleManagement = () => {
           />
         </InputGroup>
       </Box>
-
       <TableContainer>
         <CommonTable
           columns={columns}
@@ -273,7 +268,7 @@ const RoleManagement = () => {
             currentPage * pageSize
           )}
           rowActions={renderRowActions}
-          emptyStateMessage="No roles match your search."
+          emptyStateMessage={!loading ? "No roles match your search." : undefined}
         />
         <CommonPagination
           currentPage={currentPage}

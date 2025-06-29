@@ -52,6 +52,7 @@ const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
   const toast = useToast();
+  const [loading, setLoading] = useState(false);
 
   // Get user context
   const userContext = useUserContext();
@@ -114,10 +115,19 @@ const UserManagement = () => {
     return filtered;
   }, [users, searchTerm, roleFilter]);
 
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      await getAllUsers();
+      await getAllRoles();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getAllUsers();
-    getAllRoles(); // Fetch roles directly using the service
-  }, [getAllUsers]);
+    fetchUsers();
+  }, []);
 
   // Only reset page when filtered results change significantly
   useEffect(() => {
@@ -397,23 +407,16 @@ const UserManagement = () => {
     </HStack>
   );
 
-  if (rolesLoading) {
-    return (
-      <Box p={5}>
-        <Loader size="xl" />
-      </Box>
-    );
-  }
-
   return (
     <Box p={5}>
+      {/* Loader at the top, non-blocking */}
+      {loading && <Loader size="xl" />}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           User Management
         </Heading>
         <CommonAddButton onClick={handleAddNew} />
       </Flex>
-
       <HStack spacing={4} mb={6}>
         <InputGroup maxW="400px">
           <InputLeftElement pointerEvents="none"><SearchIcon color="gray.300" /></InputLeftElement>
@@ -433,7 +436,6 @@ const UserManagement = () => {
           ))}
         </Select>
       </HStack>
-
       <TableContainer>
         <CommonTable
           columns={columns}
@@ -442,7 +444,7 @@ const UserManagement = () => {
             currentPage * pageSize
           )}
           rowActions={renderRowActions}
-          emptyStateMessage="No users match your search."
+          emptyStateMessage={!loading ? "No users match your search." : undefined}
         />
         <CommonPagination
           currentPage={currentPage}

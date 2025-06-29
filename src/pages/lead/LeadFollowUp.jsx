@@ -248,23 +248,16 @@ const LeadFollowUp = () => {
     </HStack>
   );
 
-  if (loading) {
-    return (
-      <Box p={5}>
-        <Loader size="xl" />
-      </Box>
-    );
-  }
-
   return (
     <Box p={5}>
+      {/* Loader at the top, non-blocking */}
+      {loading && <Loader size="xl" />}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Followup Status Management
         </Heading>
         <CommonAddButton onClick={handleAddNew} />
       </Flex>
-
       <Box mb={6} maxW="400px">
         <InputGroup>
           <InputLeftElement pointerEvents="none">
@@ -277,7 +270,6 @@ const LeadFollowUp = () => {
           />
         </InputGroup>
       </Box>
-
       <TableContainer>
         <CommonTable
           columns={columns}
@@ -286,7 +278,7 @@ const LeadFollowUp = () => {
             currentPage * pageSize
           )}
           rowActions={renderRowActions}
-          emptyStateMessage={"No followup statuses match your search."}
+          emptyStateMessage={!loading ? "No followup statuses match your search." : undefined}
         />
         <CommonPagination
           currentPage={currentPage}

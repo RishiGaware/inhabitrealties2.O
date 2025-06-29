@@ -194,16 +194,10 @@ const Leads = () => {
   if (errorType === 'network') return <NoInternet onRetry={() => window.location.reload()} />;
   if (errorType === 'server') return <ServerError onRetry={() => window.location.reload()} />;
 
-  if (loading) {
-    return (
-      <Box p={5}>
-        <Loader size="xl" />
-      </Box>
-    );
-  }
-
   return (
     <Box p={5}>
+      {/* Loader at the top, non-blocking */}
+      {loading && <Loader size="xl" />}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Leads
@@ -231,7 +225,7 @@ const Leads = () => {
         spacing={{ base: 3, sm: 4, md: 6 }}
         mb={8}
       >
-        {filteredLeads.length === 0 ? (
+        {!loading && filteredLeads.length === 0 ? (
           <Text color="gray.400">No leads match your search.</Text>
         ) : (
           filteredLeads.map((lead) => {
