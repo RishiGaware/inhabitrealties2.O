@@ -13,7 +13,6 @@ import {
   Button,
   Flex,
   Heading,
-  useBreakpointValue,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon, SearchIcon, AddIcon } from '@chakra-ui/icons';
 import CommonTable from '../../../components/common/Table/CommonTable';
@@ -24,6 +23,7 @@ import FloatingInput from '../../../components/common/FloatingInput';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 import { useRoleContext } from '../../../context/RoleContext';
 import Loader from '../../../components/common/Loader';
+import CommonAddButton from '../../../components/common/Button/CommonAddButton';
 
 const RoleManagement = () => {
   const [selectedRole, setSelectedRole] = useState(null);
@@ -41,8 +41,6 @@ const RoleManagement = () => {
     onClose: onDeleteClose,
   } = useDisclosure();
   const [roleToDelete, setRoleToDelete] = useState(null);
-
-  const isMobile = useBreakpointValue({ base: true, md: false });
 
   // Get role context
   const roleContext = useRoleContext();
@@ -251,22 +249,7 @@ const RoleManagement = () => {
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Role Management
         </Heading>
-        {isMobile ? (
-          <IconButton
-            aria-label="Add New Role"
-            icon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          />
-        ) : (
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          >
-            Add New Role
-          </Button>
-        )}
+        <CommonAddButton onClick={handleAddNew} />
       </Flex>
 
       <Box mb={6} maxW="400px">

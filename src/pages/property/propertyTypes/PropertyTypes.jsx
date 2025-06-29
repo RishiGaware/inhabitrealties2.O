@@ -13,7 +13,6 @@ import {
   Button,
   Flex,
   Heading,
-  useBreakpointValue,
   Switch,
   FormLabel,
   Image,
@@ -28,6 +27,9 @@ import FormModal from '../../../components/common/FormModal';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 import { usePropertyTypeContext } from '../../../context/PropertyTypeContext';
 import Loader from '../../../components/common/Loader';
+import CommonAddButton from '../../../components/common/Button/CommonAddButton';
+import ServerError from '../../errors/ServerError';
+import NoInternet from '../../errors/NoInternet';
 
 const PropertyTypes = () => {
   const [selectedPropertyType, setSelectedPropertyType] = useState(null);
@@ -46,8 +48,7 @@ const PropertyTypes = () => {
     onClose: onDeleteClose,
   } = useDisclosure();
   const [propertyTypeToDelete, setPropertyTypeToDelete] = useState(null);
-
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const [errorType, setErrorType] = useState(null);
 
   // Get property type context
   const propertyTypeContext = usePropertyTypeContext();
@@ -274,6 +275,9 @@ const PropertyTypes = () => {
     </HStack>
   );
 
+  if (errorType === 'network') return <NoInternet onRetry={getAllPropertyTypes} />;
+  if (errorType === 'server') return <ServerError onRetry={getAllPropertyTypes} />;
+
   return (
     <Box p={5}>
       {loading && (
@@ -283,22 +287,7 @@ const PropertyTypes = () => {
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Property Types
         </Heading>
-        {isMobile ? (
-          <IconButton
-            aria-label="Add New Property Type"
-            icon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          />
-        ) : (
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          >
-            Add New Property Type
-          </Button>
-        )}
+        <CommonAddButton onClick={handleAddNew} />
       </Flex>
 
       <Box mb={6} maxW="400px">

@@ -13,7 +13,6 @@ import {
   Button,
   Flex,
   Heading,
-  useBreakpointValue,
   Switch,
   FormLabel,
 } from '@chakra-ui/react';
@@ -26,6 +25,7 @@ import FloatingInput from '../../components/common/FloatingInput';
 import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal';
 import { useLeadStatusContext } from '../../context/LeadStatusContext';
 import Loader from '../../components/common/Loader';
+import CommonAddButton from '../../components/common/Button/CommonAddButton';
 
 const LeadStatus = () => {
   const [selectedLeadStatus, setSelectedLeadStatus] = useState(null);
@@ -43,8 +43,7 @@ const LeadStatus = () => {
     onClose: onDeleteClose,
   } = useDisclosure();
   const [leadStatusToDelete, setLeadStatusToDelete] = useState(null);
-
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const [loading, setLoading] = useState(false);
 
   // Get lead status context
   const leadStatusContext = useLeadStatusContext();
@@ -63,8 +62,18 @@ const LeadStatus = () => {
   }, [leadStatuses, searchTerm]);
 
   useEffect(() => {
-    getAllLeadStatuses();
-  }, [getAllLeadStatuses]);
+    fetchAllLeadStatuses();
+  }, []);
+
+  const fetchAllLeadStatuses = async () => {
+    setLoading(true);
+    try {
+      // Replace with your actual fetch logic
+      await getAllLeadStatuses();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Only reset page when filtered results change significantly
   useEffect(() => {
@@ -239,31 +248,21 @@ const LeadStatus = () => {
     </HStack>
   );
 
+  if (loading) {
+    return (
+      <Box p={5}>
+        <Loader size="xl" />
+      </Box>
+    );
+  }
+
   return (
     <Box p={5}>
-      {(isApiCallInProgress || isSubmitting || isDeleteOpen) && (
-        <Loader size="xl" />
-      )}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Lead Status Management
         </Heading>
-        {isMobile ? (
-          <IconButton
-            aria-label="Add New Lead Status"
-            icon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          />
-        ) : (
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          >
-            Add New Lead Status
-          </Button>
-        )}
+        <CommonAddButton onClick={handleAddNew} />
       </Flex>
 
       <Box mb={6} maxW="400px">
@@ -287,7 +286,7 @@ const LeadStatus = () => {
             currentPage * pageSize
           )}
           rowActions={renderRowActions}
-          emptyStateMessage="No lead statuses match your search."
+          emptyStateMessage={"No lead statuses match your search."}
         />
         <CommonPagination
           currentPage={currentPage}

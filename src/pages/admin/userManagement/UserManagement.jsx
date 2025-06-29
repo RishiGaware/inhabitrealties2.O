@@ -13,7 +13,6 @@ import {
   Button,
   Select,
   Flex,
-  useBreakpointValue,
   Heading,
   Switch,
   FormLabel,
@@ -30,6 +29,7 @@ import DeleteConfirmationModal from '../../../components/common/DeleteConfirmati
 import { useUserContext } from '../../../context/UserContext';
 import { fetchRoles } from '../../../services/rolemanagement/roleService';
 import Loader from '../../../components/common/Loader';
+import CommonAddButton from '../../../components/common/Button/CommonAddButton';
 
 const UserManagement = () => {
   // All hooks must be called at the top level
@@ -51,7 +51,6 @@ const UserManagement = () => {
   } = useDisclosure();
   const [userToDelete, setUserToDelete] = useState(null);
   const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
-  const isMobile = useBreakpointValue({ base: true, md: false });
   const toast = useToast();
 
   // Get user context
@@ -412,22 +411,7 @@ const UserManagement = () => {
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           User Management
         </Heading>
-        {isMobile ? (
-          <IconButton
-            aria-label="Add New User"
-            icon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          />
-        ) : (
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          >
-            Add New User
-          </Button>
-        )}
+        <CommonAddButton onClick={handleAddNew} />
       </Flex>
 
       <HStack spacing={4} mb={6}>

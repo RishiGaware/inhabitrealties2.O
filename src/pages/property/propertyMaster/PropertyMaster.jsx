@@ -15,6 +15,9 @@ import {
   deleteProperty 
 } from '../../../services/propertyService';
 import { showSuccessToast, showErrorToast } from '../../../utils/toastUtils';
+import CommonAddButton from '../../../components/common/Button/CommonAddButton';
+import ServerError from '../../errors/ServerError';
+import NoInternet from '../../errors/NoInternet';
 
 const PropertyMaster = () => {
   const [selectedType, setSelectedType] = useState('ALL');
@@ -26,6 +29,7 @@ const PropertyMaster = () => {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [propertyToDelete, setPropertyToDelete] = useState(null);
+  const [errorType, setErrorType] = useState(null);
   
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
 
@@ -41,13 +45,15 @@ const PropertyMaster = () => {
 
   const fetchAllProperties = async () => {
     setLoading(true);
+    setErrorType(null);
     try {
       const response = await fetchProperties();
       console.log('PropertyMaster: Fetch properties response:', response);
       setProperties(response.data || []);
     } catch (error) {
-      console.error('PropertyMaster: Fetch properties error:', error);
-      showErrorToast('Failed to fetch properties');
+      if (error.message === 'Network Error') setErrorType('network');
+      else if (error.response?.status === 500) setErrorType('server');
+      else setErrorType('server');
     } finally {
       setLoading(false);
     }
@@ -254,6 +260,9 @@ const PropertyMaster = () => {
         return type?.typeName === selectedType;
       });
 
+  if (errorType === 'network') return <NoInternet onRetry={fetchAllProperties} />;
+  if (errorType === 'server') return <ServerError onRetry={fetchAllProperties} />;
+
   if (loading || propertyTypesLoading) {
     return (
       <Box p={{ base: 3, md: 5 }}>
@@ -275,16 +284,10 @@ const PropertyMaster = () => {
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Property Master
         </Heading>
-        <IconButton 
-          icon={<FaPlus />} 
-          colorScheme="brand" 
-          size="sm"
-          onClick={() => {
-            setSelectedProperty(null);
-            setIsModalOpen(true);
-          }}
-          aria-label="Add Property"
-        />
+        <CommonAddButton onClick={() => {
+          setSelectedProperty(null);
+          setIsModalOpen(true);
+        }} />
       </Flex>
 
       {/* Property Types Filter - Responsive */}

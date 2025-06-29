@@ -11,11 +11,6 @@ const api = axios.create({
   },
 });
 
-let globalLogoutHandler = null;
-export const setApiLogoutHandler = (handler) => {
-  globalLogoutHandler = handler;
-};
-
 api.interceptors.request.use(
   (config) => {
     const token = Cookies.get('AuthToken');
@@ -32,8 +27,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401 && typeof globalLogoutHandler === 'function') {
-      globalLogoutHandler();
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

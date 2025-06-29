@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import authService from '../services/auth/AuthService';
-import { setApiLogoutHandler } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -9,7 +8,6 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    setApiLogoutHandler(logout);
     // Load auth data from localStorage on app start
     const savedAuth = localStorage.getItem('auth');
     if (savedAuth) {

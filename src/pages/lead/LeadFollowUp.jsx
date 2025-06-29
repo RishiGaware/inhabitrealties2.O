@@ -13,7 +13,6 @@ import {
   Button,
   Flex,
   Heading,
-  useBreakpointValue,
   Switch,
   FormLabel,
 } from '@chakra-ui/react';
@@ -26,6 +25,7 @@ import FloatingInput from '../../components/common/FloatingInput';
 import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal';
 import { useFollowUpStatusContext } from '../../context/FollowUpStatusContext';
 import Loader from '../../components/common/Loader';
+import CommonAddButton from '../../components/common/Button/CommonAddButton';
 
 const LeadFollowUp = () => {
   const [selectedFollowUpStatus, setSelectedFollowUpStatus] = useState(null);
@@ -43,8 +43,7 @@ const LeadFollowUp = () => {
     onClose: onDeleteClose,
   } = useDisclosure();
   const [followUpStatusToDelete, setFollowUpStatusToDelete] = useState(null);
-
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const [loading, setLoading] = useState(false);
 
   // Get followup status context
   const followUpStatusContext = useFollowUpStatusContext();
@@ -63,8 +62,18 @@ const LeadFollowUp = () => {
   }, [followUpStatuses, searchTerm]);
 
   useEffect(() => {
-    getAllFollowUpStatuses();
-  }, [getAllFollowUpStatuses]);
+    fetchAllFollowUpStatuses();
+  }, []);
+
+  const fetchAllFollowUpStatuses = async () => {
+    setLoading(true);
+    try {
+      // Replace with your actual fetch logic
+      await getAllFollowUpStatuses();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Only reset page when filtered results change significantly
   useEffect(() => {
@@ -239,31 +248,21 @@ const LeadFollowUp = () => {
     </HStack>
   );
 
+  if (loading) {
+    return (
+      <Box p={5}>
+        <Loader size="xl" />
+      </Box>
+    );
+  }
+
   return (
     <Box p={5}>
-      {(isApiCallInProgress || isSubmitting || isDeleteOpen) && (
-        <Loader size="xl" />
-      )}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Followup Status Management
         </Heading>
-        {isMobile ? (
-          <IconButton
-            aria-label="Add New Followup Status"
-            icon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          />
-        ) : (
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          >
-            Add New Followup Status
-          </Button>
-        )}
+        <CommonAddButton onClick={handleAddNew} />
       </Flex>
 
       <Box mb={6} maxW="400px">
@@ -287,7 +286,7 @@ const LeadFollowUp = () => {
             currentPage * pageSize
           )}
           rowActions={renderRowActions}
-          emptyStateMessage="No followup statuses match your search."
+          emptyStateMessage={"No followup statuses match your search."}
         />
         <CommonPagination
           currentPage={currentPage}

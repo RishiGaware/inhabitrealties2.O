@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Heading, Text, Flex, Button, useBreakpointValue, IconButton, Avatar, Badge, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, InputGroup, InputLeftElement, Input, Stack, SimpleGrid, useTheme, Tooltip, VStack, Icon, Circle, FormControl, FormLabel, Select, Textarea } from '@chakra-ui/react';
+import { Box, Heading, Text, Flex, Button, IconButton, Avatar, Badge, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, InputGroup, InputLeftElement, Input, Stack, SimpleGrid, useTheme, Tooltip, VStack, Icon, Circle, FormControl, FormLabel, Select, Textarea } from '@chakra-ui/react';
 import { AddIcon, SearchIcon, EditIcon, DeleteIcon, CloseIcon } from '@chakra-ui/icons';
 import { useLeadsContext } from '../../context/LeadsContext';
 import FormModal from '../../components/common/FormModal';
@@ -13,9 +13,11 @@ import { fetchFollowUpStatuses } from '../../services/leadmanagement/followUpSta
 import { fetchUsers } from '../../services/usermanagement/userService';
 import { fetchProperties } from '../../services/propertyService';
 import SearchableSelect from '../../components/common/SearchableSelect';
+import CommonAddButton from '../../components/common/Button/CommonAddButton';
+import ServerError from '../errors/ServerError';
+import NoInternet from '../errors/NoInternet';
 
 const Leads = () => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
   const [selectedLeadDetails, setSelectedLeadDetails] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -23,8 +25,10 @@ const Leads = () => {
   const [leadToDelete, setLeadToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredLeads, setFilteredLeads] = useState([]);
+  const [errorType, setErrorType] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const { leads: contextLeads, addLead, updateLead, removeLead, getAllLeads, loading } = useLeadsContext();
+  const { leads: contextLeads, addLead, updateLead, removeLead, getAllLeads } = useLeadsContext();
 
   const [selectedLead, setSelectedLead] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -57,13 +61,7 @@ const Leads = () => {
   };
 
   useEffect(() => {
-    const getLeads = async () => {
-      try {
-        const data = await fetchLeads();
-        setFilteredLeads(data.data); // assuming API returns { data: [...] }
-      } catch {/* ignore error */}
-    };
-    getLeads();
+    fetchAllLeads();
 
     fetchLeadStatuses().then(res => setLeadStatusOptions(res.data || []));
     fetchFollowUpStatuses().then(res => setFollowUpStatusOptions(res.data || []));
@@ -85,6 +83,21 @@ const Leads = () => {
     };
     fetchPropertyOptions();
   }, []);
+
+  const fetchAllLeads = async () => {
+    setLoading(true);
+    setErrorType(null);
+    try {
+      const data = await fetchLeads();
+      setFilteredLeads(data.data); // assuming API returns { data: [...] }
+    } catch (error) {
+      if (error.message === 'Network Error') setErrorType('network');
+      else if (error.response?.status === 500) setErrorType('server');
+      else setErrorType('server');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const closeDetails = () => {
     setIsDetailsOpen(false);
@@ -178,6 +191,9 @@ const Leads = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  if (errorType === 'network') return <NoInternet onRetry={() => window.location.reload()} />;
+  if (errorType === 'server') return <ServerError onRetry={() => window.location.reload()} />;
+
   if (loading) {
     return (
       <Box p={5}>
@@ -192,22 +208,7 @@ const Leads = () => {
         <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Leads
         </Heading>
-        {isMobile ? (
-          <IconButton
-            aria-label="Add New Lead"
-            icon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          />
-        ) : (
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="brand"
-            onClick={handleAddNew}
-          >
-            Add Lead
-          </Button>
-        )}
+        <CommonAddButton onClick={handleAddNew} />
       </Flex>
 
       <Box mb={6} maxW="400px">
