@@ -44,6 +44,7 @@ const LeadFollowUp = () => {
   } = useDisclosure();
   const [followUpStatusToDelete, setFollowUpStatusToDelete] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [originalFormData, setOriginalFormData] = useState(null);
 
   // Get followup status context
   const followUpStatusContext = useFollowUpStatusContext();
@@ -133,17 +134,20 @@ const LeadFollowUp = () => {
       description: '',
       published: true,
     });
+    setOriginalFormData(null);
     setErrors({});
     onOpen();
   };
 
   const handleEdit = (followUpStatus) => {
     setSelectedFollowUpStatus(followUpStatus);
-    setFormData({
+    const data = {
       name: followUpStatus.name || '',
       description: followUpStatus.description || '',
       published: followUpStatus.published !== undefined ? followUpStatus.published : true,
-    });
+    };
+    setFormData(data);
+    setOriginalFormData(data);
     setErrors({});
     onOpen();
   };
@@ -217,6 +221,15 @@ const LeadFollowUp = () => {
     }
   };
 
+  const isFormChanged = () => {
+    if (!selectedFollowUpStatus || !originalFormData) return true;
+    return (
+      formData.name !== originalFormData.name ||
+      formData.description !== originalFormData.description ||
+      formData.published !== originalFormData.published
+    );
+  };
+
   const columns = [
     { key: 'name', label: 'Followup Status Name' },
     { key: 'description', label: 'Description' },
@@ -230,6 +243,7 @@ const LeadFollowUp = () => {
   const renderRowActions = (followUpStatus) => (
     <HStack spacing={2}>
       <IconButton
+        key="edit"
         aria-label="Edit followup status"
         icon={<EditIcon />}
         size="sm"
@@ -238,6 +252,7 @@ const LeadFollowUp = () => {
         variant="outline"
       />
       <IconButton
+        key="delete"
         aria-label="Delete followup status"
         icon={<DeleteIcon />}
         size="sm"
@@ -300,11 +315,15 @@ const LeadFollowUp = () => {
             description: '',
             published: true,
           });
+          setOriginalFormData(null);
           setErrors({});
         }}
         title={selectedFollowUpStatus ? 'Edit Followup Status' : 'Add New Followup Status'}
         onSave={handleFormSubmit}
         isSubmitting={isSubmitting}
+        buttonLabel={selectedFollowUpStatus ? 'Update' : 'Save'}
+        loadingText={selectedFollowUpStatus ? 'Updating...' : 'Saving...'}
+        isDisabled={selectedFollowUpStatus ? !isFormChanged() : false}
       >
         <VStack spacing={4}>
           <FormControl isInvalid={!!errors.name}>

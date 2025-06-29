@@ -48,6 +48,7 @@ const PropertyTypes = () => {
   } = useDisclosure();
   const [propertyTypeToDelete, setPropertyTypeToDelete] = useState(null);
   const [errorType] = useState(null);
+  const [originalFormData, setOriginalFormData] = useState(null);
 
   // Get property type context
   const propertyTypeContext = usePropertyTypeContext();
@@ -128,18 +129,22 @@ const PropertyTypes = () => {
       image: null,
       published: true,
     });
+    setOriginalFormData(null);
     setErrors({});
     onOpen();
   };
 
   const handleEdit = (propertyType) => {
     setSelectedPropertyType(propertyType);
-    setFormData({
+    const data = {
       typeName: propertyType.typeName || '',
       description: propertyType.description || '',
       published: propertyType.published !== undefined ? propertyType.published : true,
-    });
+    };
+    setFormData(data);
+    setOriginalFormData(data);
     setErrors({});
+    onOpen();
   };
 
   const handleDelete = (propertyType) => {
@@ -220,6 +225,15 @@ const PropertyTypes = () => {
     setErrors({});
   };
 
+  const isFormChanged = () => {
+    if (!selectedPropertyType || !originalFormData) return true;
+    return (
+      formData.typeName !== originalFormData.typeName ||
+      formData.description !== originalFormData.description ||
+      formData.published !== originalFormData.published
+    );
+  };
+
   const columns = [
     { key: 'typeName', label: 'Property Type Name' },
     { key: 'description', label: 'Description' },
@@ -243,6 +257,7 @@ const PropertyTypes = () => {
   const renderRowActions = (propertyType) => (
     <HStack spacing={2}>
       <IconButton
+        key="edit"
         aria-label="Edit property type"
         icon={<EditIcon />}
         size="sm"
@@ -251,6 +266,7 @@ const PropertyTypes = () => {
         variant="outline"
       />
       <IconButton
+        key="delete"
         aria-label="Delete property type"
         icon={<DeleteIcon />}
         size="sm"
@@ -320,6 +336,8 @@ const PropertyTypes = () => {
         onSave={handleFormSubmit}
         isSubmitting={isSubmitting}
         buttonLabel={selectedPropertyType ? 'Update' : 'Save'}
+        loadingText={selectedPropertyType ? 'Updating...' : 'Saving...'}
+        isDisabled={selectedPropertyType ? !isFormChanged() : false}
       >
         <VStack spacing={4}>
           <FormControl isInvalid={!!errors.typeName}>
@@ -370,4 +388,4 @@ const PropertyTypes = () => {
   );
 };
 
-export default PropertyTypes; 
+export default PropertyTypes;

@@ -53,6 +53,7 @@ const UserManagement = () => {
   const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
   const toast = useToast();
   const [loading, setLoading] = useState(false);
+  const [originalFormData, setOriginalFormData] = useState(null);
 
   // Get user context
   const userContext = useUserContext();
@@ -153,20 +154,23 @@ const UserManagement = () => {
       confirmPassword: '',
       published: true,
     });
+    setOriginalFormData(null);
     setErrors({});
     onOpen();
   };
 
   const handleEdit = (user) => {
     setSelectedUser(user);
-    setFormData({
+    const data = {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       email: user.email || '',
       phoneNumber: user.phoneNumber || '',
       role: user.role || '', // This should be the role ID
       published: user.published !== undefined ? user.published : true,
-    });
+    };
+    setFormData(data);
+    setOriginalFormData(data);
     setErrors({});
     onOpen();
   };
@@ -367,6 +371,7 @@ const UserManagement = () => {
       Cell: ({ row }) => (
         <Flex>
           <IconButton
+            key="edit"
             icon={<EditIcon />}
             variant="outline"
             colorScheme="brand"
@@ -375,6 +380,7 @@ const UserManagement = () => {
             onClick={() => handleEdit(row.original)}
           />
           <IconButton
+            key="delete"
             icon={<DeleteIcon />}
             variant="outline"
             colorScheme="red"
@@ -389,6 +395,7 @@ const UserManagement = () => {
   const renderRowActions = (user) => (
     <HStack spacing={2}>
       <IconButton
+        key="edit"
         aria-label="Edit user"
         icon={<EditIcon />}
         size="sm"
@@ -397,6 +404,7 @@ const UserManagement = () => {
         variant="outline"
       />
       <IconButton
+        key="delete"
         aria-label="Delete user"
         icon={<DeleteIcon />}
         size="sm"
@@ -406,6 +414,19 @@ const UserManagement = () => {
       />
     </HStack>
   );
+
+  const isFormChanged = () => {
+    if (!selectedUser || !originalFormData) return true;
+    return (
+      formData.firstName !== originalFormData.firstName ||
+      formData.lastName !== originalFormData.lastName ||
+      formData.email !== originalFormData.email ||
+      formData.phoneNumber !== originalFormData.phoneNumber ||
+      formData.role !== originalFormData.role ||
+      formData.published !== originalFormData.published ||
+      formData.password // If password is provided, consider it a change
+    );
+  };
 
   return (
     <Box p={5}>
@@ -471,11 +492,15 @@ const UserManagement = () => {
             confirmPassword: '',
             published: true,
           });
+          setOriginalFormData(null);
           setErrors({});
         }}
         title={selectedUser ? 'Edit User' : 'Add New User'}
         onSave={handleFormSubmit}
         isSubmitting={isSubmitting}
+        buttonLabel={selectedUser ? 'Update' : 'Save'}
+        loadingText={selectedUser ? 'Updating...' : 'Saving...'}
+        isDisabled={selectedUser ? !isFormChanged() : false}
       >
         <VStack spacing={4}>
           <HStack>

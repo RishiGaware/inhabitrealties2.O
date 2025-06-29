@@ -41,6 +41,7 @@ const RoleManagement = () => {
     onClose: onDeleteClose,
   } = useDisclosure();
   const [roleToDelete, setRoleToDelete] = useState(null);
+  const [originalFormData, setOriginalFormData] = useState(null);
 
   // Get role context
   const roleContext = useRoleContext();
@@ -117,16 +118,19 @@ const RoleManagement = () => {
       name: '',
       description: '',
     });
+    setOriginalFormData(null);
     setErrors({});
     onOpen();
   };
 
   const handleEdit = (role) => {
     setSelectedRole(role);
-    setFormData({
+    const data = {
       name: role.name || '',
       description: role.description || '',
-    });
+    };
+    setFormData(data);
+    setOriginalFormData(data);
     setErrors({});
     onOpen();
   };
@@ -199,6 +203,14 @@ const RoleManagement = () => {
     }
   };
 
+  const isFormChanged = () => {
+    if (!selectedRole || !originalFormData) return true;
+    return (
+      formData.name !== originalFormData.name ||
+      formData.description !== originalFormData.description
+    );
+  };
+
   const columns = [
     { key: 'name', label: 'Role Name' },
     { key: 'description', label: 'Description' },
@@ -217,6 +229,7 @@ const RoleManagement = () => {
   const renderRowActions = (role) => (
     <HStack spacing={2}>
       <IconButton
+        key="edit"
         aria-label="Edit role"
         icon={<EditIcon />}
         size="sm"
@@ -225,6 +238,7 @@ const RoleManagement = () => {
         variant="outline"
       />
       <IconButton
+        key="delete"
         aria-label="Delete role"
         icon={<DeleteIcon />}
         size="sm"
@@ -289,11 +303,15 @@ const RoleManagement = () => {
             name: '',
             description: '',
           });
+          setOriginalFormData(null);
           setErrors({});
         }}
         title={selectedRole ? 'Edit Role' : 'Add New Role'}
         onSave={handleFormSubmit}
         isSubmitting={isSubmitting}
+        buttonLabel={selectedRole ? 'Update' : 'Save'}
+        loadingText={selectedRole ? 'Updating...' : 'Saving...'}
+        isDisabled={selectedRole ? !isFormChanged() : false}
       >
         <VStack spacing={4}>
           <FormControl isInvalid={!!errors.name}>

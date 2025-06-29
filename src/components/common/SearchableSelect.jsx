@@ -229,14 +229,22 @@ const SearchableSelect = ({
             
             <HStack spacing={1}>
               {selectedOption && showClearButton && (
-                <Button
+                <Box
+                  as="button"
+                  type="button"
                   size="xs"
-                  variant="ghost"
-                  onClick={handleClear}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClear(e);
+                  }}
                   p={1}
                   minW="auto"
                   h="auto"
                   color="gray.400"
+                  bg="transparent"
+                  border="none"
+                  borderRadius="md"
+                  cursor="pointer"
                   _hover={{
                     color: 'red.500',
                     bg: 'red.50',
@@ -245,9 +253,12 @@ const SearchableSelect = ({
                     bg: 'red.100',
                   }}
                   transition="all 0.15s ease"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
                 >
                   <Icon as={CloseIcon} boxSize={3} />
-                </Button>
+                </Box>
               )}
               <Icon 
                 as={ChevronDownIcon} 

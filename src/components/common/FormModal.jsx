@@ -10,7 +10,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 
-const FormModal = ({ isOpen, onClose, title, children, onSave, onSubmit, isSubmitting }) => {
+const FormModal = ({ isOpen, onClose, title, children, onSave, onSubmit, isSubmitting, buttonLabel = 'Save', loadingText = 'Saving...' }) => {
   // Use onSave if provided, otherwise fall back to onSubmit for backward compatibility
   const handleSubmit = onSave || onSubmit;
   
@@ -30,9 +30,9 @@ const FormModal = ({ isOpen, onClose, title, children, onSave, onSubmit, isSubmi
               colorScheme="brand"
               type="submit"
               isLoading={isSubmitting}
-              loadingText="Saving..."
+              loadingText={loadingText}
             >
-              Save
+              {buttonLabel}
             </Button>
           </ModalFooter>
         </form>

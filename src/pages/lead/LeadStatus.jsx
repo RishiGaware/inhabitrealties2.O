@@ -44,6 +44,7 @@ const LeadStatus = () => {
   } = useDisclosure();
   const [leadStatusToDelete, setLeadStatusToDelete] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [originalFormData, setOriginalFormData] = useState(null);
 
   // Get lead status context
   const leadStatusContext = useLeadStatusContext();
@@ -133,17 +134,20 @@ const LeadStatus = () => {
       description: '',
       published: true,
     });
+    setOriginalFormData(null);
     setErrors({});
     onOpen();
   };
 
   const handleEdit = (leadStatus) => {
     setSelectedLeadStatus(leadStatus);
-    setFormData({
+    const data = {
       name: leadStatus.name || '',
       description: leadStatus.description || '',
       published: leadStatus.published !== undefined ? leadStatus.published : true,
-    });
+    };
+    setFormData(data);
+    setOriginalFormData(data);
     setErrors({});
     onOpen();
   };
@@ -217,6 +221,15 @@ const LeadStatus = () => {
     }
   };
 
+  const isFormChanged = () => {
+    if (!selectedLeadStatus || !originalFormData) return true;
+    return (
+      formData.name !== originalFormData.name ||
+      formData.description !== originalFormData.description ||
+      formData.published !== originalFormData.published
+    );
+  };
+
   const columns = [
     { key: 'name', label: 'Lead Status Name' },
     { key: 'description', label: 'Description' },
@@ -230,6 +243,7 @@ const LeadStatus = () => {
   const renderRowActions = (leadStatus) => (
     <HStack spacing={2}>
       <IconButton
+        key="edit"
         aria-label="Edit lead status"
         icon={<EditIcon />}
         size="sm"
@@ -238,6 +252,7 @@ const LeadStatus = () => {
         variant="outline"
       />
       <IconButton
+        key="delete"
         aria-label="Delete lead status"
         icon={<DeleteIcon />}
         size="sm"
@@ -300,11 +315,15 @@ const LeadStatus = () => {
             description: '',
             published: true,
           });
+          setOriginalFormData(null);
           setErrors({});
         }}
         title={selectedLeadStatus ? 'Edit Lead Status' : 'Add New Lead Status'}
         onSave={handleFormSubmit}
         isSubmitting={isSubmitting}
+        buttonLabel={selectedLeadStatus ? 'Update' : 'Save'}
+        loadingText={selectedLeadStatus ? 'Updating...' : 'Saving...'}
+        isDisabled={selectedLeadStatus ? !isFormChanged() : false}
       >
         <VStack spacing={4}>
           <FormControl isInvalid={!!errors.name}>
