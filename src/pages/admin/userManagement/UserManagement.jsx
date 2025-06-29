@@ -29,6 +29,7 @@ import SearchableSelect from '../../../components/common/SearchableSelect';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 import { useUserContext } from '../../../context/UserContext';
 import { fetchRoles } from '../../../services/rolemanagement/roleService';
+import Loader from '../../../components/common/Loader';
 
 const UserManagement = () => {
   // All hooks must be called at the top level
@@ -396,6 +397,14 @@ const UserManagement = () => {
       />
     </HStack>
   );
+
+  if (rolesLoading) {
+    return (
+      <Box p={5}>
+        <Loader size="xl" />
+      </Box>
+    );
+  }
 
   return (
     <Box p={5}>

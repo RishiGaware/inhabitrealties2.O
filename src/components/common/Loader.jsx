@@ -5,14 +5,15 @@ const Loader = ({ size = 'xl', label = 'Loading...' }) => {
   return (
     <Flex justify="center" align="center" direction="column">
       <Spinner
-        thickness="3px"
+        thickness="2px"
         speed="0.65s"
         emptyColor="gray.200"
         color="brand.primary"
         size={size}
+        boxSize="35px"
       />
       {label && (
-        <Text mt={4} fontSize="lg" fontWeight="medium" color="brand.dark">
+        <Text fontSize="10px" mt={0.5} fontWeight="medium" color="brand.dark">
           {label}
         </Text>
       )}

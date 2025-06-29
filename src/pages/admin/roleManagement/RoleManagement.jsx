@@ -23,6 +23,7 @@ import FormModal from '../../../components/common/FormModal';
 import FloatingInput from '../../../components/common/FloatingInput';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 import { useRoleContext } from '../../../context/RoleContext';
+import Loader from '../../../components/common/Loader';
 
 const RoleManagement = () => {
   const [selectedRole, setSelectedRole] = useState(null);
@@ -45,7 +46,7 @@ const RoleManagement = () => {
 
   // Get role context
   const roleContext = useRoleContext();
-  const { roles, getAllRoles, addRole, updateRole, removeRole } = roleContext;
+  const { roles, getAllRoles, addRole, updateRole, removeRole, loading } = roleContext;
 
   // Memoize filtered roles to prevent unnecessary re-renders
   const filteredRoles = useMemo(() => {
@@ -235,6 +236,14 @@ const RoleManagement = () => {
       />
     </HStack>
   );
+
+  if (loading) {
+    return (
+      <Box p={5}>
+        <Loader size="xl" />
+      </Box>
+    );
+  }
 
   return (
     <Box p={5}>
