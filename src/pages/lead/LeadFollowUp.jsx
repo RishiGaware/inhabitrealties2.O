@@ -245,7 +245,7 @@ const LeadFollowUp = () => {
         <Loader size="xl" />
       )}
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1" variant="pageTitle">
+        <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Followup Status Management
         </Heading>
         {isMobile ? (

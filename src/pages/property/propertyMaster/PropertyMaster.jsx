@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaBed, FaBath, FaRuler, FaEye } from 'react-icons/fa';
 import { MdLocationOn } from 'react-icons/md';
-import { Box, Heading, Flex, Grid, IconButton, useDisclosure } from '@chakra-ui/react';
+import { Box, Heading, Flex, Grid, IconButton, useDisclosure, Text, Badge } from '@chakra-ui/react';
 import PropertyFormPopup from './PropertyFormPopup';
 import PropertyPreview from './PropertyPreview';
 import CommonCard from '../../../components/common/Card/CommonCard';
@@ -256,81 +256,157 @@ const PropertyMaster = () => {
 
   if (loading || propertyTypesLoading) {
     return (
-      <Box p={5}>
+      <Box p={{ base: 3, md: 5 }}>
         <Loader size="xl" />
       </Box>
     );
   }
 
   return (
-    <Box p={5}>
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1" variant="pageTitle">
+    <Box p={{ base: 3, md: 5 }}>
+      {/* Header Section */}
+      <Flex 
+        direction={{ base: 'column', sm: 'row' }}
+        justify="space-between" 
+        align={{ base: 'flex-start', sm: 'center' }} 
+        mb={6}
+        gap={{ base: 3, sm: 0 }}
+      >
+        <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           Property Master
         </Heading>
         <IconButton 
           icon={<FaPlus />} 
           colorScheme="brand" 
+          size="sm"
           onClick={() => {
             setSelectedProperty(null);
             setIsModalOpen(true);
           }}
+          aria-label="Add Property"
         />
       </Flex>
 
-      {/* Property Types Filter */}
-      <Flex gap={2} mb={6} overflowX="auto" pb={2}>
-        <CommonCard
-          px={4}
-          py={2}
-          onClick={() => setSelectedType('ALL')}
-          _hover={{ borderColor: selectedType === 'ALL' ? 'brand.500' : 'gray.300' }}
-          bg={selectedType === 'ALL' ? 'gray.50' : 'white'}
-          borderColor={selectedType === 'ALL' ? 'brand.500' : 'gray.200'}
+      {/* Property Types Filter - Responsive */}
+      <Box 
+        mb={6} 
+        overflowX="auto" 
+        pb={2}
+        sx={{
+          '&::-webkit-scrollbar': {
+            height: '4px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'gray.100',
+            borderRadius: '2px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'brand.400',
+            borderRadius: '2px',
+          },
+        }}
+      >
+        <Flex 
+          gap={{ base: 2, md: 3 }} 
+          minW="max-content"
+          px={{ base: 1, md: 0 }}
         >
-          All Properties
-        </CommonCard>
-        {propertyTypes.map((type) => (
           <CommonCard
-            key={type._id}
-            px={4}
-            py={2}
-            onClick={() => setSelectedType(type.typeName)}
-            _hover={{ borderColor: selectedType === type.typeName ? 'brand.500' : 'gray.300' }}
-            bg={selectedType === type.typeName ? 'gray.50' : 'white'}
-            borderColor={selectedType === type.typeName ? 'brand.500' : 'gray.200'}
+            px={{ base: 2, md: 3 }}
+            py={{ base: 1, md: 2 }}
+            onClick={() => setSelectedType('ALL')}
+            _hover={{ 
+              borderColor: selectedType === 'ALL' ? 'brand.500' : 'gray.300',
+              transform: 'translateY(-1px)',
+              boxShadow: 'md'
+            }}
+            bg={selectedType === 'ALL' ? 'gray.50' : 'white'}
+            borderColor={selectedType === 'ALL' ? 'brand.500' : 'gray.200'}
+            borderWidth="2px"
+            borderRadius="lg"
+            cursor="pointer"
+            transition="all 0.2s"
+            fontSize={{ base: 'xs', md: 'sm' }}
+            fontWeight="medium"
+            whiteSpace="nowrap"
           >
-            {type.typeName}
+            All Properties
           </CommonCard>
-        ))}
-      </Flex>
+          {propertyTypes.map((type) => (
+            <CommonCard
+              key={type._id}
+              px={{ base: 2, md: 3 }}
+              py={{ base: 1, md: 2 }}
+              onClick={() => setSelectedType(type.typeName)}
+              _hover={{ 
+                borderColor: selectedType === type.typeName ? 'brand.500' : 'gray.300',
+                transform: 'translateY(-1px)',
+                boxShadow: 'md'
+              }}
+              bg={selectedType === type.typeName ? 'gray.50' : 'white'}
+              borderColor={selectedType === type.typeName ? 'brand.500' : 'gray.200'}
+              borderWidth="2px"
+              borderRadius="lg"
+              cursor="pointer"
+              transition="all 0.2s"
+              fontSize={{ base: 'xs', md: 'sm' }}
+              fontWeight="medium"
+              whiteSpace="nowrap"
+            >
+              {type.typeName}
+            </CommonCard>
+          ))}
+        </Flex>
+      </Box>
 
-      {/* Properties Grid */}
+      {/* Properties Count */}
+      <Text 
+        fontSize="sm" 
+        color="gray.600" 
+        mb={4}
+        fontWeight="medium"
+      >
+        {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'} found
+      </Text>
+
+      {/* Properties Grid - Responsive */}
       <Grid 
         templateColumns={{ 
           base: 'repeat(2, 1fr)', 
-          md: 'repeat(3, 1fr)', 
-          lg: 'repeat(4, 1fr)', 
-          xl: 'repeat(5, 1fr)' 
+          sm: 'repeat(3, 1fr)', 
+          md: 'repeat(4, 1fr)', 
+          lg: 'repeat(5, 1fr)', 
+          xl: 'repeat(6, 1fr)' 
         }} 
-        gap={4}
+        gap={{ base: 3, md: 4 }}
+        mb={8}
       >
         {filteredProperties.map((property) => (
           <Box
             key={property._id}
             bg="white"
-            borderRadius="lg"
-            shadow="sm"
+            borderRadius="2xl"
+            shadow="md"
             border="1px"
             borderColor="gray.200"
             overflow="hidden"
-            _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+            _hover={{ 
+              transform: 'translateY(-2px)', 
+              boxShadow: 'lg',
+              borderColor: 'brand.300'
+            }}
+            transition="all 0.2s"
+            position="relative"
+            minH={{ base: '220px', md: '240px' }}
+            maxW="100%"
           >
+            {/* Property Image */}
             <Box 
-              h={{ base: '24', md: '32', lg: '36' }} 
+              h={{ base: '32', sm: '36', md: '40' }} 
               overflow="hidden" 
               cursor="pointer" 
               onClick={() => handlePreview(property)}
+              position="relative"
             >
               <img
                 src={property.images?.[0] || 'default-property.jpg'}
@@ -339,12 +415,14 @@ const PropertyMaster = () => {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  transition: 'transform 0.3s'
+                  transition: 'transform 0.3s ease'
                 }}
                 onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                 onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
               />
-              <Box
+              
+              {/* Status Badge */}
+              <Badge
                 position="absolute"
                 top={2}
                 right={2}
@@ -352,62 +430,104 @@ const PropertyMaster = () => {
                 color="white"
                 px={2}
                 py={1}
-                borderRadius="md"
-                fontSize="xs"
-                fontWeight="medium"
+                borderRadius="full"
+                fontSize="2xs"
+                fontWeight="bold"
+                textTransform="uppercase"
+                letterSpacing="wide"
+                boxShadow="md"
               >
                 {property.propertyStatus}
-              </Box>
+              </Badge>
             </Box>
-            <Box p={3}>
-              <Box
-                fontSize="sm"
-                fontWeight="medium"
+
+            {/* Property Details */}
+            <Box p={{ base: 2, md: 3 }}>
+              {/* Property Name */}
+              <Text
+                fontSize={{ base: 'sm', md: 'md' }}
+                fontWeight="bold"
                 color="gray.900"
                 cursor="pointer"
                 onClick={() => handlePreview(property)}
                 _hover={{ color: 'brand.500' }}
                 mb={1}
+                noOfLines={1}
+                lineHeight="tight"
               >
                 {property.name}
-              </Box>
-              <Box color="brand.500" fontWeight="medium" fontSize="sm" mb={1}>
+              </Text>
+
+              {/* Price */}
+              <Text 
+                color="brand.500" 
+                fontWeight="bold" 
+                fontSize={{ base: 'sm', md: 'md' }} 
+                mb={2}
+              >
                 {formatPrice(property.price)}
-              </Box>
-              <Flex align="center" gap={1} color="gray.600" fontSize="xs" mb={2}>
+              </Text>
+
+              {/* Location */}
+              <Flex 
+                align="center" 
+                gap={1} 
+                color="gray.600" 
+                fontSize="xs" 
+                mb={2}
+              >
                 <MdLocationOn size={12} />
-                <Box
+                <Text
                   as="a"
                   href={`https://www.google.com/maps/search/?api=1&query=${property.propertyAddress?.location?.lat},${property.propertyAddress?.location?.lng}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   _hover={{ color: 'brand.500' }}
-                  isTruncated
+                  noOfLines={1}
+                  flex={1}
                 >
                   {`${property.propertyAddress?.area}, ${property.propertyAddress?.city}`}
-                </Box>
+                </Text>
               </Flex>
-              <Flex justify="space-between" color="gray.600" fontSize="xs" mb={2}>
-                <Flex align="center" gap={1}>
+
+              {/* Property Features */}
+              <Flex 
+                justify="space-between" 
+                color="gray.600" 
+                fontSize="xs" 
+                mb={3}
+                gap={1}
+              >
+                <Flex align="center" gap={1} flex={1}>
                   <FaBed size={10} />
-                  <span>{property.features?.bedRooms || 0}</span>
+                  <Text fontWeight="medium">{property.features?.bedRooms || 0}</Text>
                 </Flex>
-                <Flex align="center" gap={1}>
+                <Flex align="center" gap={1} flex={1}>
                   <FaBath size={10} />
-                  <span>{property.features?.bathRooms || 0}</span>
+                  <Text fontWeight="medium">{property.features?.bathRooms || 0}</Text>
                 </Flex>
-                <Flex align="center" gap={1}>
+                <Flex align="center" gap={1} flex={1}>
                   <FaRuler size={10} />
-                  <span>{property.features?.areaInSquarFoot || 0}</span>
+                  <Text fontWeight="medium">{property.features?.areaInSquarFoot || 0}</Text>
                 </Flex>
               </Flex>
-              <Flex justify="end" gap={2}>
+
+              {/* Action Buttons */}
+              <Flex 
+                justify="space-between" 
+                gap={1}
+                pt={2}
+                borderTop="1px"
+                borderColor="gray.100"
+              >
                 <IconButton
                   icon={<FaEye />}
                   size="xs"
                   variant="ghost"
                   colorScheme="brand"
                   onClick={() => handlePreview(property)}
+                  aria-label="Preview Property"
+                  flex={1}
                 />
                 <IconButton
                   icon={<FaEdit />}
@@ -415,6 +535,8 @@ const PropertyMaster = () => {
                   variant="ghost"
                   colorScheme="brand"
                   onClick={() => handleEditProperty(property)}
+                  aria-label="Edit Property"
+                  flex={1}
                 />
                 <IconButton
                   icon={<FaTrash />}
@@ -422,12 +544,41 @@ const PropertyMaster = () => {
                   variant="ghost"
                   colorScheme="red"
                   onClick={() => handleDeleteProperty(property)}
+                  aria-label="Delete Property"
+                  flex={1}
                 />
               </Flex>
             </Box>
           </Box>
         ))}
       </Grid>
+
+      {/* Empty State */}
+      {filteredProperties.length === 0 && (
+        <Box 
+          textAlign="center" 
+          py={12}
+          px={4}
+        >
+          <Text 
+            fontSize={{ base: 'lg', md: 'xl' }} 
+            color="gray.500" 
+            fontWeight="medium"
+          >
+            No properties found
+          </Text>
+          <Text 
+            fontSize={{ base: 'sm', md: 'md' }} 
+            color="gray.400" 
+            mt={2}
+          >
+            {selectedType === 'ALL' 
+              ? 'Add your first property to get started' 
+              : `No properties found for ${selectedType}`
+            }
+          </Text>
+        </Box>
+      )}
 
       {/* Property Form Popup */}
       <PropertyFormPopup

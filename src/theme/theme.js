@@ -96,7 +96,7 @@ const theme = extendTheme({
       },
       variants: {
         pageTitle: {
-          fontSize: { base: '2xl', md: '3xl' },
+          fontSize: { base: 'md', md: 'lg' },
           fontWeight: 'bold',
         },
         sectionTitle: {

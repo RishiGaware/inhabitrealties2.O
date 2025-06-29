@@ -409,7 +409,7 @@ const UserManagement = () => {
   return (
     <Box p={5}>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1" variant="pageTitle">
+        <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
           User Management
         </Heading>
         {isMobile ? (

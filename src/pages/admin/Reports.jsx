@@ -28,7 +28,7 @@ const Reports = () => {
 
   return (
     <Box p={5}>
-      <Heading as="h1" variant="pageTitle" mb={6}>
+      <Heading as="h1" fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" mb={6}>
         Reports
       </Heading>
       <Box bg="white" p={6} borderRadius="lg" shadow="sm">
