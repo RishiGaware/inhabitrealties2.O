@@ -1,4 +1,4 @@
-import api from '../api2';
+import api from '../api';
 
 export const submitContactUs = async (payload) => {
     try {
