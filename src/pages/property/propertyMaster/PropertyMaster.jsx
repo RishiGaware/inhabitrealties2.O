@@ -16,8 +16,8 @@ import {
 } from '../../../services/propertyService';
 import { showSuccessToast, showErrorToast } from '../../../utils/toastUtils';
 import CommonAddButton from '../../../components/common/Button/CommonAddButton';
-import ServerError from '../../errors/ServerError';
-import NoInternet from '../../errors/NoInternet';
+import ServerError from '../../../components/common/errors/ServerError';
+import NoInternet from '../../../components/common/errors/NoInternet';
 
 const PropertyMaster = () => {
   const [selectedType, setSelectedType] = useState('ALL');

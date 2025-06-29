@@ -14,9 +14,8 @@ import { fetchUsers } from '../../services/usermanagement/userService';
 import { fetchProperties } from '../../services/propertyService';
 import SearchableSelect from '../../components/common/SearchableSelect';
 import CommonAddButton from '../../components/common/Button/CommonAddButton';
-import ServerError from '../errors/ServerError';
-import NoInternet from '../errors/NoInternet';
-
+import ServerError from '../../components/common/errors/ServerError';
+import NoInternet from '../../components/common/errors/NoInternet';
 const Leads = () => {
   const [selectedLeadDetails, setSelectedLeadDetails] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -191,6 +190,19 @@ const Leads = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const [filter, setFilter] = useState({});
+
+  const applyFilters = async () => {
+    setLoading(true);
+    try {
+      const res = await fetchLeads(filter);
+      setFilteredLeads(res.data.data);
+    } catch {
+      // handle error
+    }
+    setLoading(false);
+  };
+
   if (errorType === 'network') return <NoInternet onRetry={() => window.location.reload()} />;
   if (errorType === 'server') return <ServerError onRetry={() => window.location.reload()} />;
 
@@ -217,6 +229,13 @@ const Leads = () => {
           />
         </InputGroup>
       </Box>
+
+      <Flex gap={4} mb={4} wrap="wrap">
+        <Select placeholder="User" onChange={e => setFilter(f => ({ ...f, userId: e.target.value }))} />
+        <Select placeholder="Status" onChange={e => setFilter(f => ({ ...f, leadStatus: e.target.value }))} />
+        {/* Add more filters as needed */}
+        <Button onClick={applyFilters}>Apply Filters</Button>
+      </Flex>
 
       <Text fontWeight="bold" mb={2}>{filteredLeads.length} leads found</Text>
       <SimpleGrid
@@ -686,65 +705,106 @@ const Leads = () => {
         }}
         buttonLabel={isEditMode ? 'Update' : 'Add Lead'}
       >
-        <VStack spacing={4} align="stretch">
-          <Flex gap={4}>
-            <FormControl isRequired>
-              <FormLabel>First Name</FormLabel>
-              <Input name="firstName" value={formData.firstName} onChange={handleInputChange} />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Last Name</FormLabel>
-              <Input name="lastName" value={formData.lastName} onChange={handleInputChange} />
-            </FormControl>
-          </Flex>
-          <FormControl isRequired>
-            <FormLabel>Email</FormLabel>
-            <Input name="email" value={formData.email} onChange={handleInputChange} />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Phone Number</FormLabel>
-            <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Interested Property</FormLabel>
-            <SearchableSelect
-              options={propertyOptions}
-              value={formData.propertyId}
-              onChange={val => setFormData(f => ({ ...f, propertyId: val }))}
-              placeholder="Select Property"
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Lead Status</FormLabel>
-            <SearchableSelect
-              options={leadStatusOptions.map(s => ({ label: s.name, value: s._id }))}
-              value={formData.leadStatusId}
-              onChange={val => setFormData(f => ({ ...f, leadStatusId: val }))}
-              placeholder="Select Lead Status"
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Follow Up Status</FormLabel>
-            <SearchableSelect
-              options={followUpStatusOptions.map(s => ({ label: s.name, value: s._id }))}
-              value={formData.followUpStatusId}
-              onChange={val => setFormData(f => ({ ...f, followUpStatusId: val }))}
-              placeholder="Select Follow Up Status"
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Assigned To</FormLabel>
-            <SearchableSelect
-              options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
-              value={formData.assignedToUserId}
-              onChange={val => setFormData(f => ({ ...f, assignedToUserId: val }))}
-              placeholder="Select User"
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Notes</FormLabel>
-            <Textarea name="note" value={formData.note} onChange={handleInputChange} />
-          </FormControl>
+        <VStack spacing={6} align="stretch">
+          {/* Basic Information */}
+          <Box borderLeft="4px solid #D53F8C" pl={3} mb={2}>
+            <Text fontWeight="bold" fontSize="lg" color="gray.800">Basic Information</Text>
+          </Box>
+          <SearchableSelect
+            label="Lead User"
+            options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
+            value={formData.userId}
+            onChange={val => setFormData(f => ({ ...f, userId: val }))}
+            placeholder="Select Lead User"
+            isRequired
+          />
+          <SearchableSelect
+            label="Designation"
+            options={[{ label: 'Buyer', value: 'Buyer' }, { label: 'Seller', value: 'Seller' }]}
+            value={formData.leadDesignation}
+            onChange={val => setFormData(f => ({ ...f, leadDesignation: val }))}
+            placeholder="Select Designation"
+            isRequired
+          />
+          <SearchableSelect
+            label="Interested Property"
+            options={propertyOptions}
+            value={formData.leadInterestedPropertyId}
+            onChange={val => setFormData(f => ({ ...f, leadInterestedPropertyId: val }))}
+            placeholder="Select Property"
+            isRequired
+          />
+          <SearchableSelect
+            label="Status"
+            options={leadStatusOptions.map(s => ({ label: s.name, value: s._id }))}
+            value={formData.leadStatus}
+            onChange={val => setFormData(f => ({ ...f, leadStatus: val }))}
+            placeholder="Select Status"
+            isRequired
+          />
+          <SearchableSelect
+            label="Follow-up Status"
+            options={followUpStatusOptions.map(s => ({ label: s.name, value: s._id }))}
+            value={formData.followUpStatus}
+            onChange={val => setFormData(f => ({ ...f, followUpStatus: val }))}
+            placeholder="Select Follow-up Status"
+            isRequired
+          />
+          <SearchableSelect
+            label="Reference Source (Optional)"
+            options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
+            value={formData.referanceFrom}
+            onChange={val => setFormData(f => ({ ...f, referanceFrom: val }))}
+            placeholder="Select Reference Source"
+          />
+
+          {/* Contact Information */}
+          <Box borderLeft="4px solid #D53F8C" pl={3} mb={2} mt={4}>
+            <Text fontWeight="bold" fontSize="lg" color="gray.800">Contact Information</Text>
+          </Box>
+          <Input name="leadAltEmail" value={formData.leadAltEmail || ''} onChange={handleInputChange} placeholder="Alternative Email (Optional)" />
+          <Input name="leadAltPhoneNumber" value={formData.leadAltPhoneNumber || ''} onChange={handleInputChange} placeholder="Alternative Phone (Optional)" />
+          <Input name="leadLandLineNumber" value={formData.leadLandLineNumber || ''} onChange={handleInputChange} placeholder="Landline (Optional)" />
+          <Input name="leadWebsite" value={formData.leadWebsite || ''} onChange={handleInputChange} placeholder="Website (Optional)" />
+
+          {/* Referral Information */}
+          <Box borderLeft="4px solid #D53F8C" pl={3} mb={2} mt={4}>
+            <Text fontWeight="bold" fontSize="lg" color="gray.800">Referral Information</Text>
+          </Box>
+          <SearchableSelect
+            label="Referred By (Optional)"
+            options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
+            value={formData.referredByUserId}
+            onChange={val => setFormData(f => ({ ...f, referredByUserId: val }))}
+            placeholder="Select User"
+          />
+          {!formData.referredByUserId && (
+            <>
+              <Input name="referredByUserFirstName" value={formData.referredByUserFirstName || ''} onChange={handleInputChange} placeholder="Referred By First Name (Optional)" />
+              <Input name="referredByUserLastName" value={formData.referredByUserLastName || ''} onChange={handleInputChange} placeholder="Referred By Last Name (Optional)" />
+              <Input name="referredByUserEmail" value={formData.referredByUserEmail || ''} onChange={handleInputChange} placeholder="Referrer Email (Optional)" />
+              <Input name="referredByUserPhoneNumber" value={formData.referredByUserPhoneNumber || ''} onChange={handleInputChange} placeholder="Referrer Phone (Optional)" />
+              <Input name="referredByUserDesignation" value={formData.referredByUserDesignation || ''} onChange={handleInputChange} placeholder="Referrer Designation (Optional)" />
+            </>
+          )}
+
+          {/* Assignment Information */}
+          <Box borderLeft="4px solid #D53F8C" pl={3} mb={2} mt={4}>
+            <Text fontWeight="bold" fontSize="lg" color="gray.800">Assignment Information</Text>
+          </Box>
+          <SearchableSelect
+            label="Assigned To (Optional)"
+            options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
+            value={formData.assignedToUserId}
+            onChange={val => setFormData(f => ({ ...f, assignedToUserId: val }))}
+            placeholder="Select User"
+          />
+
+          {/* Additional Information */}
+          <Box borderLeft="4px solid #D53F8C" pl={3} mb={2} mt={4}>
+            <Text fontWeight="bold" fontSize="lg" color="gray.800">Additional Information</Text>
+          </Box>
+          <Textarea name="note" value={formData.note || ''} onChange={handleInputChange} placeholder="Notes (Optional)" />
         </VStack>
       </FormModal>
 

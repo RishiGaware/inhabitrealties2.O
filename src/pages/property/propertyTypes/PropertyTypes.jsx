@@ -28,8 +28,8 @@ import DeleteConfirmationModal from '../../../components/common/DeleteConfirmati
 import { usePropertyTypeContext } from '../../../context/PropertyTypeContext';
 import Loader from '../../../components/common/Loader';
 import CommonAddButton from '../../../components/common/Button/CommonAddButton';
-import ServerError from '../../errors/ServerError';
-import NoInternet from '../../errors/NoInternet';
+import ServerError from '../../../components/common/errors/ServerError';
+import NoInternet from '../../../components/common/errors/NoInternet';
 
 const PropertyTypes = () => {
   const [selectedPropertyType, setSelectedPropertyType] = useState(null);

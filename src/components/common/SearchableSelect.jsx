@@ -63,7 +63,7 @@ const SearchableSelect = ({
 
   // Filter options based on search term
   const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    (option.label || '').toLowerCase().includes((searchTerm || '').toLowerCase())
   );
 
   const handleSelect = (option) => {
@@ -230,13 +230,21 @@ const SearchableSelect = ({
             <HStack spacing={1}>
               {selectedOption && showClearButton && (
                 <Box
-                  as="button"
-                  type="button"
+                  as="span"
+                  role="button"
+                  tabIndex={0}
                   size="xs"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleClear(e);
                   }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.stopPropagation();
+                      handleClear(e);
+                    }
+                  }}
+                  cursor="pointer"
                   p={1}
                   minW="auto"
                   h="auto"
@@ -244,20 +252,11 @@ const SearchableSelect = ({
                   bg="transparent"
                   border="none"
                   borderRadius="md"
-                  cursor="pointer"
                   _hover={{
                     color: 'red.500',
-                    bg: 'red.50',
                   }}
-                  _active={{
-                    bg: 'red.100',
-                  }}
-                  transition="all 0.15s ease"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
                 >
-                  <Icon as={CloseIcon} boxSize={3} />
+                  <CloseIcon />
                 </Box>
               )}
               <Icon 
@@ -357,7 +356,7 @@ const SearchableSelect = ({
                 {filteredOptions.length > 0 ? (
                   filteredOptions.map((option, index) => (
                     <ListItem
-                      key={option.value}
+                      key={option.value || index}
                       px={{ base: 2.5, sm: currentSize.padding }}
                       py={{ base: 3, sm: 3 }}
                       cursor="pointer"
