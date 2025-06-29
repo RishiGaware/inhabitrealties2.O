@@ -13,7 +13,7 @@ const login = async (credentials) => {
     throw error.response.data;
   }
 };
-
+//comment
 export const registerNormalUser = async (userData) => {
   try {
     const response = await api.post(AUTH_ENDPOINTS.REGISTER, userData);

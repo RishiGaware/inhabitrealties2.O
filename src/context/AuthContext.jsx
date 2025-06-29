@@ -1,7 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import authService from '../services/auth/AuthService';
+import authService from '../services/auth/authService';
+import { registerNormalUser } from '../services/auth/authService';
 
 const AuthContext = createContext(null);
+
+// Register Context for Registration Page
+const RegisterContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(null); // stores complete login response: { message, token, data }
@@ -82,3 +86,33 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
+
+export const RegisterProvider = ({ children }) => {
+  const [registerState, setRegisterState] = useState({ loading: false, error: null, success: false });
+
+  const register = async (userData) => {
+    setRegisterState({ loading: true, error: null, success: false });
+    try {
+      const response = await registerNormalUser(userData);
+      setRegisterState({ loading: false, error: null, success: true });
+      return response;
+    } catch (error) {
+      setRegisterState({ loading: false, error: error?.message || 'Registration failed', success: false });
+      throw error;
+    }
+  };
+
+  const resetRegisterState = () => setRegisterState({ loading: false, error: null, success: false });
+
+  return (
+    <RegisterContext.Provider value={{
+      ...registerState,
+      register,
+      resetRegisterState
+    }}>
+      {children}
+    </RegisterContext.Provider>
+  );
+};
+
+export const useRegister = () => useContext(RegisterContext);

@@ -5,7 +5,7 @@ import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { AUTH_IMAGES } from '../../config/images';
-import { registerNormalUser } from '../../services/auth/AuthService';
+import { RegisterProvider, useRegister } from '../../context/AuthContext';
 
 const DEFAULT_ROLE_ID = '681632b6ab1624e874bb2dcf';
 
@@ -19,7 +19,7 @@ const NewRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const { register, loading } = useRegister();
   const navigate = useNavigate();
 
   const validate = () => {
@@ -47,7 +47,6 @@ const NewRegister = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    setLoading(true);
     try {
       const userData = {
         firstName,
@@ -57,14 +56,12 @@ const NewRegister = () => {
         password,
         role: DEFAULT_ROLE_ID,
       };
-      await registerNormalUser(userData);
+      await register(userData);
       toast.success('Account created successfully! Please sign in.');
       setFirstName(''); setLastName(''); setPhoneNumber(''); setEmail(''); setPassword(''); setConfirmPassword('');
       navigate('/login');
     } catch (err) {
       toast.error(err?.message || 'Sign up failed. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -259,4 +256,10 @@ const NewRegister = () => {
   );
 };
 
-export default NewRegister;
+export default function RegisterWithProvider(props) {
+  return (
+    <RegisterProvider>
+      <NewRegister {...props} />
+    </RegisterProvider>
+  );
+}
