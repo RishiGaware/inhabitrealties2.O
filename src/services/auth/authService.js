@@ -1,4 +1,4 @@
-import api from '../api';
+import api from '../api2';
 import { AUTH_ENDPOINTS } from '../apiEndpoints';
 import Cookies from 'js-cookie';
 

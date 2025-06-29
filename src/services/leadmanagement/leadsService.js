@@ -1,4 +1,4 @@
-import api from '../api';
+import api from '../api2';
 import { LEADS_ENDPOINTS } from '../apiEndpoints';
 
 // Fetch all leads

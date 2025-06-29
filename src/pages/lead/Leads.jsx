@@ -763,25 +763,25 @@ const Leads = () => {
             placeholder="Select Designation"
             isRequired
           />
-          <SearchableSelect
+            <SearchableSelect
             label="Interested Property"
-            options={propertyOptions}
+              options={propertyOptions}
             value={formData.leadInterestedPropertyId}
             onChange={val => setFormData(f => ({ ...f, leadInterestedPropertyId: val }))}
-            placeholder="Select Property"
+              placeholder="Select Property"
             isRequired
-          />
-          <SearchableSelect
+            />
+            <SearchableSelect
             label="Status"
-            options={leadStatusOptions.map(s => ({ label: s.name, value: s._id }))}
+              options={leadStatusOptions.map(s => ({ label: s.name, value: s._id }))}
             value={formData.leadStatus}
             onChange={val => setFormData(f => ({ ...f, leadStatus: val }))}
             placeholder="Select Status"
             isRequired
           />
-          <SearchableSelect
+            <SearchableSelect
             label="Follow-up Status"
-            options={followUpStatusOptions.map(s => ({ label: s.name, value: s._id }))}
+              options={followUpStatusOptions.map(s => ({ label: s.name, value: s._id }))}
             value={formData.followUpStatus}
             onChange={val => setFormData(f => ({ ...f, followUpStatus: val }))}
             placeholder="Select Follow-up Status"
@@ -822,13 +822,13 @@ const Leads = () => {
           <Box borderLeft="4px solid #D53F8C" pl={3} mb={2} mt={4}>
             <Text fontWeight="bold" fontSize="lg" color="gray.800">Assignment Information</Text>
           </Box>
-          <SearchableSelect
+            <SearchableSelect
             label="Assigned To (Optional)"
-            options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
-            value={formData.assignedToUserId}
-            onChange={val => setFormData(f => ({ ...f, assignedToUserId: val }))}
-            placeholder="Select User"
-          />
+              options={userOptions.map(u => ({ label: `${u.firstName} ${u.lastName} (${u.email})`, value: u._id }))}
+              value={formData.assignedToUserId}
+              onChange={val => setFormData(f => ({ ...f, assignedToUserId: val }))}
+              placeholder="Select User"
+            />
 
           {/* Additional Information */}
           <Box borderLeft="4px solid #D53F8C" pl={3} mb={2} mt={4}>
