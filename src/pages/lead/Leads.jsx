@@ -26,6 +26,7 @@ const Leads = () => {
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [errorType, setErrorType] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { leads: contextLeads, addLead, updateLead, removeLead, getAllLeads } = useLeadsContext();
 
@@ -157,18 +158,27 @@ const Leads = () => {
     setFilteredLeads(filtered);
   };
 
-  const handleFormSubmit = async (formData) => {
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
     try {
+      const cleanData = Object.fromEntries(
+        Object.entries(formData).filter(([_, v]) => v !== "")
+      );
       if (isEditMode && selectedLead) {
-        await updateLead(selectedLead._id, formData);
+        await updateLead(selectedLead._id, cleanData);
       } else {
-        await addLead(formData);
+        await addLead(cleanData);
       }
       setIsOpen(false);
       setSelectedLead(null);
       setIsEditMode(false);
       getAllLeads();
-    } catch {/* ignore error */}
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setIsSubmitting(false);
+      // Optionally: set an error state and show it in the modal
+    }
   };
 
   const confirmDelete = async () => {
@@ -203,8 +213,8 @@ const Leads = () => {
     setLoading(false);
   };
 
-  if (errorType === 'network') return <NoInternet onRetry={() => window.location.reload()} />;
-  if (errorType === 'server') return <ServerError onRetry={() => window.location.reload()} />;
+  if (errorType === 'network') return <NoInternet onRetry={fetchAllLeads} />;
+  if (errorType === 'server') return <ServerError onRetry={fetchAllLeads} />;
 
   return (
     <Box p={5}>
@@ -704,6 +714,7 @@ const Leads = () => {
           mt: 4,
         }}
         buttonLabel={isEditMode ? 'Update' : 'Add Lead'}
+        isSubmitting={isSubmitting}
       >
         <VStack spacing={6} align="stretch">
           {/* Basic Information */}
