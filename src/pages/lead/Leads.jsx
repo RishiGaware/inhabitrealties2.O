@@ -11,7 +11,7 @@ import Loader from '../../components/common/Loader';
 import { fetchLeadStatuses } from '../../services/leadmanagement/leadStatusService';
 import { fetchFollowUpStatuses } from '../../services/leadmanagement/followUpStatusService';
 import { fetchUsers } from '../../services/usermanagement/userService';
-import { fetchProperties } from '../../services/propertyService';
+import { fetchProperties, fetchPropertiesWithParams } from '../../services/propertyService';
 import SearchableSelect from '../../components/common/SearchableSelect';
 import CommonAddButton from '../../components/common/Button/CommonAddButton';
 import ServerError from '../../components/common/errors/ServerError';
@@ -174,16 +174,79 @@ const Leads = () => {
     setIsDeleteOpen(true);
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-    const filtered = contextLeads.filter(lead =>
-      lead.userId.firstName.toLowerCase().includes(term.toLowerCase()) ||
-      lead.userId.lastName.toLowerCase().includes(term.toLowerCase()) ||
-      lead.userId.email.toLowerCase().includes(term.toLowerCase()) ||
-      lead.userId.phoneNumber.toLowerCase().includes(term.toLowerCase())
-    );
-    setFilteredLeads(filtered);
+    
+    // If search term is empty, reset to all leads
+    if (!term.trim()) {
+      await fetchAllLeads();
+      return;
+    }
+    
+    // Use API-based search for better performance
+    setLoading(true);
+    try {
+      const params = {
+        search: term.trim(),
+        // Include any active filters
+        ...Object.fromEntries(
+          Object.entries(filter).map(([k, v]) => [k, v === '' ? null : v])
+        )
+      };
+      
+      const res = await fetchLeadsWithParams(params);
+      setFilteredLeads(res.data || []);
+    } catch (error) {
+      console.error('Search error:', error);
+      // Fallback to client-side search if API fails
+      const filtered = contextLeads.filter(lead =>
+        lead.userId?.firstName?.toLowerCase().includes(term.toLowerCase()) ||
+        lead.userId?.lastName?.toLowerCase().includes(term.toLowerCase()) ||
+        lead.userId?.email?.toLowerCase().includes(term.toLowerCase()) ||
+        lead.userId?.phoneNumber?.toLowerCase().includes(term.toLowerCase()) ||
+        lead.note?.toLowerCase().includes(term.toLowerCase()) ||
+        getPropertyNameById(lead.propertyId)?.toLowerCase().includes(term.toLowerCase())
+      );
+      setFilteredLeads(filtered);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchSubmit = async () => {
+    if (!searchTerm.trim()) {
+      await fetchAllLeads();
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const params = {
+        search: searchTerm.trim(),
+        // Include any active filters
+        ...Object.fromEntries(
+          Object.entries(filter).map(([k, v]) => [k, v === '' ? null : v])
+        )
+      };
+      
+      const res = await fetchLeadsWithParams(params);
+      setFilteredLeads(res.data || []);
+    } catch (error) {
+      console.error('Search error:', error);
+      // Fallback to client-side search if API fails
+      const filtered = contextLeads.filter(lead =>
+        lead.userId?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.userId?.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.userId?.phoneNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.note?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getPropertyNameById(lead.propertyId)?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredLeads(filtered);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFormSubmit = async (e) => {
@@ -240,8 +303,16 @@ const Leads = () => {
       const params = Object.fromEntries(
         Object.entries(filter).map(([k, v]) => [k, v === '' ? null : v])
       );
-      const res = await fetchLeadsWithParams(params);
-      setFilteredLeads(res.data);
+      // If propertyId or other property params are present, use fetchPropertiesWithParams
+      if (params.propertyId || params.propertyType || params.search) {
+        // Only fetch properties if property-related filters are used
+        const res = await fetchPropertiesWithParams(params);
+        setFilteredLeads(res.data);
+      } else {
+        // Otherwise, use the default leads filter
+        const res = await fetchLeadsWithParams(params);
+        setFilteredLeads(res.data);
+      }
     } catch (error) {
       console.error('Filter error:', error);
     }
@@ -259,6 +330,8 @@ const Leads = () => {
       referanceFrom: '',
       published: ''
     });
+    setSearchTerm('');
+    fetchAllLeads();
   };
 
   const handleFilterChange = (key, value) => {
@@ -321,6 +394,11 @@ const Leads = () => {
                 placeholder="Search leads..."
                 value={searchTerm}
                 onChange={handleSearch}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearchSubmit();
+                  }
+                }}
                 borderRadius="md"
                 bg="white"
                 border="1px solid"
@@ -341,12 +419,11 @@ const Leads = () => {
             </InputGroup>
           </Box>
 
-          {/* Filter Button */}
+          {/* Search Button */}
           <Button
             size="xs"
-            leftIcon={<Icon as={FiFilter} boxSize={3} />}
-            rightIcon={activeFilters > 0 ? <ChakraBadge colorScheme="brand" borderRadius="full" fontSize="2xs">{activeFilters}</ChakraBadge> : null}
-            onClick={onFilterToggle}
+            leftIcon={<SearchIcon boxSize={3} />}
+            onClick={handleSearchSubmit}
             colorScheme="brand"
             variant="solid"
             borderRadius="md"
@@ -364,6 +441,35 @@ const Leads = () => {
             _active={{ bg: 'brand.700' }}
             transition="all 0.2s"
             w={{ base: '100%', md: 'auto' }}
+            maxW="120px"
+          >
+            Search
+          </Button>
+
+          {/* Filter Button */}
+          <Button
+            size="xs"
+            leftIcon={<Icon as={FiFilter} boxSize={3} />}
+            rightIcon={activeFilters > 0 ? <ChakraBadge colorScheme="brand" borderRadius="full" fontSize="2xs">{activeFilters}</ChakraBadge> : null}
+            onClick={onFilterToggle}
+            colorScheme="brand"
+            variant="outline"
+            borderRadius="md"
+            px={3}
+            py={2}
+            fontWeight="semibold"
+            fontSize="xs"
+            boxShadow="0 1px 2px 0 rgba(80, 36, 143, 0.08)"
+            _hover={{
+              bg: 'brand.50',
+              borderColor: 'brand.600',
+              transform: 'translateY(-1px) scale(1.01)',
+              boxShadow: '0 2px 6px 0 rgba(80, 36, 143, 0.10)',
+            }}
+            _active={{ bg: 'brand.100' }}
+            transition="all 0.2s"
+            w={{ base: '100%', md: 'auto' }}
+            maxW="160px"
           >
             Filters
           </Button>

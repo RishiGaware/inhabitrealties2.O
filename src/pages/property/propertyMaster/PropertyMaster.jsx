@@ -12,7 +12,8 @@ import {
   fetchProperties, 
   createProperty, 
   editProperty, 
-  deleteProperty 
+  deleteProperty,
+  fetchPropertiesWithParams
 } from '../../../services/propertyService';
 import { showSuccessToast, showErrorToast } from '../../../utils/toastUtils';
 import CommonAddButton from '../../../components/common/Button/CommonAddButton';
@@ -30,6 +31,7 @@ const PropertyMaster = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [propertyToDelete, setPropertyToDelete] = useState(null);
   const [errorType, setErrorType] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
 
@@ -49,6 +51,24 @@ const PropertyMaster = () => {
     try {
       const response = await fetchProperties();
       console.log('PropertyMaster: Fetch properties response:', response);
+      setProperties(response.data || []);
+    } catch (error) {
+      if (error.message === 'Network Error') setErrorType('network');
+      else if (error.response?.status === 500) setErrorType('server');
+      else setErrorType('server');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePropertySearch = async () => {
+    setLoading(true);
+    setErrorType(null);
+    try {
+      const params = {};
+      if (searchTerm) params.search = searchTerm;
+      if (selectedType && selectedType !== 'ALL') params.propertyType = selectedType;
+      const response = await fetchPropertiesWithParams(params);
       setProperties(response.data || []);
     } catch (error) {
       if (error.message === 'Network Error') setErrorType('network');
@@ -282,6 +302,51 @@ const PropertyMaster = () => {
           setSelectedProperty(null);
           setIsModalOpen(true);
         }} />
+      </Flex>
+
+      {/* Search and Filter Section */}
+      <Flex gap={2} align="center" mb={4} wrap="wrap" direction={{ base: 'column', md: 'row' }}>
+        <Box flex="1" minW={{ base: '100%', sm: '180px' }}>
+          <input
+            type="text"
+            placeholder="Search properties..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              borderRadius: '8px',
+              border: '1px solid #E2E8F0',
+              padding: '8px 12px',
+              fontSize: '14px',
+              fontWeight: 500,
+              background: '#fff',
+              outline: 'none',
+              marginRight: '8px',
+              boxShadow: '0 1px 2px 0 rgba(80, 36, 143, 0.04)'
+            }}
+            onKeyDown={e => { if (e.key === 'Enter') handlePropertySearch(); }}
+          />
+        </Box>
+        <Box>
+          <button
+            onClick={handlePropertySearch}
+            style={{
+              background: 'linear-gradient(90deg, #805AD5 0%, #6B46C1 100%)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 20px',
+              fontWeight: 600,
+              fontSize: '14px',
+              cursor: 'pointer',
+              boxShadow: '0 1px 2px 0 rgba(80, 36, 143, 0.08)',
+              maxWidth: '160px',
+              width: '100%'
+            }}
+          >
+            Search
+          </button>
+        </Box>
       </Flex>
 
       {/* Property Types Filter - Responsive */}
